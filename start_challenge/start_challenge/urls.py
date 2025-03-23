@@ -6,6 +6,7 @@ from . import views
 from accounts import views as accounts_views
 
 urlpatterns = [
+    path('', accounts_views.home, name='home'),
     path("admin/", admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('questions/', include('questions.urls')),

@@ -7,7 +7,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from uuid import uuid4
 from datetime import datetime
 from questions.models import Questions, Answers
 from django.shortcuts import get_object_or_404
