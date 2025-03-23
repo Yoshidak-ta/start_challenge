@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container pt-4 pb-5 study-challenge-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}" role="alert">
+    {{ message.message }}
+   </div>
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-8">
+      <h3 class="text-center mb-4">{{ question.title }}</h3>
+      <div class="row">
+        <div class="d-flex justify-content-between">
+          <div>
+            <img class="profile-icon rounded-circle" id="profile-icon" src="{{ question.user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+            {{ question.user.username }}
+          </div>
+          <div>
+            {% if user.id == question.user.id %}
+            <a href="{% url 'questions:question_edit' question.id %}" class="btn btn-custom-edit">編集</a>
+            <a href="#" class="btn btn-custom-warning" data-bs-toggle="modal" data-bs-target="#deleteQuestionModal">削除</a>
+            {% endif %}
+          </div>
+          <!-- 削除確認メッセージ表示 -->
+          <div class="modal fade" id="deleteQuestionModal" tabindex="-1" aria-labelledby="deleteQuestionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteQuestionModalLabel">投稿削除</h5>
+                </div>
+                <div class="modal-body">
+                  本当に削除しますか？
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                  <form method="POST" action="{% url 'questions:question_delete' question.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">はい</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4 mt-2 d-flex justify-content-center align-items-center">
+        <img src="{{ question.picture.url }}" class="img-fluid" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Question Picture">
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 container mb-4">
+            <div class="row pb-2 mt-2 mb-2">
+              <div class="col-4">
+                <h5 class="fw-bold">ジャンル</h5>
+              </div>
+              <div class="row">
+                <div class="col">
+                {% for category in question.category.all %}
+                  <p class="circle-auto">{{ category.categoryname }}</p>{% if not forloop.last %} {% endif %}
+                {% endfor %}
+                </div>
+              </div>
+              <div class="col-4 mt-4">
+                <h5 class="fw-bold">内容</h5>
+              </div>
+              <div class="mb-4 mt-2 d-flex justify-content-center align-items-center">
+                {{ question.comment }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% if user.is_authenticated %}
+      <div class="mb-4 mt-2 d-flex justify-content-center align-items-center">
+        <button type="button" class="btn btn-primary mt-2" id="answer-btn">回答する</button>
+      </div>
+      {% endif %}
+      <div id="answer-form-container" style="display: none;" class="row mt-3">
+        <div class="card">
+          <form method="POST" class="my-4 mx-4" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for answer in question_answer_form %}
+            <div class="form-group mb-3">
+              <h5>{{ answer.label }}</h5>
+              {% for error in answer.errors %}
+              <p style="color: red;">{{ error }}</p>
+              {% endfor %}
+              {% if answer.name == 'comment' %}
+              <textarea name="comment" cols="50" rows="20" class="form-control"></textarea>
+              {% else %}
+              {{ answer }}
+              {% endif %}
+            </div>
+            {% endfor %}
+            <div class="form-group d-flex justify-content-center my-4">
+              <input class="btn btn-primary" type="submit" value="回答">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 回答一覧 -->
+  {% for answer in answers %}
+  <!-- 回答対象の質問と現在表示されている質問のidが同一の場合 -->
+  <div class="row justify-content-center">
+    <div class="col-8">
+      <div class="card mb-4 d-flex justify-content-center align-items-center">
+        <div class="mb-4 mt-2">
+          <img src="{{ answer.picture.url }}" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Picture">
+        </div>
+        <div class="col-4 mt-4">
+          <h5 class="fw-bold">内容</h5>
+        </div>
+        <div class="mb-4 mt-2 d-flex justify-content-center align-items-center">
+          {{ answer.comment }}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

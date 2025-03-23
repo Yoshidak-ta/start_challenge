@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container pt-4 pb-5 study-challenge-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    {{ message.message }}
+  </div>
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-md-6"> 
+      <h3 class="text-center mb-4">会員情報編集</h3>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+          <!-- 左側フィールド -->
+          <div class="col-6">
+          {% for edit in user_edit_form %}
+            {% if edit.name in fields_left %}
+            <div class="form-group mb-3">
+              <h5>{{ edit.label }}</h5>
+              {% for error in edit.errors %}
+              <p style="color: red;">{{ error }}</p>
+              {% endfor %}
+              {{ edit }}
+            </div>
+            {% endif %}
+          {% endfor %}
+          </div>
+          <!-- 右側フィールド -->
+          <div class="col-6">
+          {% for edit in user_edit_form %}
+            {% if edit.name in fields_right %}
+            <!-- ジャンル選択 -->
+            <div class="form-group mb-3">
+              <h5>{{ edit.label }}</h5>
+              {% for error in edit.errors %}
+              <p style="color: red;">{{ error }}</p>
+              {% endfor %}
+              {% if edit.name == 'category' %}
+              <div class="checkbox-group d-flex flex-wrap">
+                {% for checkbox in edit %}
+                  <span class="checkbox-inline me-2">
+                    {{ checkbox.tag }} {{ checkbox.choice_label }}
+                  </span>
+                {% endfor %}
+              </div>
+              <!-- 自己紹介 -->
+              {% elif edit.name == 'message' %}
+                <textarea name="message" cols="30" rows="5" class="form-control">{{ edit.value }}</textarea>
+              {% else %}
+                {{ edit }}
+              {% endif %}
+            </div>
+          {% endif %}
+          {% endfor %}
+          </div>
+          <div class="form-group d-flex justify-content-center my-4">
+            <input class="btn btn-primary w-50" type="submit" value="更新">
+          </div>
+        </div>
+      </form>
+      <!-- 退会処理 -->
+      <div class="d-flex justify-content-center mt-2">
+        <a class="test-center" href="#" data-bs-toggle="modal" data-bs-target="#confirmModal" style="color: red;">退会する</a>
+      </div>
+      <!-- 退会を選択した場合の確認メッセージ表示 -->
+      <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="confirmModalLabel">退会確認</h5>
+            </div>
+            <div class="modal-body">
+              本当に退会しますか？
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+              <form method="POST" action="{% url 'accounts:user_delete' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">はい</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,217 @@
+html, body {
+  height: 100%;
+}
+
+#header {
+  background-color: blue;
+}
+
+.logo-link {
+  color: yellow;
+  text-decoration: none;
+}
+
+.header-link {
+  color: yellow;
+  text-decoration: underline;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.study-challenge-wrapper {
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 60px;
+  box-sizing: border-box;
+}
+
+.dropdown-toggle::after {
+  content: none !important;
+}
+
+.btn-custom-warning {
+  background-color: red;
+  color: #fff;
+}
+
+.btn-custom-edit {
+  border: 1px solid #000;
+  background-color: whitesmoke;
+}
+
+.circle-auto {
+  display: inline-block;
+  padding: 5px 15px;
+  border: 2px solid #000;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 16px;
+  margin: 5px;
+  white-space: nowrap;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  width: 14.2%; /* 7日分の幅に均等割り */
+  text-align: center;
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+td {
+  vertical-align: top;
+  height: 100px;
+}
+
+.card-schedule {
+  width: 300px;
+  height: 200px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.sunday {
+  background-color: rgba(255, 0, 0, 0.5);
+}
+
+.saturday {
+  background-color: rgba(0, 0, 255, 0.5);
+}
+
+.priority-high {
+  background-color: #F08080;
+}
+
+.priority-middle {
+  background-color: #ffcc66;
+}
+
+.tabs {
+  width: 600px;
+  margin: 30px auto;
+}
+
+.tab_btn {
+  display: none;
+}
+
+.tab-list {
+  font-size: 0;
+  margin: 0 10px;
+  border-bottom: 1px solid #007bff;
+}
+
+.tab-list label {
+  width: 100px;
+  display: inline-block;
+  padding: 12px 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  color: #000;
+  background: #fff;
+  text-align: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: ease 0.2s opacity;
+  border: solid 1px #007bff;
+}
+
+.tab-list label:hover {
+  opacity: 0.5;
+}
+
+.tab-content {
+  background: #fff;
+  border: 1px solid #007bff;
+}
+
+.tab-panel {
+  width: 100%;
+  padding: 20px 10px;
+  display: none;
+}
+
+#profile:checked ~ .tab-list .tab-profile-label {
+  background: #007bff;
+  color: #fff;
+}
+
+#profile:checked ~ .tab-content #profile-content {
+  display: block;
+}
+
+#question:checked ~ .tab-list .tab-question-label {
+  background: #007bff;
+  color: #fff;
+}
+
+#question:checked ~ .tab-content #question-content {
+  display: block;
+}
+
+#answer:checked ~ .tab-list .tab-answer-label {
+  background: #007bff;
+  color: #fff;
+}
+
+#answer:checked ~ .tab-content #answer-content {
+  display: block;
+}
+
+.profile-item {
+  font-size: 20px;
+}
+
+.schedule-table {
+  border: none;
+  border-collapse: collapse;
+}
+
+.schedule-list {
+  border-bottom: 0.5px solid black;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding: 10px;
+  text-align: left;
+}
+
+.schedule-table th {
+  border-bottom: 2px solid black;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding: 10px;
+  text-align: left;
+}
+
+
+@media screen and (min-width: 1400px) {
+  .study-challenge-container {
+    max-width: 1200px;
+  }
+}
+
+@media (max-width: 768px) {
+  #messages {
+    height: 300px;
+  }
+}

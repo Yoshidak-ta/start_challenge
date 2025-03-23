@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container pt-4 pb-5 study-challenge-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    {{ message.message }}
+  </div>
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-xl-3 col-lg-4 col-md-12">
+      <!-- テンプレート -->
+      <h5>テンプレート</h5>
+      {% for text in template %}
+      <div class="card mb-3">
+        <div class="card-header" data-card-id="{{ forloop.counter }}">
+          <h5>▼{{ text.title }}</h5>
+        </div>
+        <div class="card-body" id="card-body-{{ forloop.counter }}" style="display: none;">
+          <div id="template-text-{{ forloop.counter }}">
+            {{ text.field_with_breaks|safe }}
+          </div>
+          <button type="button" class="btn btn-primary mt-2" onclick="insertTemplate('template-text-{{ forloop.counter }}')">このテンプレートを使う</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="col"> 
+      <h3 class="text-center mb-4">質問投稿</h3>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for question in question_regist_form %}
+          <!-- カテゴリー選択 -->
+          {% if question.name == 'category' %}
+          <div class="form-group mb-3">
+            <h5>{{ question.label }}</h5>
+            {% for error in question.errors %}
+              <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+            <div class="checkbox-group d-flex flex-wrap">
+              {% for checkbox in question %}
+              <span class="checkbox-inline me-2">
+                {{ checkbox.tag }} {{ checkbox.choice_label }}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+          <!-- 質問内容 -->
+          {% elif question.name == 'comment' or question.name == 'title' %}
+          <div class="form-group mb-3">
+            <h5>{{ question.label }}</h5>
+            {% for error in question.errors %}
+            <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+            {% if question.name == 'comment' %}
+            <textarea id="comment-field" name="comment" cols="50" rows="20" class="form-control"></textarea>
+            {% else %}
+            <textarea name="title" cols="1" rows="1" class="form-control"></textarea> 
+            {% endif %}
+          </div>
+          {% else %}
+          <div class="form-group mb-3">
+            <h5>{{ question.label }}</h5>
+            {% for error in question.errors %}
+              <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+            {{ question }}
+          </div>
+          {% endif %}
+        {% endfor %}
+        <div class="form-group d-flex justify-content-center my-4">
+          <input class="btn btn-primary w-50" type="submit" value="投稿">
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

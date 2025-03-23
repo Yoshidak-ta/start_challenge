@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container pt-4 pb-5 study-challenge-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    {{ message.message }}
+  </div>
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-xxl-9 col-xl-10 col-lg-11">
+      <h2 class="text-center">{{ year }}年{{ month }}月{{ day }}日の予定</h2>
+      <table class="table schedule-table">
+        <thead>
+          <tr>
+            <th style="font-size: 20px;">時間</th>
+            <th style="font-size: 20px;">内容</th>
+            <th style="font-size: 20px;">場所</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for schedule in schedules %}
+          <!-- 開始日～終了日に選択した日付が含まれている場合 -->
+          <tr class="schedule-list-group">
+            <td class="schedule-list">{{ schedule.start_at }}<br>～{{ schedule.end_at }}</td>
+            <td class="schedule-list">{{ schedule.task }}</td>
+            <td class="schedule-list">@{{ schedule.place }}</td>
+            <td class="schedule-list">
+              <a href="#" class="btn btn-custom-edit edit-btn" data-pk="{{ schedule.id }}" data-bs-toggle="modal" data-bs-target="#editScheduleModal">編集</a>
+              <a href="#" class="btn btn-custom-warning delete-btn" data-pk="{{ schedule.id }}" data-bs-toggle="modal" data-bs-target="#deleteScheduleModal">削除</a>
+            </td>
+            <!-- 編集モーダル -->
+            <div class="modal fade" id="editScheduleModal" tabindex="-1" aria-labelledby="editScheduleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editScheduleModalLabel">スケジュール編集</h5>
+                  </div>
+                  <div class="modal-body">
+                    <!-- スケジュール編集フォーム -->
+                    <div class="row justify-content-center">
+                      <div class="col"> 
+                        <h3 class="text-center mb-4">スケジュール編集</h3>
+                        <form id="scheduleEditForm" method="POST">
+                          {% csrf_token %}
+                          <div class="row">
+                            <div class="col-6">
+                              {% for edit in schedule_edit_form %}
+                              {% if edit.name in fields_left %}
+                                <div class="form-group mb-3">
+                                  <h5>{{ edit.label }}</h5>
+                                  {% for error in edit.errors %}
+                                  <p style="color: red;">{{ error }}</p>
+                                  {% endfor %}
+                                  <input type="datetime-local" class="form-control" name="{{ edit.name }}" value="{{ edit.value }}">
+                                </div>
+                              {% endif %}
+                            {% endfor %}
+                            </div>
+                            <div class="col-6">
+                            <!-- 右フィールド -->
+                            {% for edit in schedule_edit_form %}
+                              {% if edit.name in fields_right %}
+                                {% if edit.name == 'task' %}
+                                <div class="form-group mb-3">
+                                  <h5>{{ edit.label }}</h5>
+                                  {% for error in edit.errors %}
+                                  <p style="color: red;">{{ error }}</p>
+                                  {% endfor %}
+                                  <textarea name="task" cols="1" rows="1" class="form-control" id="editTask" value="{{ edit.value }}"></textarea>
+                                </div>
+                                {% elif edit.name == 'place' %}
+                                <div class="form-group mb-3">
+                                  <h5>{{ edit.label }}</h5>
+                                  {% for error in edit.errors %}
+                                  <p style="color: red;">{{ error }}</p>
+                                  {% endfor %}
+                                  <input type="text" class="form-control" id="editPlace" name="place">
+                                </div>
+                                {% elif edit.name == 'user' %}
+                                <div class="form-group mb-3">
+                                  <h5>登録ユーザ</h5>
+                                  {% for error in edit.errors %}
+                                  <p style="color: red;">{{ error }}</p>
+                                  {% endfor %}
+                                  <div id="selectedEditUsersDisplay" class="p-4"></div>
+                                </div>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+                            </div>
+                            <div class="d-flex flex-column mb-2">
+                              <div class="row justify-content-center">
+                                <button class="btn btn-custom-edit w-50 m-2" type="button" data-bs-toggle="modal" data-bs-target="#editUserModal">登録ユーザを選択する</button>
+                                <input type="hidden" name="users" id="selectedEditUsers">
+                                <button type="submit" class="btn btn-primary w-50">更新</button>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                        <div class="row">
+                          <div class="justify-content-center">
+                            <h4 class="text-center mt-3">更新履歴</h4>
+                            <div id="scheduleUpdateDisplay"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- ユーザ選択モーダル -->
+            <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">ユーザを選択する</h5>
+                  </div>
+                  <div class="modal-body">
+                    <form id="userEditSelectForm">
+                      {% for user in users %}
+                      <div class="form-check">
+                        {% if user == request.user %}
+                          <input class="form-check-input user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" chacked>
+                          <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                          <label class="form-check-label">{{ user.username }}</label>
+                        {% elif not user.is_staff  %}
+                          {% if user.is_active %}
+                          <input class="form-check-input user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                          <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                          <label class="form-check-label">{{ user.username }}</label>
+                          {% endif %}
+                        {% endif %}
+                      </div>
+                      {% endfor %}
+                      <button type="button" class="btn btn-primary mt-3" id="confirmEditUserSelection">追加する</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 削除モーダル -->
+            <div class="modal fade" id="deleteScheduleModal" tabindex="-1" aria-labelledby="deleteScheduleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="deleteScheduleModalLabel">削除確認</h5>
+                  </div>
+                  <div class="modal-body">
+                    本当に削除しますか？
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                    <form id="scheduleDeleteForm" method="POST">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger">はい</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% if not schedules %}
+      <h4 class="text-center">本日の予定はありません</h4>
+      {% endif %}
+      <div class="d-flex justify-content-center">
+        <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#addScheduleModal">スケジュール登録</button>
+      </div>
+      <!-- スケジュール登録 -->
+      <div class="modal fade" id="addScheduleModal" tabindex="-1" aria-labelledby="addScheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addScheduleModalLabel">スケジュール登録</h5>
+            </div>
+            <div class="modal-body">
+              <div class="row justify-content-center">
+                <div class="col">
+                  <form id="scheduleForm" method="POST" action="{% url 'schedules:schedule_regist' year=year month=month day=day %}">
+                  {% csrf_token %}
+                    <div class="row">
+                      <div class="col-6">
+                      <!-- 左フィールド -->
+                      {% for regist in schedule_regist_form %}
+                        {% if regist.name in fields_left %}
+                        <div class="form-group mb-3">
+                          <h5>{{ regist.label }}</h5>
+                          {% for error in regist.errors %}
+                          <p style="color: red;">{{ error }}</p>
+                          {% endfor %}
+                          <input type="datetime-local" class="form-control" name="{{ regist.name }}">
+                        </div>
+                        {% endif %}
+                      {% endfor %}
+                      </div>
+                      <div class="col-6">
+                      <!-- 右フィールド -->
+                      {% for regist in schedule_regist_form %}
+                        {% if regist.name in fields_right %}
+                          {% if regist.name == 'task' %}
+                          <div class="form-group mb-3">
+                            <h5>{{ regist.label }}</h5>
+                            {% for error in todo.errors %}
+                            <p style="color: red;">{{ error }}</p>
+                            {% endfor %}
+                            <textarea name="task" cols="1" rows="1" class="form-control"></textarea>
+                          </div>
+                          {% elif regist.name == 'place' %}
+                          <div class="form-group mb-3">
+                            <h5>{{ regist.label }}</h5>
+                            {% for error in regist.errors %}
+                            <p style="color: red;">{{ error }}</p>
+                            {% endfor %}
+                            {{ regist }}
+                          </div>
+                          {% else %}
+                          <div class="form-group mb-3">
+                            <h5>{{ regist.label }}</h5>
+                            {% for error in regist.errors %}
+                            <p style="color: red;">{{ error }}</p>
+                            {% endfor %}
+                            <div id="selectedUsersDisplay" class="p-4"></div>
+                          </div>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                      </div>
+                      <div class="d-flex flex-column mb-2">
+                        <div class="row justify-content-center">
+                          <button class="btn btn-custom-edit w-50 m-2" type="button" data-bs-toggle="modal" data-bs-target="#addUserModal">登録ユーザを選択する</button>
+                          <input type="hidden" name="users" id="selectedUsers">
+                          <button type="submit" class="btn btn-primary w-50">登録</button>
+                        </div>
+                      </div>
+                    </div> 
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ユーザ選択モーダル -->
+      <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addUserModalLabel">ユーザを選択する</h5>
+            </div>
+            <div class="modal-body">
+              <form id="userSelectForm">
+                {% for user in users %}
+                <div class="form-check">
+                  {% if user == request.user %}
+                    <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" chacked>
+                    <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                    <label class="form-check-label">{{ user.username }}</label>
+                  {% elif not user.is_staff  %}
+                    {% if user.is_active %}
+                    <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                    <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                    <label class="form-check-label">{{ user.username }}</label>
+                    {% endif %}
+                  {% endif %}
+                </div>
+                {% endfor %}
+                <button type="button" class="btn btn-primary mt-3" id="confirmUserSelection">追加する</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

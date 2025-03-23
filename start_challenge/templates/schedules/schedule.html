@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container pt-4 pb-5 study-challenge-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    {{ message.message }}
+  </div>
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-xl-3 col-lg-4 col-md-12">
+      <!-- ToDoリスト -->
+      <div class="d-flex flex-column overflow-auto border p-3 mt-3 mb-3" style="height: 450px;">
+        <div class="header top-0 border-bottom">
+          <h5>ToDoリスト</h5>
+        </div>
+        <ul class="list-group flex-grow-1">
+        {% for todo in todos %}
+          {% if not todo.is_completed %}
+          {% if todo.priority == 1 %}
+          <li class="list-group-item priority-high">
+            <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
+            <strong>{{ todo.task }}</strong>
+            <small>(期限:{{ todo.due_date }})</small>
+          </li>
+          {% elif todo.priority == 2 %}
+          <li class="list-group-item priority-middle">
+            <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
+            <strong>{{ todo.task }}</strong>
+            <small>(期限:{{ todo.due_date }})</small>
+          </li>
+          {% else %}
+          <li class="list-group-item">
+            <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
+            <strong>{{ todo.task }}</strong>
+            <small>(期限:{{ todo.due_date }})</small>
+          </li>
+          {% endif %}
+          {% endif %}
+        {% endfor %}
+        </ul>
+        <p class="mt-auto text-primary text-decoration-underline" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p> 
+      </div>
+    </div>
+    <!-- モーダル -->
+    <div class="modal fade" id="addTodoModal" tabindex="-1" aria-labelledby="addTodoModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addTodoModalLabel">タスク登録</h5>
+          </div>
+          <div class="modal-body">
+            <div class="row justify-content-center">
+              <div class="col">  
+                <form id="todoListForm" method="POST" action="{% url 'schedules:add_todo' year=year month=month %}">
+                {% csrf_token %}
+                  {% for todo in todo_list_form %}
+                  <!-- 優先度 -->
+                  {% if todo.name == 'priority' %}
+                  <div class="form-group mb-3">
+                    <h5>{{ todo.label }}</h5>
+                    {% for error in todo.errors %}
+                    <p style="color: red;">{{ error }}</p>
+                    {% endfor %}
+                    <div style="display: inline-flex;">
+                    {{ todo }}
+                    </div>
+                  </div>
+                  <!-- タスク -->
+                  {% elif todo.name == 'task' %}
+                  <div class="form-group mb-3">
+                    <h5>{{ todo.label }}</h5>
+                    {% for error in todo.errors %}
+                    <p style="color: red;">{{ error }}</p>
+                    {% endfor %}
+                    <textarea name="task" cols="1" rows="1" class="form-control"></textarea>
+                  </div>
+                    <!-- 期限 -->
+                  {% else %}
+                  <div class="form-group mb-3">
+                    <h5>{{ todo.label }}</h5>
+                    {% for error in todo.errors %}
+                    <p style="color: red;">{{ error }}</p>
+                    {% endfor %}
+                    {{ todo }}
+                    <!-- <input type="date" class="form-control" name="date"> -->
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+                  <script>
+                    const addToDoUrl = "{% url 'schedules:add_todo' year=year month=month %}"
+                  </script>
+                  <div class="form-group d-flex justify-content-center my-4">
+                    <input class="btn btn-primary w-50" type="submit" value="追加">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <h3 class="text-center mb-2">目標</h3>
+      <!-- 目標設定 -->
+      {% if not objective %}
+      <div class="d-flex justify-content-center">
+        <a class="btn btn-primary mt-2" href="#" data-bs-toggle="modal" data-bs-target="#addObjectiveModal">目標を設定する</a>
+      </div>
+      <!-- 目標設定モーダル -->
+      <div class="modal fade" id="addObjectiveModal" tabindex="-1" aria-labelledby="addObjectiveModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addObjectiveModalLabel">目標設定</h5>
+            </div>
+            <div class="modal-body">
+              <div class="row justify-content-center">
+                <div class="col">
+                  <form id="objectiveRegistForm" method="POST" action="{% url 'schedules:objective_regist' %}">
+                  {% csrf_token %}
+                  {% for objective in objective_regist_form %}
+                    {% if objective.name == 'objective_due_date' %}
+                    <div class="form-group mb-3">
+                      <h5>{{ objective.label }}</h5>
+                      {% for error in objective.errors %}
+                      <p style="color: red;">{{ error }}</p>
+                      {% endfor %}
+                      <input type="datetime-local" class="form-control" name="{{ objective.name }}">
+                    </div>
+                    {% else %}
+                    <div class="form-group mb-3">
+                      <h5>{{ objective.label }}</h5>
+                      {% for error in objective.errors %}
+                      <p style="color: red;">{{ error }}</p>
+                      {% endfor %}
+                      <textarea name="objective" cols="1" rows="1" class="form-control"></textarea>
+                    </div>
+                    {% endif %}
+                  {% endfor %}
+                    <div class="objective-group d-flex justify-content-center">
+                      <input type="submit" class="btn btn-primary w-50" value="登録"></button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="d-flex justify-content-center">
+        <div class="col-9 justify-content-first">
+          <div class="card">
+            <h2 class="objective-item text-center">{{ objective }}</h2>
+          </div>
+        </div>
+        <div class="justify-content-end mx-2">
+          <a href="#" class="btn btn-custom-edit" data-bs-toggle="modal" data-bs-target="#editObjectiveModal">編集</a>
+          <a href="#" class="btn btn-custom-warning" data-bs-toggle="modal" data-bs-target="#goalObjectiveModal">達成</a>
+        </div>
+        <!-- 編集モーダル -->
+        <div class="modal fade" id="editObjectiveModal" tabindex="-1" aria-labelledby="editObjectiveModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editObjectiveModalLabel">目標編集</h5>
+              </div>
+              <div class="modal-body">
+                <!-- 目標編集フォーム -->
+                <div class="modal-body">
+                  <div class="row justify-content-center">
+                    <div class="col">
+                      <form id="objectiveEditForm" method="POST" action="{% url 'schedules:objective_edit' user_id=request.user.id %}">
+                      {% csrf_token %}
+                      {% for objective in objective_edit_form %}
+                        {% if objective.name == 'objective_due_date' %}
+                        <div class="form-group mb-3">
+                          <h5>{{ objective.label }}</h5>
+                          {% for error in objective.errors %}
+                          <p style="color: red;">{{ error }}</p>
+                          {% endfor %}
+                          <input type="datetime-local" class="form-control" name="{{ objective.name }}" value="{{ objective.value }}">
+                        </div>
+                        {% else %}
+                        <div class="form-group mb-3">
+                          <h5>{{ objective.label }}</h5>
+                          {% for error in objective.errors %}
+                          <p style="color: red;">{{ error }}</p>
+                          {% endfor %}
+                          <textarea name="objective" cols="1" rows="1" class="form-control" value="{{ objective.value }}"></textarea>
+                        </div>
+                        {% endif %}
+                      {% endfor %}
+                        <div class="objective-group d-flex justify-content-center">
+                          <input type="submit" class="btn btn-primary w-50" value="登録"></button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 達成モーダル -->
+        <div class="modal fade" id="goalObjectiveModal" tabindex="-1" aria-labelledby="goalObjectiveModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title text-center" id="goalObjectiveModalLavel">達成確認</h5>
+              </div>
+              <div class="modal-body">
+                達成おめでとうございます！新たな目標に向けて再発進しましょう！！
+              </div>
+              <div class="modal-footer">
+                <form method="POST" action="{% url 'schedules:objective_goal' user.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">はい</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-9">
+      {% if objective_due_date %}
+        {% if limit > 0 %}
+        <h5 class="text-end" style="color: red;">達成まであと{{ limit }}日</h5>
+        {% elif limit == 0 %}
+        <h5 class="text-end" style="color: red;">本日達成日です！</h5>
+        {% elif limit < 0 %}
+        <h3 class="bold text-end" style="color: red;">期限が過ぎています！！</h3>
+        {% endif %}
+      {% endif %}
+      </div>
+      {% endif %}
+      <h3 class="text-center mb-4 mt-4">スケジュール</h3>
+      <div class="d-flex justify-content-between mt-4">
+      {% with prev_month=month|add:"-1" next_month=month|add:"1" %}
+        {% if prev_month == 0 %}
+        <a class="mt-3" href="{% url 'schedules:schedule' year=year|add:"-1" month=12 %}">←前月</a>
+        {% else %}
+        <a class="mt-3" href="{% url 'schedules:schedule' year=year month=prev_month %}">←前月</a>
+        {% endif %}
+        <h2 class="text-center">{{ year }}年{{ month }}月</h2>
+        {% if next_month == 13 %}
+        <a class="mt-3" href="{% url 'schedules:schedule' year=year|add:"1" month=1 %}">次月→</a>
+        {% else %}
+        <a class="mt-3" href="{% url 'schedules:schedule' year=year month=next_month %}">次月→</a>
+        {% endif %}
+      {% endwith %}
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="sunday">日</th>
+            <th>月</th>
+            <th>火</th>
+            <th>水</th>
+            <th>木</th>
+            <th>金</th>
+            <th class="saturday">土</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for week in month_calendar %}
+          <tr>
+          {% for day in week %}
+            <td class="text-start {% if forloop.counter0|divisibleby:7 %}sunday{% elif forloop.counter0|add:1|divisibleby:7 %}saturday{% endif %}" style="width: 50px; height: 150px;">
+              {% if day > 0 %}
+              <a href="{% url 'schedules:schedule_show' year=year month=month day=day %}">{{ day }}</a>
+              <div class="row">
+              {% for schedule in schedules %}
+                {% if schedule.start_at.year <= year and schedule.end_at.year >= year%}
+                  {% if schedule.start_at.month <= month and schedule.end_at.month >= month %}
+                    {% if schedule.start_at.day <= day and schedule.end_at.day >= day %}
+                    <span>{{ schedule.task }}</span>
+                    <small style="color: gray;">  @{{ schedule.place }}</small>
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              </div>
+              {% endif %}
+            </td>
+          {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

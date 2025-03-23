@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-center">
+  <div class="container pt-4 pb-5 study-challenge-container">
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+    <div class="row justify-content-center pt-5">
+      <div class="col-xl-3 col-lg-4 col-md-5 col-sm-7">
+        <form method="POST">
+          <h3 class="mb-4 text-center">ログイン</h3>
+          {% csrf_token %}
+          {% for login in login_form %}
+          <div class="mb-3">
+            <h5>{{ login.label }}</h5>
+            {% for error in login.errors %}
+            <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+            {{ login }}
+          </div>
+          {% endfor %}
+          <div class="form-group d-flex justify-content-center my-4">
+            <input class="btn btn-primary w-50" type="submit" value="ログイン">
+          </div>
+          <div class="form-group d-flex justify-content-center my-4">
+            <a class="text-center" href="{% url 'accounts:reset_password' %}">パスワードを忘れてしまったら</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

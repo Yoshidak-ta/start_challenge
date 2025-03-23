@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container pt-4 pb-5 study-challenge-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    {{ message.message }}
+  </div>
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-6"> 
+      <h3 class="text-center mb-4">質問編集</h3>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for question in question_edit_form %}
+          <!-- カテゴリー選択 -->
+          {% if question.name == 'category' %}
+          <div class="form-group mb-3">
+            <h5>{{ question.label }}</h5>
+            {% for error in question.errors %}
+              <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+            <div class="checkbox-group d-flex flex-wrap">
+              {% for checkbox in question %}
+              <span class="checkbox-inline me-2">
+                {{ checkbox.tag }} {{ checkbox.choice_label }}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+          <!-- 質問内容 -->
+          {% elif question.name == 'comment' %}
+          <div class="form-group mb-3">
+            <h5>{{ question.label }}</h5>
+            {% for error in question.errors %}
+            <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+            <textarea id="comment-field" name="{{ question.name }}" cols="50" rows="20" class="form-control">{{ question.value }}</textarea>
+          </div>
+          <!-- タイトル -->
+          {% elif question.name == 'title' %}
+          <div class="form-group mb-3">
+            <h5>{{ question.label }}</h5>
+            {% for error in question.errors %}
+            <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+            <input type="text" name="{{ question.name }}" value="{{ question.value }}" class="form-control">
+          </div>
+          {% else %}
+          <div class="form-group mb-3">
+            <h5>{{ question.label }}</h5>
+            {% for error in question.errors %}
+              <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+            {{ question }}
+          </div>
+          {% endif %}
+        {% endfor %}
+        <div class="form-group d-flex justify-content-center my-4">
+          <input class="btn btn-primary w-50" type="submit" value="更新">
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

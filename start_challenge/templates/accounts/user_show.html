@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load custom_filters %}
+<div class="container study-challenge-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}" role="alert">
+    {{ message.message }}
+  </div>
+  {% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-6">
+      <h2 class="text-center mt-4 mb-2">{{ user.username }}さんの詳細ページ</h2>
+      <div class="tabs">
+        <input class="tab_btn" id="profile" type="radio" name="tab_btn" checked>
+        <input class="tab_btn" id="question" type="radio" name="tab_btn">
+        <input class="tab_btn" id="answer" type="radio" name="tab_btn">
+        <div class="tab-list">
+          <label class="tab-profile-label" for="profile">Profile</label>
+          <label class="tab-question-label" for="question">Question</label>
+          <label class="tab-answer-label" for="answer">Answer</label>
+        </div>
+        <div class="tab-content">
+          <div class="tab-panel" id="profile-content">
+            <div class="d-flex">
+              <img class="profile-icon rounded-circle mx-3" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 80px; height: 80px; object-fit: cover;">
+              <div class="row">
+                <div class="d-flex justify-content-between pb-2">
+                  <h2>{{ user.username }}</h2>
+                  <h4 class="mx-5">ランク：{{ user.rank|tens }}</h4>
+                </div>
+                <h4 class="pt-2">得意分野</h4>
+                <div class="d-flex">
+                  {% for category in user.category.all %}
+                  <p class="profile-item">{{ category.categoryname }}　</p>{% if not forloop.last %} {% endif %}
+                  {% endfor %}
+                </div>
+                <h4 class="pt-2">自己紹介</h4>
+                <p class="profile-item">{{ user.message }}</p>
+              </div>
+            </div>
+            {% if not user == request.user %}
+            <div class="row">
+              <div class="d-flex justify-content-center">
+                <a class="mt-3" href="{% url 'chats:private_chat' user.id %}">{{ user.username }}さんとチャットする</a>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="tab-panel" id="question-content">
+          {% for question in questions %}
+            <a class="text-decoration-none text-reset" href="{% url 'questions:question_show' question.id %}">
+              <div class="card mb-4">
+                <div class="mb-4 mt-2 d-flex justify-content-center align-items-center" style="height: 200px;">
+                  <img src="{{ question.picture.url }}" class="img-fluid" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Question Picture">
+                </div>
+                <h5 class="text-center">{{ question.title }}</h5>
+                <div class="container">
+                  <div class="row">
+                    <div class="col-lg-8 container mb-4">
+                      <div class="row pb-2 mt-2 mb-2">
+                        <div class="col-4">
+                          <span class="fw-bold">ジャンル</span>
+                        </div>
+                        <div class="col">
+                          {% for category in question.category.all %}
+                          <span>{{ category.categoryname }}</span>{% if not forloop.last %} {% endif %}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          {% empty %}
+          <h4 class="text-center">質問がありません</h4>
+          {% endfor %}
+          </div>
+          <div class="tab-panel" id="answer-content">
+          {% for answer in answers %}
+            {% with answer.question as question %}
+            <a class="text-decoration-none text-reset" href="{% url 'questions:question_show' question.id %}">
+              <div class="card mb-4">
+                <div class="mb-4 mt-2 d-flex justify-content-center align-items-center" style="height: 200px;">
+                  <img src="{{ question.picture.url }}" class="img-fluid" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Question Picture">
+                </div>
+                <h5 class="text-center">{{ question.title }}</h5>
+                <div class="container">
+                  <div class="row">
+                    <div class="col-lg-8 container mb-4">
+                      <div class="row pb-2 mt-2 mb-2">
+                        <div class="col-4">
+                          <span class="fw-bold">ジャンル</span>
+                        </div>
+                        <div class="col">
+                          {% for category in question.category.all %}
+                          <span>{{ category.categoryname }}</span>{% if not forloop.last %} {% endif %}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+            {% endwith %}
+          {% empty %}
+          <h4 class="text-center">回答がありません</h4>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
