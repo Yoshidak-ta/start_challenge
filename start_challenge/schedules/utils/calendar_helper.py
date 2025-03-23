@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class CalendarHelper:
   def __init__(self, year=None, month=None, day=None):
@@ -15,6 +15,5 @@ class CalendarHelper:
   def get_month_days(self):
     first_day = datetime(self.year, self.month, self.day)
     last_day = datetime(self.year, self.month, self.day)
-    # last_day = datetime(self.year, self.month, calendar.monthrange(self.year, self.month)[1], 23, 59, 59, 999999)
     
     return (first_day, last_day)

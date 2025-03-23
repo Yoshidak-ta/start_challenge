@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     "questions",
     "schedules",
     "chats",
-    "rest_framework",
 ]
 
 MIDDLEWARE = [
