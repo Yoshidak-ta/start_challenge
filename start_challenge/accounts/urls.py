@@ -1,9 +1,6 @@
 from django.urls import path
 from . import views
-from rest_framework.routers import DefaultRouter
 from django.conf.urls import include
-
-router = DefaultRouter()
 
 app_name = 'accounts'
 
@@ -12,7 +9,6 @@ urlpatterns = [
   path('user_regist', views.user_regist, name='user_regist'),
   path('user_login', views.user_login, name='user_login'),
   path('user_logout', views.user_logout, name='user_logout'),
-  path('', include(router.urls)),
   path('users/<uuid:token>/', views.activate_user, name='users-activation'),
   path('user_edit', views.user_edit, name='user_edit'),
   path('reset_password', views.reset_password, name='reset_password'),
