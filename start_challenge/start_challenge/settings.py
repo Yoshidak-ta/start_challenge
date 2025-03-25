@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
-from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -183,9 +182,12 @@ INSTALLED_APPS += [
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
+from django.core.management.utils import get_random_secret_key
+
 SECRET_KEY = get_random_secret_key()
 
 try:
-  from .local_settings import *
-except:
-  pass
+    from .local_settings import *
+except ImportError:
+    from django.core.management.utils import get_random_secret_key
+    SECRET_KEY = get_random_secret_key()
