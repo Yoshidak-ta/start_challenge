@@ -38,7 +38,7 @@
           {% endif %}
         {% endfor %}
         </ul>
-        <p class="mt-auto text-primary text-decoration-underline" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p> 
+        <p class="mt-auto text-primary text-decoration-underline" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p>
       </div>
     </div>
     <!-- モーダル -->
@@ -50,7 +50,7 @@
           </div>
           <div class="modal-body">
             <div class="row justify-content-center">
-              <div class="col">  
+              <div class="col">
                 <form id="todoListForm" method="POST" action="{% url 'schedules:add_todo' year=year month=month %}">
                 {% csrf_token %}
                   {% for todo in todo_list_form %}
@@ -99,7 +99,7 @@
         </div>
       </div>
     </div>
-    <div class="col">
+    <div class="col-xl-9 col-lg-8 col-md-12">
       <h3 class="text-center mb-2">目標</h3>
       <!-- 目標設定 -->
       {% if not objective %}
@@ -236,58 +236,60 @@
       {% endif %}
       <h3 class="text-center mb-4 mt-4">スケジュール</h3>
       <div class="d-flex justify-content-between mt-4">
-      {% with prev_month=month|add:"-1" next_month=month|add:"1" %}
-        {% if prev_month == 0 %}
-        <a class="mt-3" href="{% url 'schedules:schedule' year=year|add:"-1" month=12 %}">←前月</a>
-        {% else %}
-        <a class="mt-3" href="{% url 'schedules:schedule' year=year month=prev_month %}">←前月</a>
-        {% endif %}
-        <h2 class="text-center">{{ year }}年{{ month }}月</h2>
-        {% if next_month == 13 %}
-        <a class="mt-3" href="{% url 'schedules:schedule' year=year|add:"1" month=1 %}">次月→</a>
-        {% else %}
-        <a class="mt-3" href="{% url 'schedules:schedule' year=year month=next_month %}">次月→</a>
-        {% endif %}
-      {% endwith %}
+          {% with prev_month=month|add:"-1" next_month=month|add:"1" %}
+            {% if prev_month == 0 %}
+            <a class="mt-3" href="{% url 'schedules:schedule' year=year|add:"-1" month=12 %}">←前月</a>
+            {% else %}
+            <a class="mt-3" href="{% url 'schedules:schedule' year=year month=prev_month %}">←前月</a>
+            {% endif %}
+            <h1 class="text-center">{{ year }}年{{ month }}月</h1>
+            {% if next_month == 13 %}
+            <a class="mt-3" href="{% url 'schedules:schedule' year=year|add:"1" month=1 %}">次月→</a>
+            {% else %}
+            <a class="mt-3" href="{% url 'schedules:schedule' year=year month=next_month %}">次月→</a>
+            {% endif %}
+          {% endwith %}
       </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th class="sunday">日</th>
-            <th>月</th>
-            <th>火</th>
-            <th>水</th>
-            <th>木</th>
-            <th>金</th>
-            <th class="saturday">土</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for week in month_calendar %}
-          <tr>
-          {% for day in week %}
-            <td class="text-start {% if forloop.counter0|divisibleby:7 %}sunday{% elif forloop.counter0|add:1|divisibleby:7 %}saturday{% endif %}" style="width: 50px; height: 150px;">
-              {% if day > 0 %}
-              <a href="{% url 'schedules:schedule_show' year=year month=month day=day %}">{{ day }}</a>
-              <div class="row">
-              {% for schedule in schedules %}
-                {% if schedule.start_at.year <= year and schedule.end_at.year >= year%}
-                  {% if schedule.start_at.month <= month and schedule.end_at.month >= month %}
-                    {% if schedule.start_at.day <= day and schedule.end_at.day >= day %}
-                    <span>{{ schedule.task }}</span>
-                    <small style="color: gray;">  @{{ schedule.place }}</small>
+      <div class="col-12 overflow-auto">
+          <table class="table table-fixed">
+            <thead>
+              <tr>
+                <th class="sunday">日</th>
+                <th>月</th>
+                <th>火</th>
+                <th>水</th>
+                <th>木</th>
+                <th>金</th>
+                <th class="saturday">土</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for week in month_calendar %}
+              <tr>
+              {% for day in week %}
+                <td class="text-start {% if forloop.counter0|divisibleby:7 %}sunday{% elif forloop.counter0|add:1|divisibleby:7 %}saturday{% endif %}">
+                  {% if day > 0 %}
+                  <a href="{% url 'schedules:schedule_show' year=year month=month day=day %}">{{ day }}</a>
+                  <div class="row">
+                  {% for schedule in schedules %}
+                    {% if schedule.start_at.year <= year and schedule.end_at.year >= year%}
+                      {% if schedule.start_at.month <= month and schedule.end_at.month >= month %}
+                        {% if schedule.start_at.day <= day and schedule.end_at.day >= day %}
+                        <span>{{ schedule.task }}</span>
+                        <small style="color: gray;">  @{{ schedule.place }}</small>
+                        {% endif %}
+                      {% endif %}
                     {% endif %}
+                  {% endfor %}
+                  </div>
                   {% endif %}
-                {% endif %}
+                </td>
               {% endfor %}
-              </div>
-              {% endif %}
-            </td>
-          {% endfor %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
     </div>
   </div>
 </div>
