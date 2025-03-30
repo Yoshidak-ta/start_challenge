@@ -68,7 +68,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> 
       </div>
       {% if user.is_authenticated %}
       <div class="mb-4 mt-2 d-flex justify-content-center align-items-center">
@@ -100,12 +100,15 @@
       </div>
     </div>
   </div>
-  <!-- 回答一覧 -->
   {% for answer in answers %}
   <!-- 回答対象の質問と現在表示されている質問のidが同一の場合 -->
   <div class="row justify-content-center">
     <div class="col-8">
       <div class="card mb-4 d-flex justify-content-center align-items-center">
+        <div class="d-flex justify-content-start align-items-center mt-3 mb-2 gap-2 w-100 ps-3">
+          <img class="profile-icon rounded-circle" id="profile-icon" src="{{ answer.user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+          {{ answer.user.username }}
+        </div>
         <div class="mb-4 mt-2">
           <img src="{{ answer.picture.url }}" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Picture">
         </div>
