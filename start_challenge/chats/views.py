@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from accounts.models import Users
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 
 
 # チャット共通コンテキスト
@@ -153,4 +154,15 @@ def send_message(request):
         return redirect('chats:private_chat', user_id=other_user.id) if other_user else redirect('chats:share_chat')
         
   return redirect('chats:share_chat')
+
+# モーダル内ユーザ検索
+def search_users(request):
+  search_query = request.GET.get('search', '')
+  if search_query:
+    users = Users.objects.filter(username__icontains=search_query)
+  else:
+    users = Users.objects.filter(is_staff=False, is_active=True)
+
+  user_list = [{'id': user.id, 'username': user.username, 'picture': user.picture.url} for user in users]
+  return JsonResponse({'users': user_list})
 

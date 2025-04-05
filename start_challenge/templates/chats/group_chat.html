@@ -88,31 +88,41 @@
       </div>
     </div>
     <!-- ユーザ選択モーダル -->
-    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal fade schedule-adduser-modal" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="addUserModalLabel">ユーザを選択する</h5>
           </div>
           <div class="modal-body">
+            <form id="scheduleSearchForm">
+              <div class="d-flex align-items-center justify-content-center m-2">
+                <input type="text" id="scheduleSearchInput" name="search" placeholder="名前を検索" class="form-control me-2 w-75">
+                <div class="me-2">
+                  <button type="submit" class="btn btn-custom-edit">検索</button>
+                </div>
+              </div>
+            </form>
             <form id="userSelectForm">
-              {% for user in users %}
-              <div class="form-check">
-                {% if user.id in group_user_ids %}
-                <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
-                <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                <label class="form-check-label">{{ user.username }}</label>
-                {% else %}
-                  {% if not user.is_staff %}
-                    {% if user.is_active %}
-                    <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
-                    <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                    <label class="form-check-label">{{ user.username }}</label>
+              <div id="scheduleUserList">
+                {% for user in users %}
+                <div class="form-check">
+                  {% if user.id in group_user_ids %}
+                  <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
+                  <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                  <label class="form-check-label">{{ user.username }}</label>
+                  {% else %}
+                    {% if not user.is_staff %}
+                      {% if user.is_active %}
+                      <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                      <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                      <label class="form-check-label">{{ user.username }}</label>
+                      {% endif %}
                     {% endif %}
                   {% endif %}
-                {% endif %}
+                </div>
+                {% endfor %}
               </div>
-              {% endfor %}
               <button type="button" class="btn btn-primary mt-3" id="confirmUserSelection">追加する</button>
             </form>
           </div>
@@ -186,31 +196,41 @@
         </div>
       </div>
       <!-- ユーザ選択モーダル -->
-      <div class="modal fade" id="addGroupUserModal" tabindex="-1" aria-labelledby="addGroupUserModalLabel" aria-hidden="true">
+      <div class="modal fade chatgroup-adduser-modal" id="addGroupUserModal" tabindex="-1" aria-labelledby="addGroupUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="addGroupUserModalLabel">メンバーを選択する</h5>
             </div>
             <div class="modal-body"> 
+              <form id="chatgroupSearchForm">
+                <div class="d-flex align-items-center justify-content-center m-2">
+                  <input type="text" id="chatgroupSearchInput" name="search" placeholder="名前を検索" class="form-control me-2 w-75">
+                  <div class="me-2">
+                    <button type="submit" class="btn btn-custom-edit">検索</button>
+                  </div>
+                </div>
+              </form>
               <form id="groupUserSelectionForm">
-              {% for user in users %}
-                <div class="form-check">
-                  {% if user.id == request.user.id %}
-                  <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
-                  <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                  <label class="form-check-label">{{ user.username }}</label>
-                  {% else %}
-                    {% if user.is_active %}
-                      {% if not user.is_staff %}
-                    <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                <div id="chatgroupUserList">
+                {% for user in users %}
+                  <div class="form-check">
+                    {% if user.id == request.user.id %}
+                    <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
                     <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                     <label class="form-check-label">{{ user.username }}</label>
+                    {% else %}
+                      {% if user.is_active %}
+                        {% if not user.is_staff %}
+                      <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                      <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                      <label class="form-check-label">{{ user.username }}</label>
+                        {% endif %}
                       {% endif %}
                     {% endif %}
-                  {% endif %}
+                  </div>
+                  {% endfor %}
                 </div>
-                {% endfor %}
                 <button type="button" class="btn btn-primary mt-3" id="addGroupUsers">追加する</button>
               </form>
             </div>

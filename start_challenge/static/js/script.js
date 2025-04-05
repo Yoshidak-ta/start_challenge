@@ -180,6 +180,74 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// モーダル内ユーザ検索機能(チャットグループ)
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.chatgroup-adduser-modal').forEach(modal => {
+    const searchForm = document.getElementById('chatgroupSearchForm');
+    const searchInput = document.getElementById('chatgroupSearchInput');
+    const userList = document.getElementById('chatgroupUserList');
+
+    let chatgroupSelectedUsers = new Set();
+  
+    searchForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const chatgroupSearchQuery = searchInput.value;
+      fetch(`/chats/chat/search_users?search=${encodeURIComponent(chatgroupSearchQuery)}`)
+        .then(response => response.json())
+        .then(data => {
+
+          modal.querySelectorAll('.user-group-checkbox').forEach(checkbox => {
+            if (checkbox.checked) {
+              chatgroupSelectedUsers.add(parseInt(checkbox.value));
+            } else {
+              chatgroupSelectedUsers.delete(parseInt(checkbox.value));
+            }
+          });
+
+          userList.innerHTML = '';
+
+          data.users.forEach(user => {
+            const userDiv = document.createElement('div');
+            userDiv.classList.add('form-check');
+
+            const isChecked = chatgroupSelectedUsers.has(user.id) ? 'checked' : '';
+
+            userDiv.innerHTML = `
+              <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}" ${isChecked}>
+              <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+              <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+            `
+            userList.appendChild(userDiv);
+          });
+
+          modal.querySelectorAll('.user-group-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+              if (this.checked) {
+                chatgroupSelectedUsers.add(this.value);
+              } else {
+                chatgroupSelectedUsers.delete(this.value);
+              }
+            });
+          });
+        })
+        .catch(error => console.error('Error:', error));
+      });
+
+      // モーダルが閉じられた時にデータをリセット
+      modal.addEventListener('hidden.bs.modal', function () {
+        chatgroupSelectedUsers.clear();
+        userList.innerHTML = `
+          <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+          <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+          <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+        `;
+        searchInput.value = '';
+      });
+  });
+});
+
+
 // チャットグループ(ユーザ選択)
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -220,6 +288,138 @@ document.addEventListener('DOMContentLoaded', function () {
     if (userModal) {
         userModal.hide();
     }
+  });
+});
+
+// モーダル内ユーザ検索機能(スケジュール登録)_chat.ver
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.schedule-adduser-modal').forEach(modal => {
+    const searchForm = document.getElementById('scheduleSearchForm');
+    const searchInput = document.getElementById('scheduleSearchInput');
+    const userList = document.getElementById('scheduleUserList');
+
+    let scheduleSelectedUsers = new Set();
+  
+    searchForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const scheduleSearchQuery = searchInput.value;
+      fetch(`/chats/chat/search_users?search=${encodeURIComponent(scheduleSearchQuery)}`)
+        .then(response => response.json())
+        .then(data => {
+
+          modal.querySelectorAll('.user-checkbox').forEach(checkbox => {
+            if (checkbox.checked) {
+              scheduleSelectedUsers.add(parseInt(checkbox.value));
+            } else {
+              scheduleSelectedUsers.delete(parseInt(checkbox.value));
+            }
+          });
+
+          userList.innerHTML = '';
+
+          data.users.forEach(user => {
+            const userDiv = document.createElement('div');
+            userDiv.classList.add('form-check');
+
+            const isChecked = scheduleSelectedUsers.has(user.id) ? 'checked' : '';
+
+            userDiv.innerHTML = `
+                <input class="form-check-input user-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}" ${isChecked}>
+                <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+            `
+            userList.appendChild(userDiv);
+          });
+
+          modal.querySelectorAll('.user-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+              if (this.checked) {
+                scheduleSelectedUsers.add(this.value);
+              } else {
+                scheduleSelectedUsers.delete(this.value);
+              }
+            });
+          });
+        })
+        .catch(error => console.error('Error:', error));
+    });
+     // モーダルが閉じられた時にデータをリセット
+     modal.addEventListener('hidden.bs.modal', function () {
+      scheduleSelectedUsers.clear();
+      userList.innerHTML = `
+        <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+        <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+        <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+      `;
+      searchInput.value = '';
+    });
+  });
+});
+
+// モーダル内ユーザ検索機能(スケジュール登録)_schedule.ver
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.schedule-selectuser-modal').forEach(modal => {
+    const searchForm = document.getElementById('scheduleSelectSearchForm');
+    const searchInput = document.getElementById('scheduleSelectSearchInput');
+    const userList = document.getElementById('scheduleSelectUserList');
+
+    let scheduleSelectedUsers = new Set();
+  
+    searchForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const scheduleSearchQuery = searchInput.value;
+      fetch(`/schedules/schedule_show/search_users?search=${encodeURIComponent(scheduleSearchQuery)}`)
+        .then(response => response.json())
+        .then(data => {
+
+          modal.querySelectorAll('.user-checkbox').forEach(checkbox => {
+            if (checkbox.checked) {
+              scheduleSelectedUsers.add(parseInt(checkbox.value));
+            } else {
+              scheduleSelectedUsers.delete(parseInt(checkbox.value));
+            }
+          });
+
+          userList.innerHTML = '';
+
+          data.users.forEach(user => {
+            const userDiv = document.createElement('div');
+            userDiv.classList.add('form-check');
+
+            const isChecked = scheduleSelectedUsers.has(user.id) ? 'checked' : '';
+
+            userDiv.innerHTML = `
+                <input class="form-check-input user-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}" ${isChecked}>
+                <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+            `
+            userList.appendChild(userDiv);
+          });
+
+          modal.querySelectorAll('.user-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+              if (this.checked) {
+                scheduleSelectedUsers.add(this.value);
+              } else {
+                scheduleSelectedUsers.delete(this.value);
+              }
+            });
+          });
+        })
+        .catch(error => console.error('Error:', error));
+    });
+     // モーダルが閉じられた時にデータをリセット
+     modal.addEventListener('hidden.bs.modal', function () {
+      scheduleSelectedUsers.clear();
+      userList.innerHTML = `
+        <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+        <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+        <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+      `;
+      searchInput.value = '';
+    });
   });
 });
 
@@ -382,11 +582,6 @@ document.getElementById('todoListForm').addEventListener('submit', function (e) 
       const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
       modal.hide();
 
-      const messageContainer = document.createElement('div');
-      messageContainer.className = 'alert alert-info';
-      messageContainer.textContent = data.success_message;
-      document.body.prepend(messageContainer);
-
       // 新しいタスクをリストに追加
       const newTodo = document.createElement('li');
 
@@ -415,7 +610,7 @@ document.getElementById('todoListForm').addEventListener('submit', function (e) 
       //Todoリスト追加 
       document.querySelector('.list-group').appendChild(newTodo);
 
-      chackbox.addEventListener('change', function () {
+      checkbox.addEventListener('change', function () {
         if (this.checked) {
           completeTodo(this.dataset.todoId, newTodo);
         }

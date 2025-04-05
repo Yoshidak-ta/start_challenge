@@ -111,7 +111,7 @@
               </div>
             </div>
             <!-- ユーザ選択モーダル -->
-            <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal fade " id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -245,29 +245,39 @@
         </div>
       </div>
       <!-- ユーザ選択モーダル -->
-      <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+      <div class="modal fade schedule-selectuser-modal" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="addUserModalLabel">ユーザを選択する</h5>
             </div>
             <div class="modal-body">
-              <form id="userSelectForm">
-                {% for user in users %}
-                <div class="form-check">
-                  {% if user == request.user %}
-                    <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" chacked>
-                    <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                    <label class="form-check-label">{{ user.username }}</label>
-                  {% elif not user.is_staff  %}
-                    {% if user.is_active %}
-                    <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
-                    <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                    <label class="form-check-label">{{ user.username }}</label>
-                    {% endif %}
-                  {% endif %}
+              <form id="scheduleSelectSearchForm">
+                <div class="d-flex align-items-center justify-content-center m-2">
+                  <input type="text" id="scheduleSelectSearchInput" name="search" placeholder="名前を検索" class="form-control me-2 w-75">
+                  <div class="me-2">
+                    <button type="submit" class="btn btn-custom-edit">検索</button>
+                  </div>
                 </div>
+              </form>
+              <form id="userSelectForm">
+                <div id="scheduleSelectUserList">
+                {% for user in users %}
+                  <div class="form-check">
+                    {% if user == request.user %}
+                      <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
+                      <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                      <label class="form-check-label">{{ user.username }}</label>
+                    {% elif not user.is_staff  %}
+                      {% if user.is_active %}
+                      <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                      <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                      <label class="form-check-label">{{ user.username }}</label>
+                      {% endif %}
+                    {% endif %}
+                  </div>
                 {% endfor %}
+                </div>
                 <button type="button" class="btn btn-primary mt-3" id="confirmUserSelection">追加する</button>
               </form>
             </div>

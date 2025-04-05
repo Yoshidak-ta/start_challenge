@@ -119,13 +119,12 @@ def add_todo(request, year=None, month=None):
       todo = todo_list_form.save(commit=False)
       todo.user = request.user
       todo.save()
-      success_message = messages.info(request, 'ToDoリストにタスクを登録しました。')
+
       return JsonResponse({
         'success':True,
         'task':todo.task,
         'due_date':todo.due_date.strftime('%Y-%m-%d'),
-        'priority':todo.get_priority_display(),
-        'success_message':success_message
+        'priority':todo.get_priority_display()
       })
     else:
       return JsonResponse({
