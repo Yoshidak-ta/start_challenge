@@ -72,10 +72,8 @@ def schedule_show(request, year=None, month=None, day=None):
   schedule_edit_form = forms.ScheduleEditForm()
   fields_left = ['start_at', 'end_at']
   fields_right = ['task', 'place', 'user']
-  users = Users.objects.all()
+  users = Users.objects.filter(is_staff=False, is_active=True)
   schedule_history = SchedulesHistory.objects.all()
-  calendar_helper = CalendarHelper(year, month)
-  # first_day, last_day = calendar_helper.get_month_days()
   formatted_date = datetime.strptime(f'{year}-{month}-{day}', '%Y-%m-%d').date()
   schedules = Schedules.objects.filter(
     start_at__date__lte=formatted_date,
@@ -226,6 +224,13 @@ def schedule_edit(request, pk):
       print('エラー発生', schedule_edit_form.errors)
 
   return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)
+
+# スケジュールpk取得
+@login_required
+def get_schedule_users(request, pk):
+  schedule = get_object_or_404(Schedules, pk=pk)
+  user_ids = list(schedule.user.values_list('id', flat=True))
+  return JsonResponse({'user_ids': user_ids})
 
 # スケジュール更新履歴取得
 @login_required

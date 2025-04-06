@@ -469,9 +469,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // スケジュール編集
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('スケジュール編集していくよー')
-
   document.querySelectorAll('.edit-btn').forEach((button) => {
+    window.scheduleEditSelectedUserIds = new Set();
     button.addEventListener('click', function () {
       let schedulePk = this.getAttribute('data-pk');
       console.log('編集対象のスケジュールPK:', schedulePk);
@@ -482,6 +481,21 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('editTask').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
       document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
 
+      // ユーザー情報を取得しておく（グローバルに保存など）
+      fetch(`/schedules/schedule_show/get_schedule_users/${schedulePk}`)
+        .then(response => response.json())
+        .then(data => {
+          window.scheduleEditSelectedUserIds = new Set(data.user_ids);
+          console.log('ユーザー情報を取得しました：', scheduleEditSelectedUserIds)
+
+          document.querySelectorAll('#editUserModal .user-edit-checkbox').forEach(checkbox => {
+            const userId = parseInt(checkbox.value, 10);
+            checkbox.checked = window.scheduleEditSelectedUserIds.has(userId);
+          });
+          console.log('checkの入ったuserId取得:', window.scheduleEditSelectedUserIds)
+        });
+
+      // 編集履歴
       let scheduleUpdateDisplay = document.getElementById('scheduleUpdateDisplay');
       scheduleUpdateDisplay.innerHTML = '<p class="text-center">履歴を取得中...</div>';
 
@@ -514,9 +528,75 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+// モーダル内ユーザ検索機能(スケジュール編集)
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.schedule-edit-selectuser-modal').forEach(modal => {
+    const searchForm = document.getElementById('scheduleEditSelectSearchForm');
+    const searchInput = document.getElementById('scheduleEditSelectSearchInput');
+    const userList = document.getElementById('scheduleEditSelectUserList');
+
+    let scheduleSelectedUsers = new Set();
+  
+    searchForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const scheduleSearchQuery = searchInput.value;
+
+      fetch(`/schedules/schedule_show/search_users?search=${encodeURIComponent(scheduleSearchQuery)}`)
+        .then(response => response.json())
+        .then(data => {
+
+          modal.querySelectorAll('.user-edit-checkbox').forEach(checkbox => {
+            if (checkbox.checked) {
+              scheduleSelectedUsers.add(parseInt(checkbox.value));
+            } else {
+              scheduleSelectedUsers.delete(parseInt(checkbox.value));
+            }
+          });
+
+          userList.innerHTML = '';
+
+          data.users.forEach(user => {
+            const userDiv = document.createElement('div');
+            userDiv.classList.add('form-check');
+
+            const isChecked =  scheduleSelectedUsers.has(user.id) || window.scheduleEditSelectedUserIds && window.scheduleEditSelectedUserIds.has(user.id) ? 'checked' : '';
+
+            userDiv.innerHTML = `
+                <input class="form-check-input user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}" ${isChecked}>
+                <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+            `
+            userList.appendChild(userDiv);
+          });
+
+          modal.querySelectorAll('.user-edit-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+              if (this.checked) {
+                scheduleSelectedUsers.add(this.value);
+              } else {
+                scheduleSelectedUsers.delete(this.value);
+              }
+            });
+          });
+        })
+        .catch(error => console.error('Error:', error));
+    });
+     // モーダルが閉じられた時にデータをリセット
+     modal.addEventListener('hidden.bs.modal', function () {
+      scheduleSelectedUsers.clear();
+      userList.innerHTML = `
+        <input class="form-check-input user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+        <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+        <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+      `;
+      searchInput.value = '';
+    });
+  });
+});
+
 // スケジュール編集(ユーザ選択)
 document.addEventListener('DOMContentLoaded', function () {
-
   const selectedUsersDisplay = document.getElementById('selectedEditUsersDisplay');
   const selectedUsersInput = document.getElementById('selectedEditUsers');
   const confirmUserSelectionButton = document.getElementById('confirmEditUserSelection');

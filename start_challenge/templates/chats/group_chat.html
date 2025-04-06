@@ -66,7 +66,7 @@
                           {% for error in regist.errors %}
                           <p style="color: red;">{{ error }}</p>
                           {% endfor %}
-                          <div id="selectedUsersDisplay"></div>
+                          <div id="selectedUsersDisplay">ユーザーを選択してください</div>
                         </div>
                         {% endif %}
                       {% endif %}
@@ -112,13 +112,9 @@
                   <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                   <label class="form-check-label">{{ user.username }}</label>
                   {% else %}
-                    {% if not user.is_staff %}
-                      {% if user.is_active %}
-                      <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
-                      <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                      <label class="form-check-label">{{ user.username }}</label>
-                      {% endif %}
-                    {% endif %}
+                  <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                  <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                  <label class="form-check-label">{{ user.username }}</label>
                   {% endif %}
                 </div>
                 {% endfor %}
@@ -169,7 +165,7 @@
                       {% for error in create.errors %}
                       <p style="color: red;">{{ error }}</p>
                       {% endfor %}
-                      <div id="selectedGroupUsersDisplay" class="p-4"></div>
+                      <div id="selectedGroupUsersDisplay" class="p-4">ユーザーを選択してください</div>
                     </div>
                     {% else %}
                     <div class="form-group mb-3">
@@ -220,13 +216,9 @@
                     <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                     <label class="form-check-label">{{ user.username }}</label>
                     {% else %}
-                      {% if user.is_active %}
-                        {% if not user.is_staff %}
-                      <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
-                      <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                      <label class="form-check-label">{{ user.username }}</label>
-                        {% endif %}
-                      {% endif %}
+                    <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                    <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                    <label class="form-check-label">{{ user.username }}</label>
                     {% endif %}
                   </div>
                   {% endfor %}

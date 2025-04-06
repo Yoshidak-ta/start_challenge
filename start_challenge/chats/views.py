@@ -16,7 +16,7 @@ def get_chat_context(request, group):
   chat_group_form = forms.ChatsGroupForm()
   chatgroups = ChatsGroup.objects.filter(group_category=2, user=request.user)
   private = ChatsGroup.objects.filter(group_category=3)
-  users = Users.objects.all()
+  users = Users.objects.filter(is_staff=False, is_active=True)
   schedule_regist_form = ScheduleRegistForm()
   private_user = set()
   for private in private:

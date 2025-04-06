@@ -11,6 +11,7 @@ urlpatterns = [
   path('schedule/<int:year>/<int:month>/complete_todo/<int:todo_id>', views.complete_todo, name='complete_todo'),
   path('schedule/<int:year>/<int:month>/<int:day>/schedule_regist', views.schedule_regist, name='schedule_regist'),
   path('schedule_edit/<int:pk>', views.schedule_edit, name='schedule_edit'),
+  path('schedule_show/get_schedule_users/<int:pk>', views.get_schedule_users, name='get_schedule_users'),
   path('schedule_delete/<int:pk>', views.schedule_delete, name='schedule_delete'),
   path('schedule_show/search_users', search_users, name='search_users'),
   path('schedule_history/<int:pk>', views.get_schedule_history, name='schedule_history'),
