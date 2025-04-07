@@ -19,20 +19,17 @@
           {% if todo.priority == 1 %}
           <li class="list-group-item priority-high">
             <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
-            <strong>{{ todo.task }}</strong>
-            <small>(期限:{{ todo.due_date }})</small>
+            {{ todo.task }}(期限:{{ todo.due_date }})
           </li>
           {% elif todo.priority == 2 %}
           <li class="list-group-item priority-middle">
             <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
-            <strong>{{ todo.task }}</strong>
-            <small>(期限:{{ todo.due_date }})</small>
+            {{ todo.task }}(期限:{{ todo.due_date }})
           </li>
           {% else %}
           <li class="list-group-item">
             <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
-            <strong>{{ todo.task }}</strong>
-            <small>(期限:{{ todo.due_date }})</small>
+            {{ todo.task }}(期限:{{ todo.due_date }})
           </li>
           {% endif %}
           {% endif %}
@@ -82,7 +79,6 @@
                     <p style="color: red;">{{ error }}</p>
                     {% endfor %}
                     {{ todo }}
-                    <!-- <input type="date" class="form-control" name="date"> -->
                   </div>
                   {% endif %}
                   {% endfor %}

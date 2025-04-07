@@ -15,7 +15,7 @@
         <div class="card m-3 p-3">
           <h1 class="fw-bold mb-5">作品No.1 スタチャレ(Start Challenge)</h1>
           <div class="row justify-content-center">
-            <img class="mt-2 w-75 h-50" src="{% static 'generals/portfolio.png' %}">
+            <img class="mt-2 w-75 h-50" src="{% static 'generals/portfolio/portfolio.png' %}">
             <p class="w-75">
               スタチャレは、IT関連の勉強に独学で取り組む社会人のモチベーション向上を目的とする学習交流アプリです。</br>
               学習者同士で質問や相談を互いに投稿・回答できるQ&A機能を提供するほか、自身の学習計画の管理機能や、</br>学習者同士で勉強会などの計画を立てられる機能を提供することにより、学習者の知識と交流を同時に深められます。</br>
@@ -23,10 +23,10 @@
             </p>
           </div>
           <div class="d-flex justify-content-center mt-3">
-            <a href="https://docs.google.com/presentation/d/1k1-hxVC6Le2Dku0j3bCXP1ukiSgUTLDQLlObdixJ7x0/edit?usp=drive_link" class="mx-2">企画書</a>
-            <a href="https://docs.google.com/presentation/d/1k1-hxVC6Le2Dku0j3bCXP1ukiSgUTLDQLlObdixJ7x0/edit?slide=id.g26850c99da4_0_9#slide=id.g26850c99da4_0_9" class="mx-2">画面設計図</a>
-            <a href="https://drive.google.com/file/d/1JE4h70_LMeKplltwbB9VweK49INvawpy/view?usp=drive_link" class="mx-2">画面遷移図</a>
-            <a href="https://drive.google.com/file/d/11N7hrjutwBi7UXMGTdVzwz3YPbJijfjO/view?usp=drive_link" class="mx-2">ER図</a>
+            <a href="{% static 'generals/portfolio/企画書.pdf' %}" class="mx-2">企画書</a>
+            <a href="{% static 'generals/portfolio/画面設計図.pdf' %}" class="mx-2">画面設計図</a>
+            <a href="{% static 'generals/portfolio/画面遷移図.drawio.svg' %}" class="mx-2">画面遷移図</a>
+            <a href="{% static 'generals/portfolio/ER図.drawio.svg' %}" class="mx-2">ER図</a>
           </div>
           <div class="row justify-content-center mt-4">
             <a class="btn btn-primary w-25 text-decoration-none text-reset" href="{% url 'accounts:home' %}"><p class="my-auto" style="color: white;">このアプリにアクセス</p></a>

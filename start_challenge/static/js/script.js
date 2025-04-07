@@ -1,23 +1,29 @@
+// グローバル定義
+window.year = new Date().getFullYear();
+window.month = new Date().getMonth() + 1;
+
+// Service Workerアクティブ
 function waitForServiceWorkerReady(attempts = 10) {
   return new Promise((resolve, reject) => {
-      let checkInterval = setInterval(() => {
-          navigator.serviceWorker.ready.then((registration) => {
-              if (registration.active) {
-                  console.log("Service Worker がアクティブになりました", registration);
-                  clearInterval(checkInterval);
-                  resolve(registration);
-              }
-          }).catch(reject);
+    let checkInterval = setInterval(() => {
+      navigator.serviceWorker.ready.then((registration) => {
+        if (registration.active) {
+          console.log("Service Worker がアクティブになりました", registration);
+          clearInterval(checkInterval);
+          resolve(registration);
+        }
+      }).catch(reject);
 
-          attempts--;
-          if (attempts <= 0) {
-              clearInterval(checkInterval);
-              reject(new Error("Service Worker がアクティブになりませんでした"));
-          }
-      }, 1000);
+      attempts--;
+      if (attempts <= 0) {
+        clearInterval(checkInterval);
+        reject(new Error("Service Worker がアクティブになりませんでした"));
+      }
+    }, 1000);
   });
 }
 
+// トークン取得
 function getCsrfToken() {
   const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || 
                     document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
@@ -158,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
+  // 回答挿入
   function insertTemplate(templateId){
     const templateElement = document.getElementById(templateId);
     const templateText = templateElement.innerText || templateElement.textContent;
@@ -679,7 +685,7 @@ document.getElementById('todoListForm').addEventListener('submit', function (e) 
       checkbox.type = 'checkbox';
       checkbox.className = 'todo-checkbox me-2';
       checkbox.dataset.todoId = data.todo_id;
-      
+
       // タスクテキスト作成
       const text = document.createTextNode(`${data.task}(期限：${data.due_date})`);
 
@@ -694,8 +700,8 @@ document.getElementById('todoListForm').addEventListener('submit', function (e) 
         if (this.checked) {
           completeTodo(this.dataset.todoId, newTodo);
         }
-
       });
+    
     } else {
       console.error(data.errors);
     }
@@ -705,40 +711,40 @@ document.getElementById('todoListForm').addEventListener('submit', function (e) 
 
 // Todo達成
 document.addEventListener('DOMContentLoaded', () => {
-
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-
   document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function () {
+      console.log('task達成処理')
       if (this.checked) {
-        const todoId = this.dataset.todoId;
-         fetch(`/schedules/schedule/${year}/${month}/complete_todo/${todoId}`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type':'application/json',
-          },
-          body: JSON.stringify({})
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          if (data.success) {
-            this.closest('.list-group-item').remove();
-          }
-        })
-        .catch(error => console.error('Error:', error));
+       completeTodo(this.dataset.todoId, this.closest('.list-group-item'));
       }
     });
   });
 });
 
+// タスク達成
+function completeTodo(todoId, todoElement) {
+  console.log('タスク達成処理実行')
+  fetch(`/schedules/schedule/${window.year}/${window.month}/complete_todo/${todoId}`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({})
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('通信エラー');
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      todoElement.remove();
+    }
+  })
+  .catch(error => console.error('Error', error));
+}
+
+// クッキー取得
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
@@ -752,24 +758,6 @@ function getCookie(name) {
     }
   }
   return cookieValue;
-}
-
-function completeTodo(todoId, todoElement) {
-  fetch(`/schedules/schedule/${year}/${month}/complete_todo/${todoId}`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': getCookie('csrftoken'),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({})
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      todoElement.remove();
-    }
-  })
-  .catch(error => console.error('Error', error));
 }
 
 // 目標編集

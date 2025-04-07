@@ -122,7 +122,8 @@ def add_todo(request, year=None, month=None):
         'success':True,
         'task':todo.task,
         'due_date':todo.due_date.strftime('%Y-%m-%d'),
-        'priority':todo.get_priority_display()
+        'priority':todo.get_priority_display(),
+        'todo_id':todo.id
       })
     else:
       return JsonResponse({
