@@ -70,7 +70,14 @@ def activate_user(request, token):
   user_activated_token = UserActivateTokens.objects.activate_user_by_token(token)
   if hasattr(user_activated_token, 'is_active'):
     if user_activated_token.is_active:
-      message = '会員登録が完了しました<br><a href=" http://127.0.0.1:8000/accounts/user_login">ログイン画面へ戻る</a>'
+      message = '''
+        <div style="height: 50vh; display: flex; justify-content: center; align-items: center; text-align: center;">
+          <div>
+            <h3>会員登録が完了しました!</h3>
+            <a href="http://127.0.0.1:8000/accounts/user_login"">ログイン画面へ戻る</a>
+          </div>
+        </div>
+      '''
     if not user_activated_token.is_active:
       message = '有効化が失敗しています'
   if not hasattr(user_activated_token, 'is_active'):

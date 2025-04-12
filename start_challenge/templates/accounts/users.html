@@ -28,6 +28,25 @@
         並び順：
         <a href="?sort=username{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" class="btn {% if sort_option == 'username' %}btn-primary{% else %}btn-outline-primary{% endif %}">50音順</a>
         <a href="?sort=rank{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" class="btn {% if sort_option == 'rank' %}btn-primary{% else %}btn-outline-primary{% endif %}">ランク順</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#rank2Modal">※ランクとは</a>
+      </div>
+      <div class="modal fade" id="rank2Modal" tabindex="-1" aria-labelledby="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">ランクとは</h5>
+            </div>
+            <div class="modal-body">
+              <div class="row justify-content-center">
+                <h6>ユーザーの取り組みレベルを評価する為にランクを付与する。</br>下記達成数・回答数に応じてポイントが付与され、ランクが上昇します。</h6></br>
+                <p>・Todoタスクの達成(重要度に応じて付与されるポイントが異なる)</br>・目標の達成</br>・質問に対しての回答数</p>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
       </div>
       {% if usearchform.is_valid and usearchform.cleaned_data.query or usearchform.cleaned_data.category %}
       <h5>検索結果</h5>

@@ -169,8 +169,22 @@ WEBPUSH_SETTINGS = {
     "VAPID_ADMIN_EMAIL": "bsk.gooserock@gmail.com",
 }
 
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'region': os.environ.get('AWS_DEFAULT_REGION'),
+    'visibility_timeout': 3600,
+    'polling_interval': 1,
+    'queue_name_prefix': '',
+    'wait_time_seconds': 20,
+    'use_ssl': True,
+    'predefined_queues': {
+        'celery': {
+            'url':f'https://sqs.us-east-1.amazonaws.com/105417737441/celery',
+        }
+    }
+}
+
 # Celery Configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
@@ -190,3 +204,6 @@ try:
 except ImportError:
     from django.core.management.utils import get_random_secret_key
     SECRET_KEY = get_random_secret_key()
+
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')

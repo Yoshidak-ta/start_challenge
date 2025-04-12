@@ -36,6 +36,7 @@ function getCsrfToken() {
 // Webプッシュ通知登録
 document.addEventListener('DOMContentLoaded', function () {
   console.log('通知設定読み込み');
+  const enableModalBtn = document.getElementById('enableModal');
   const enableBtn = document.getElementById('enableNotifications');
   const disableBtn = document.getElementById('disableNotifications');
 
@@ -44,11 +45,19 @@ document.addEventListener('DOMContentLoaded', function () {
   if (Notification.permission === 'granted') {
       disableBtn.style.display = 'block';
   } else {
-      enableBtn.style.display = 'block';
+      enableModalBtn.style.display = 'block';
   }
 
   // 通知を有効にする処理
   enableBtn.addEventListener('click', () => {
+
+    // モーダルを閉じる
+    const confirmModalElement = document.getElementById('confirmEnableModal')
+    const confirmModal = bootstrap.Modal.getInstance(confirmModalElement);
+    if (confirmModal) {
+        confirmModal.hide();
+    }
+    
     Notification.requestPermission().then((permission) => {
         if (permission === 'granted') {
             console.log('通知が許可されました');
@@ -80,11 +89,12 @@ document.addEventListener('DOMContentLoaded', function () {
           }).then(response => {
             if (response.ok) {
               console.log('サーバーへの登録成功');
-              enableBtn.style.display = 'none';
+              enableModalBtn.style.display = 'none';
               disableBtn.style.display = 'block';
             } else {
               console.log('サーバー登録エラー：', response.statusText);
             }
+
           }).catch(error => {
               console.error("プッシュ通知の登録に失敗:", error);
           });
@@ -103,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
   });
 
-  // 通知を無効にする処理
+ // 通知を無効にする処理
   disableBtn.addEventListener("click", () => {
     console.log('通知無効ボタンを押下')
     navigator.serviceWorker.ready.then((registration) => {
@@ -126,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (response.ok) {
                   console.log("通知解除成功");
                   disableBtn.style.display = "none";
-                  enableBtn.style.display = "block";
+                  enableModalBtn.style.display = "block";
                 } else {
                   console.error("通知解除エラー:", response.statusText);
                 }

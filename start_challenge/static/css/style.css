@@ -2,7 +2,12 @@ html, body {
   height: 100%;
 }
 
-#header {
+nav#header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
   background-color: blue;
 }
 
@@ -30,8 +35,9 @@ html, body {
 
 .study-challenge-wrapper {
   min-height: 100vh;
-  position: relative;
   padding-bottom: 60px;
+  padding-top: 100px;
+  position: relative;
   box-sizing: border-box;
 }
 
