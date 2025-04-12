@@ -221,7 +221,7 @@ def schedule_edit(request, pk):
       return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)
     
     else:
-      messages.error(request, '目標編集の入力項目に誤りがあります。')
+      messages.error(request, 'スケジュール編集の入力項目に誤りがあります。')
       print('エラー発生', schedule_edit_form.errors)
 
   return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)
