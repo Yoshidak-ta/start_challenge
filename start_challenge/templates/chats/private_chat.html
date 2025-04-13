@@ -139,7 +139,7 @@
             <a class="text-decoration-none text-reset" href="{% url 'chats:group_chat' group.id %}">
               <div class="mx-2">
                 <img class="profile-icon rounded-circle" id="profile-icon" src="{{ group.picture.url }}" alt="Group Icon" style="width: 50px; height: 50px; object-fit: cover;">
-                <p class="text-center">{{ group.grouprname }}</p>
+                <p class="text-center">{{ group.groupname }}</p>
               </div>
             </a>
           {% empty %}

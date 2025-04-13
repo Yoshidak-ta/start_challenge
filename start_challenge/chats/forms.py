@@ -1,6 +1,7 @@
 from django import forms
 from accounts.models import Users
 from .models import ChatsGroup, Chats
+from django.contrib.auth import get_user_model
 
 # チャットグループ作成フォーム
 class ChatsGroupForm(forms.ModelForm):
@@ -17,6 +18,20 @@ class ChatsGroupForm(forms.ModelForm):
     model = ChatsGroup
     fields = ['groupname', 'picture', 'user']
 
+class ChatsGroupEditForm(forms.ModelForm):
+
+  class Meta():
+    model = ChatsGroup
+    fields = ('groupname', 'picture', 'user')
+    labels = {
+      'groupname':'グループ名',
+      'picture':'グループアイコン',
+      'user':'登録ユーザー',
+    }
+    widgets = {
+      'user':forms.CheckboxSelectMultiple,
+    }
+
 # チャット投稿フォーム
 class ChatRegistForm(forms.ModelForm):
   message = forms.CharField(label='メッセージ')
@@ -25,5 +40,7 @@ class ChatRegistForm(forms.ModelForm):
   class Meta():
     model = Chats
     fields = ('message', 'picture')
+
+
 
   

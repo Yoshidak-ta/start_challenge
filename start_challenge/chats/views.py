@@ -7,6 +7,7 @@ from accounts.models import Users
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+from datetime import datetime
 
 
 # チャット共通コンテキスト
@@ -26,7 +27,6 @@ def get_chat_context(request, group):
   schedule_regist_form.fields['user'].queryset = Users.objects.all()
 
   context = {
-    'group':group,
     'chats':chats,
     'chatgroups':chatgroups,
     'chat_form':chat_form,
@@ -60,11 +60,13 @@ def group_chat(request, group_id):
   group = get_object_or_404(ChatsGroup, pk=group_id, group_category=2)
 
   group_user_ids = set(group.user.values_list('id', flat=True))
+  chatsgroup_edit_form = forms.ChatsGroupEditForm()
 
   context = get_chat_context(request, group)
   additional_context = {
       'group':group,
       'group_user_ids':group_user_ids,
+      'chatgroup_edit_form':chatsgroup_edit_form,
     }
   context.update(additional_context)
   return render(request, 'chats/group_chat.html', context)
@@ -118,7 +120,47 @@ def chatsgroup_create(request):
   else:
     messages.error(request, '入力事項に誤りがあります')
 
-  return redirect('chats:share_chat') 
+  return redirect('chats:share_chat')
+
+# スケジュールpk取得
+@login_required
+def get_chatgroup_users(request, group_id):
+  chatgroup = get_object_or_404(ChatsGroup, pk=group_id)
+  user_ids = list(chatgroup.user.values_list('id', flat=True))
+  return JsonResponse({'user_ids': user_ids})
+
+# グループ編集
+@login_required
+def chatsgroup_edit(request, group_id):
+  group = get_object_or_404(ChatsGroup, pk=group_id)
+  if request.method == 'POST':
+    chatgroup_edit_form = forms.ChatsGroupEditForm(request.POST or None, request.FILES or None, instance=group)
+    if chatgroup_edit_form.is_valid():
+      chatgroup_edit_form.save(commit=False)
+      group.updated_at = datetime.now()
+      group.save()
+
+      selected_user_ids_str = request.POST.get('users', '')
+      selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
+      valid_user_ids = [int(user_id.strip()) for user_id in selected_user_ids if user_id.strip().isdigit()]
+      if valid_user_ids:
+        group.user.set(Users.objects.filter(id__in=valid_user_ids))
+      else:
+        group.user.clear()
+      
+      messages.info(request, 'グループを編集しました')
+      return redirect('chats:group_chat', group_id=group_id)
+  
+    else:
+      messages.error(request, 'グループ編集の入力項目に誤りがあります')
+      return redirect('chats:group_chat', group_id=group_id)
+
+# グループ削除
+def chatsgroup_delete(request, group_id):
+  group = get_object_or_404(ChatsGroup, pk=group_id)
+  group.delete()
+  messages.info(request, 'グループが削除されました')
+  return redirect('chats:share_chat')
 
 # メッセージ送信
 @login_required
