@@ -18,6 +18,7 @@ class ChatsGroupForm(forms.ModelForm):
     model = ChatsGroup
     fields = ['groupname', 'picture', 'user']
 
+# チャットグループ編集フォーム
 class ChatsGroupEditForm(forms.ModelForm):
 
   class Meta():
@@ -26,7 +27,7 @@ class ChatsGroupEditForm(forms.ModelForm):
     labels = {
       'groupname':'グループ名',
       'picture':'グループアイコン',
-      'user':'登録ユーザー',
+      'user': '登録ユーザー',
     }
     widgets = {
       'user':forms.CheckboxSelectMultiple,

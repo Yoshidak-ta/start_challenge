@@ -151,7 +151,7 @@
           </div>
         </div>
         <div class="justify-content-end mx-2">
-          <a href="#" class="btn btn-custom-edit" data-bs-toggle="modal" data-bs-target="#editObjectiveModal">編集</a>
+          <a href="#" class="btn btn-custom-edit objective-edit-btn" objective-data-pk="{{ user.id }}" data-bs-toggle="modal" data-bs-target="#editObjectiveModal">編集</a>
           <a href="#" class="btn btn-custom-warning" data-bs-toggle="modal" data-bs-target="#goalObjectiveModal">達成</a>
         </div>
         <!-- 編集モーダル -->
@@ -166,26 +166,20 @@
                 <div class="modal-body">
                   <div class="row justify-content-center">
                     <div class="col">
-                      <form id="objectiveEditForm" method="POST" action="{% url 'schedules:objective_edit' user_id=request.user.id %}">
+                      <form id="objectiveEditForm" method="POST">
                       {% csrf_token %}
-                      {% for objective in objective_edit_form %}
-                        {% if objective.name == 'objective_due_date' %}
+                      {% for edit_objective in objective_edit_form %}
                         <div class="form-group mb-3">
-                          <h5>{{ objective.label }}</h5>
-                          {% for error in objective.errors %}
+                          <h5>{{ edit_objective.label }}</h5>
+                          {% for error in edit_objective.errors %}
                           <p style="color: red;">{{ error }}</p>
                           {% endfor %}
-                          <input type="datetime-local" class="form-control" name="{{ objective.name }}" value="{{ objective.value }}">
+                          {% if edit_objective.name == 'objective_due_date' %}
+                            <input type="datetime-local" id="editObjectiveDueDate" class="form-control" name="{{ edit_objective.name }}">
+                          {% else %}
+                            <textarea id="editObjective" name="{{ edit_objective.name }}" cols="1" rows="1" class="form-control">{{ objective }}</textarea>
+                          {% endif %}
                         </div>
-                        {% else %}
-                        <div class="form-group mb-3">
-                          <h5>{{ objective.label }}</h5>
-                          {% for error in objective.errors %}
-                          <p style="color: red;">{{ error }}</p>
-                          {% endfor %}
-                          <textarea name="objective" cols="1" rows="1" class="form-control" value="{{ objective.value }}"></textarea>
-                        </div>
-                        {% endif %}
                       {% endfor %}
                         <div class="objective-group d-flex justify-content-center">
                           <input type="submit" class="btn btn-primary w-50" value="登録"></button>

@@ -310,28 +310,41 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('チャットグループ編集読み込み');
   document.querySelectorAll('.edit-chatgroup-btn').forEach((button) => {
-    window.chatgroupEditSelectedUserIds = new Set();
     button.addEventListener('click', function () {
       let chatgroupPk = this.getAttribute('chatgroup-data-pk');
-      console.log('編集対象のスケジュールPK:', chatgroupPk);
+      console.log('編集対象のチャットグループPK:', chatgroupPk);
 
       let editForm = document.getElementById('chatgroupEditForm');
-      editForm.action = `/chats/chat/chatgroup_edit/${chatgroupPk}`;
-
-      // document.getElementById('editGroupname').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
-      // document.getElementById('editPicture').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
+      editForm.action = `/chats/chat/chatsgroup_edit/${chatgroupPk}`;
 
       // ユーザー情報を取得しておく（グローバルに保存など）
-      fetch(`/chats/chat/get_chatgroup_users/${chatgroupPk}`)
+      fetch(`/chats/chat/get_chatgroup_data/${chatgroupPk}`)
         .then(response => response.json())
         .then(data => {
-          window.chatgroupEditSelectedUserIds = new Set(data.user_ids);
-          console.log('ユーザー情報を取得しました：', chatgroupEditSelectedUserIds)
+          const chatgroupEditSelectedUserIds = new Set(data.user_ids);
+          const chatgroupEditSelectedUserNames = new Set(data.usernames);
+          console.log('ユーザー情報を取得しました：', chatgroupEditSelectedUserIds);
+          console.log('ユーザー名を取得しました：', chatgroupEditSelectedUserNames);
+
+          document.getElementById('editGroupname').value = data.groupname;
+          document.getElementById('editPicture').src = data.picture;
 
           document.querySelectorAll('#editChatgroupUserModal .chatgroup-user-edit-checkbox').forEach(checkbox => {
             const userId = parseInt(checkbox.value, 10);
-            checkbox.checked = window.chatgroupEditSelectedUserIds.has(userId);
+            const username = checkbox.getAttribute('edit-data-name');
+            chatgroupEditSelectedUserNames.add(username)
+            checkbox.checked = chatgroupEditSelectedUserIds.has(userId);
           });
+
+          // ユーザー追加
+          const displayArea = document.getElementById('editGroupUsersDisplay');
+          displayArea.innerHTML = Array.from(chatgroupEditSelectedUserNames)
+            .map(name => `<span class="badge bg-primary me-1>${name}</span>`)
+            .join('');
+
+          // Hidden input にID反映
+          document.getElementById('editGroupUsers').value = Array.from(chatgroupEditSelectedUserIds).join(',')
+
           console.log('checkの入ったuserId取得:', window.chatgroupEditSelectedUserIds)
         });
     });
@@ -382,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const userDiv = document.createElement('div');
             userDiv.classList.add('form-check');
 
-            const isChecked =  chatgroupSelectedUsers.has(user.id) || window.chatgroupEditSelectedUserIds && window.chatgroupEditSelectedUserIds.has(user.id) ? 'checked' : '';
+            const isChecked = chatgroupSelectedUsers.has(user.id) ? 'checked' : '';
 
             userDiv.innerHTML = `
                 <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}" ${isChecked}>
@@ -414,6 +427,41 @@ document.addEventListener('DOMContentLoaded', function () {
       `;
       searchInput.value = '';
     });
+  });
+});
+
+// チャットグループ編集(ユーザー選択)
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('チャットグループ編集ユーザー追加読み込み')
+  document.getElementById('editChatgroupUsers').addEventListener('click', () => {
+    const checkedCheckboxes = document.querySelectorAll('.chatgroup-user-edit-checkbox:checked');
+    const selectedUsernames = [];
+    const selectedUserIds = [];
+
+    checkedCheckboxes.forEach((checkbox) => {
+      const username = checkbox.getAttribute('data-name');
+      const userId = checkbox.value;
+      selectedUsernames.push(username);
+      selectedUserIds.push(userId);
+    });
+
+    // ユーザー名表示
+    const displayArea = document.getElementById('editGroupUsersDisplay');
+    displayArea.innerHTML = selectedUsernames
+      .map(name => `<span class="badge bg-primary me-1">${name}</span>`)
+      .join('');
+
+    // Hidden input にID反映
+    document.getElementById('editGroupUsers').value = selectedUserIds.join(',');
+
+    console.log('登録されたuser_id：', selectedUserIds);
+
+    // ユーザ選択モーダルを閉じる
+    const editChatgroupUserModalElement = document.getElementById('editChatgroupUserModal');
+    const editChatgroupUserModal = bootstrap.Modal.getInstance(editChatgroupUserModalElement);
+    if (editChatgroupUserModal) {
+      editChatgroupUserModal.hide();
+    }
   });
 });
 
@@ -608,11 +656,14 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
 
       // ユーザー情報を取得しておく（グローバルに保存など）
-      fetch(`/schedules/schedule_show/get_schedule_users/${schedulePk}`)
+      fetch(`/schedules/schedule_show/get_schedule_data/${schedulePk}`)
         .then(response => response.json())
         .then(data => {
           window.scheduleEditSelectedUserIds = new Set(data.user_ids);
           console.log('ユーザー情報を取得しました：', scheduleEditSelectedUserIds)
+
+          document.getElementById('ScheduleStartAt').value = data.start_at
+          document.getElementById('ScheduleEndAt').value = data.end_at
 
           document.querySelectorAll('#editUserModal .user-edit-checkbox').forEach(checkbox => {
             const userId = parseInt(checkbox.value, 10);
@@ -686,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const userDiv = document.createElement('div');
             userDiv.classList.add('form-check');
 
-            const isChecked =  scheduleSelectedUsers.has(user.id) || window.scheduleEditSelectedUserIds && window.scheduleEditSelectedUserIds.has(user.id) ? 'checked' : '';
+            const isChecked =  scheduleSelectedUsers.has(user.id) ? 'checked' : '';
 
             userDiv.innerHTML = `
                 <input class="form-check-input user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}" ${isChecked}>
@@ -727,11 +778,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const selectedUsersInput = document.getElementById('selectedEditUsers');
   const confirmUserSelectionButton = document.getElementById('confirmEditUserSelection');
 
+  // data-nameのidを登録しておく処理実装
+  
   confirmUserSelectionButton.addEventListener('click', () => {
     console.log("追加（登録）ボタンが押されました");
 
     const selectedUserIds = [];
     const selectedUsernames = [];
+    
     document.querySelectorAll('.user-edit-checkbox:checked').forEach((checkbox) => {
         selectedUserIds.push(parseInt(checkbox.value, 10));
         selectedUsernames.push(checkbox.getAttribute('data-name'));
@@ -884,50 +938,31 @@ function getCookie(name) {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('目標編集機能読み込み完了');
 
-  // 目標編集フォームの取得
-  const editObjectiveForm = document.getElementById('objectiveEditForm');
+  document.querySelectorAll('.objective-edit-btn').forEach((button) => {
+    button.addEventListener('click', function () {
+      let objectivePk = this.getAttribute('objective-data-pk');
+      console.log('編集対象：', objectivePk);
 
-  document.getElementById('objectiveEditForm').addEventListener('submit', function (e) {
-      e.preventDefault();  // フォームのデフォルト送信を防ぐ
+      let editForm = document.getElementById('objectiveEditForm');
+      editForm.action = `/schedules/objective_edit/${objectivePk}`;
 
-      console.log("目標編集を送信開始");
-
-      const formData = new FormData(this);
-
-      fetch(this.action, {
-          method: 'POST',
-          body: formData,
-          headers: {
-              'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
-          },
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (data.success) {
-              console.log("目標編集成功:", data.objective);
-
-              // 目標をページに反映（既存の h2 タグを更新）
-              const objectiveElement = document.querySelector('.objective-item');
-              if (objectiveElement) {
-                  objectiveElement.textContent = data.objective;
-              }
-
-              // モーダルを閉じる
-              const modal = bootstrap.Modal.getInstance(document.getElementById('editObjectiveModal'));
-              if (modal) {
-                  modal.hide();
-              }
-
-              // ページをリダイレクト（オプション）
-              window.location.href = data.redirect_url;
-
-          } else {
-              console.error("目標編集エラー:", data.errors);
-          }
-      })
-      .catch(error => console.error("通信エラー:", error));
-  });
+      fetch(`/schedules/get_objective_data/${objectivePk}`)
+        .then(response => {
+          if(!response.ok) throw new Error('データ取得失敗');
+          return response.json();
+        })
+        .then(data => {
+          console.log('取得データ：', data);
+          document.getElementById('editObjective').value = data.objective;
+          document.getElementById('editObjectiveDueDate').value = data.objective_due_date;
+        })
+        .catch(error => {
+          console.log('エラー：', error);
+        });
+    });
+  })
 });
+
 
 // 目標設定
 document.addEventListener('DOMContentLoaded', function () {

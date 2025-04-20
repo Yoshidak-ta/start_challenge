@@ -45,14 +45,18 @@
                           {% csrf_token %}
                           <div class="row">
                             <div class="col-6">
-                              {% for edit in schedule_edit_form %}
+                            {% for edit in schedule_edit_form %}
                               {% if edit.name in fields_left %}
                                 <div class="form-group mb-3">
                                   <h5>{{ edit.label }}</h5>
                                   {% for error in edit.errors %}
                                   <p style="color: red;">{{ error }}</p>
                                   {% endfor %}
-                                  <input type="datetime-local" class="form-control" name="{{ edit.name }}" value="{{ edit.value }}">
+                                  {% if edit.name == 'start_at' %}
+                                  <input type="datetime-local" id="ScheduleStartAt" class="form-control" name="{{ edit.name }}" value="{{ edit.value }}">
+                                  {% elif edit.name == 'end_at' %}
+                                  <input type="datetime-local" id="ScheduleEndAt" class="form-control" name="{{ edit.name }}" value="{{ edit.value }}">
+                                  {% endif %}
                                 </div>
                               {% endif %}
                             {% endfor %}
@@ -83,7 +87,11 @@
                                   {% for error in edit.errors %}
                                   <p style="color: red;">{{ error }}</p>
                                   {% endfor %}
-                                  <div id="selectedEditUsersDisplay" class="p-4">ユーザーを確認してください</div>
+                                  <div id="selectedEditUsersDisplay" class="p-4">
+                                    {% for schedule_user in schedule.user.all %}
+                                    <span class="badge bg-primary me-1">{{ schedule_user.username }}</span>
+                                    {% endfor %}
+                                  </div>
                                 </div>
                                 {% endif %}
                               {% endif %}

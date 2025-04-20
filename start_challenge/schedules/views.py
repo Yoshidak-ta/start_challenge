@@ -8,7 +8,7 @@ from .models import Schedules, ToDos, SchedulesHistory
 from .utils.calendar_helper import CalendarHelper
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.db import models
 from django.views.decorators.csrf import csrf_exempt
@@ -67,7 +67,6 @@ def schedule_show(request, year=None, month=None, day=None):
   month = month
   day = day
   
-  # スケジュール登録
   schedule_regist_form = forms.ScheduleRegistForm()
   schedule_edit_form = forms.ScheduleEditForm()
   fields_left = ['start_at', 'end_at']
@@ -228,10 +227,10 @@ def schedule_edit(request, pk):
 
 # スケジュールpk取得
 @login_required
-def get_schedule_users(request, pk):
+def get_schedule_data(request, pk):
   schedule = get_object_or_404(Schedules, pk=pk)
   user_ids = list(schedule.user.values_list('id', flat=True))
-  return JsonResponse({'user_ids': user_ids})
+  return JsonResponse({'user_ids': user_ids, 'start_at':schedule.start_at.strftime('%Y-%m-%d %H:%M'), 'end_at': schedule.end_at.strftime('%Y-%m-%d %H:%M')})
 
 # スケジュール更新履歴取得
 @login_required
@@ -290,24 +289,31 @@ def objective_regist(request):
 # 目標編集
 @login_required
 def objective_edit(request, user_id):
-  user = get_object_or_404(Users, id=request.user.id)
+  user = get_object_or_404(Users, pk=user_id)
   year = datetime.now().year
   month = datetime.now().month
+
   if request.method == 'POST':
     objective_edit_form = ObjectiveEditForm(request.POST, instance=user)
     if objective_edit_form.is_valid():
-      user = objective_edit_form.save(commit=False)
+      objective_edit_form.save(commit=False)
       user.updated_at = datetime.now()
       user.save()
       messages.info(request, '目標を編集しました')
-      return JsonResponse({
-        "success": True,
-        "objective": user.objective,
-        "redirect_url": f"/schedules/schedule/{year}/{month}"
-      }, safe=False)
-  
-  messages.error(request, '目標設定ができませんでした')
-  return redirect('schedules:schedule', year=year, month=month)
+      return redirect('schedules:schedule', year=year, month=month)
+   
+    else:
+      messages.error(request, '目標設定ができませんでした')
+      return redirect('schedules:schedule', year=year, month=month)
+
+# 目標データ取得
+@login_required
+def get_objective_data(request, user_id):
+  try:
+    user = Users.objects.get(pk=user_id)
+    return JsonResponse({'objective': user.objective, 'objective_due_date': user.objective_due_date.strftime('%Y-%m-%d %H:%M')})
+  except Users.DoseNotExist:
+    raise Http404('ユーザーが見つかりません')
 
 # 目標達成
 @login_required

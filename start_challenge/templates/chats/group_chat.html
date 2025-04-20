@@ -213,7 +213,7 @@
                 {% for user in users %}
                   <div class="form-check">
                     {% if user.id == request.user.id %}
-                    <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
+                    <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked disabled>
                     <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                     <label class="form-check-label">{{ user.username }}</label>
                     {% else %}
@@ -279,7 +279,11 @@
                               {% for error in edit.errors %}
                               <p style="color: red;">{{ error }}</p>
                               {% endfor %}
-                              <div id="selectedGroupUsersDisplay" class="p-4">ユーザーを選択してください</div>
+                              <div id="editGroupUsersDisplay" class="p-4">
+                                {% for group_user in group.user.all %}
+                                <span class="badge bg-primary me-1" value="{{ group_user.id }}" edit-data-name="{{ group_user.username }}"></span>
+                                {% endfor %}
+                              </div>
                             </div>
                             {% else %}
                             <div class="form-group mb-3">
@@ -299,7 +303,7 @@
                           <div class="d-flex flex-column mb-2">
                             <div class="row justify-content-center">
                               <button class="btn btn-custom-edit w-50 m-2" type="button" data-bs-toggle="modal" data-bs-target="#editChatgroupUserModal">登録ユーザを選択する</button>
-                              <input type="hidden" name="users" id="selectedEditUsers">
+                              <input type="hidden" name="users" id="editGroupUsers">
                               <button type="submit" class="btn btn-primary w-50">更新</button>
                             </div>
                           </div>
@@ -336,7 +340,7 @@
                         <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                         <label class="form-check-label">{{ user.username }}</label>
                         {% else %}
-                        <input class="form-check-input user-group-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                        <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
                         <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                         <label class="form-check-label">{{ user.username }}</label>
                         {% endif %}

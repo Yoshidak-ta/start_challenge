@@ -122,14 +122,15 @@ def chatsgroup_create(request):
 
   return redirect('chats:share_chat')
 
-# スケジュールpk取得
+# チャットグループpk取得
 @login_required
-def get_chatgroup_users(request, group_id):
+def get_chatgroup_data(request, group_id):
   chatgroup = get_object_or_404(ChatsGroup, pk=group_id)
   user_ids = list(chatgroup.user.values_list('id', flat=True))
-  return JsonResponse({'user_ids': user_ids})
+  usernames = list(chatgroup.user.values_list('username', flat=True))
+  return JsonResponse({'user_ids': user_ids, 'usernames': usernames, 'groupname': chatgroup.groupname, 'picture':chatgroup.picture.url if chatgroup.picture else None})
 
-# グループ編集
+# チャットグループ編集
 @login_required
 def chatsgroup_edit(request, group_id):
   group = get_object_or_404(ChatsGroup, pk=group_id)
@@ -137,8 +138,8 @@ def chatsgroup_edit(request, group_id):
     chatgroup_edit_form = forms.ChatsGroupEditForm(request.POST or None, request.FILES or None, instance=group)
     if chatgroup_edit_form.is_valid():
       chatgroup_edit_form.save(commit=False)
-      group.updated_at = datetime.now()
-      group.save()
+      chatgroup_edit_form.updated_at = datetime.now()
+      chatgroup_edit_form.save()
 
       selected_user_ids_str = request.POST.get('users', '')
       selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
@@ -150,8 +151,9 @@ def chatsgroup_edit(request, group_id):
       
       messages.info(request, 'グループを編集しました')
       return redirect('chats:group_chat', group_id=group_id)
-  
+
     else:
+      print("フォームエラー:", chatgroup_edit_form.errors)
       messages.error(request, 'グループ編集の入力項目に誤りがあります')
       return redirect('chats:group_chat', group_id=group_id)
 
