@@ -102,7 +102,6 @@ def chatsgroup_create(request):
       new_group.group_category = 2
       new_group.save()
       new_group_id = new_group.id
-      print(new_group_id)
 
       selected_user_ids_str = request.POST.get('group_users', '')
       selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
@@ -137,15 +136,18 @@ def chatsgroup_edit(request, group_id):
   if request.method == 'POST':
     chatgroup_edit_form = forms.ChatsGroupEditForm(request.POST or None, request.FILES or None, instance=group)
     if chatgroup_edit_form.is_valid():
-      chatgroup_edit_form.save(commit=False)
-      chatgroup_edit_form.updated_at = datetime.now()
-      chatgroup_edit_form.save()
+      chatgroup_edit_form.save(commit=True)
+      group.updated_at = datetime.now()
+      group.save()
 
-      selected_user_ids_str = request.POST.get('users', '')
-      selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
-      valid_user_ids = [int(user_id.strip()) for user_id in selected_user_ids if user_id.strip().isdigit()]
-      if valid_user_ids:
-        group.user.set(Users.objects.filter(id__in=valid_user_ids))
+      selected_user_ids = set(request.POST.getlist('user'))
+      print('登録ユーザー：', selected_user_ids)
+
+      selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
+      print('登録ユーザーId：', selected_user_ids)
+
+      if selected_user_ids:
+        group.user.set(Users.objects.filter(id__in=selected_user_ids))
       else:
         group.user.clear()
       

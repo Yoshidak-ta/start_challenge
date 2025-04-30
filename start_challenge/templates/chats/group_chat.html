@@ -157,7 +157,7 @@
             <div class="modal-body">
               <div class="row justify-content-center">
                 <div class="col">
-                  <form id="chatgroupForm" method="POST" action="{% url 'chats:chatsgroup_create' %}">
+                  <form id="chatgroupForm" method="POST" action="{% url 'chats:chatsgroup_create' %}" enctype="multipart/form-data">
                   {% csrf_token %}
                   {% for create in chat_group_form %}
                     {% if create.name == 'user' %}
@@ -268,7 +268,7 @@
                   <!-- チャットグループ編集 -->
                   <div class="row justify-content-center">
                     <div class="col">
-                      <form id="chatgroupEditForm" method="POST">
+                      <form id="chatgroupEditForm" method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="row">
                           <div class="col-6">
@@ -279,11 +279,7 @@
                               {% for error in edit.errors %}
                               <p style="color: red;">{{ error }}</p>
                               {% endfor %}
-                              <div id="editGroupUsersDisplay" class="p-4">
-                                {% for group_user in group.user.all %}
-                                <span class="badge bg-primary me-1" value="{{ group_user.id }}" edit-data-name="{{ group_user.username }}"></span>
-                                {% endfor %}
-                              </div>
+                              <div id="editGroupUsersDisplay" class="p-4"></div>
                             </div>
                             {% else %}
                             <div class="form-group mb-3">
@@ -295,6 +291,7 @@
                               <input type="text" class="form-control" id="editGroupname" name="groupname">
                               {% elif edit.name == 'picture' %}
                               <input type="file" id="editPicture" name="picture">
+                              <p class="small">現在のアイコン：<a href="{{ group.picture.url }}">{{ group.picture }}</a></p>
                               {% endif %}
                             </div>
                             {% endif %}
@@ -303,7 +300,7 @@
                           <div class="d-flex flex-column mb-2">
                             <div class="row justify-content-center">
                               <button class="btn btn-custom-edit w-50 m-2" type="button" data-bs-toggle="modal" data-bs-target="#editChatgroupUserModal">登録ユーザを選択する</button>
-                              <input type="hidden" name="users" id="editGroupUsers">
+                              <div id="chatgroupEditSelectedUsers"></div>
                               <button type="submit" class="btn btn-primary w-50">更新</button>
                             </div>
                           </div>
@@ -336,7 +333,11 @@
                     {% for user in users %}
                       <div class="form-check">
                         {% if user in group.user.all %}
-                        <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
+                          {% if user == request.user %}
+                          <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked disabled>
+                          {% else %}
+                          <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
+                          {% endif %}
                         <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                         <label class="form-check-label">{{ user.username }}</label>
                         {% else %}

@@ -16,10 +16,15 @@ class ChatsGroupForm(forms.ModelForm):
 
   class Meta():
     model = ChatsGroup
-    fields = ['groupname', 'picture', 'user']
+    fields = ('groupname', 'picture', 'user')
 
 # チャットグループ編集フォーム
 class ChatsGroupEditForm(forms.ModelForm):
+  user = forms.ModelMultipleChoiceField(
+    queryset=Users.objects.all(),
+    widget=forms.CheckboxSelectMultiple,
+    required=False
+  )
 
   class Meta():
     model = ChatsGroup
@@ -27,10 +32,7 @@ class ChatsGroupEditForm(forms.ModelForm):
     labels = {
       'groupname':'グループ名',
       'picture':'グループアイコン',
-      'user': '登録ユーザー',
-    }
-    widgets = {
-      'user':forms.CheckboxSelectMultiple,
+      'user': 'メンバー',
     }
 
 # チャット投稿フォーム

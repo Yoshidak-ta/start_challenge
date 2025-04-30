@@ -7,7 +7,7 @@ from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
-from .models import Questions, Templates
+from .models import Questions, Templates, Answers
 from datetime import datetime
 
 # 質問投稿
@@ -38,6 +38,9 @@ def question_regist(request):
 # 質問詳細
 def question_show(request, pk):
   question = get_object_or_404(Questions, pk=pk)
+  answers = question.answers.all()
+  user = request.user
+  answer_count = Answers.objects.filter(user=user).count()
   if request.method == "POST":
     if not request.user.is_authenticated:
       messages.error(request, '回答するにはログインが必要です。')
@@ -49,6 +52,11 @@ def question_show(request, pk):
       answer.user = request.user
       answer.question = question
       answer.save()
+
+      if answer_count % 3 == 0:
+        user.rank += 10
+        user.save()
+      
       messages.info(request, '回答しました')
       return redirect('questions:question_show', pk=pk)
     else:
@@ -57,8 +65,8 @@ def question_show(request, pk):
 
   else:
     question_answer_form = forms.QuestionAnswerForm()
-  answers = question.answers.all()
-  user = request.user
+  # answers = question.answers.all()
+  # user = request.user
   return render(request, 'questions/question_show.html', context={
     'question':question, 'question_answer_form': question_answer_form, 'answers':answers,
     'user':user,

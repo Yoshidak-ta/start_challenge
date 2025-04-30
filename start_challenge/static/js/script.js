@@ -309,6 +309,10 @@ document.addEventListener('DOMContentLoaded', function () {
 // チャットグループ編集
 document.addEventListener('DOMContentLoaded', function () {
   console.log('チャットグループ編集読み込み');
+
+  const chatgroupEditUserDisplay = document.getElementById('editGroupUsersDisplay')
+  const chatgroupEditUserInput = document.getElementById('chatgroupEditSelectedUsers')
+
   document.querySelectorAll('.edit-chatgroup-btn').forEach((button) => {
     button.addEventListener('click', function () {
       let chatgroupPk = this.getAttribute('chatgroup-data-pk');
@@ -321,31 +325,35 @@ document.addEventListener('DOMContentLoaded', function () {
       fetch(`/chats/chat/get_chatgroup_data/${chatgroupPk}`)
         .then(response => response.json())
         .then(data => {
-          const chatgroupEditSelectedUserIds = new Set(data.user_ids);
-          const chatgroupEditSelectedUserNames = new Set(data.usernames);
-          console.log('ユーザー情報を取得しました：', chatgroupEditSelectedUserIds);
-          console.log('ユーザー名を取得しました：', chatgroupEditSelectedUserNames);
-
           document.getElementById('editGroupname').value = data.groupname;
-          document.getElementById('editPicture').src = data.picture;
 
-          document.querySelectorAll('#editChatgroupUserModal .chatgroup-user-edit-checkbox').forEach(checkbox => {
-            const userId = parseInt(checkbox.value, 10);
-            const username = checkbox.getAttribute('edit-data-name');
-            chatgroupEditSelectedUserNames.add(username)
-            checkbox.checked = chatgroupEditSelectedUserIds.has(userId);
-          });
-
-          // ユーザー追加
-          const displayArea = document.getElementById('editGroupUsersDisplay');
-          displayArea.innerHTML = Array.from(chatgroupEditSelectedUserNames)
-            .map(name => `<span class="badge bg-primary me-1>${name}</span>`)
-            .join('');
-
-          // Hidden input にID反映
-          document.getElementById('editGroupUsers').value = Array.from(chatgroupEditSelectedUserIds).join(',')
-
-          console.log('checkの入ったuserId取得:', window.chatgroupEditSelectedUserIds)
+          const ChatgroupEditSelectedUserIds = []
+          const ChatgroupEditSelectedUserNames = []
+          ChatgroupEditSelectedUserIds.push(...data.user_ids);
+          ChatgroupEditSelectedUserNames.push(...data.usernames);
+          console.log('取得したユーザーid：', ChatgroupEditSelectedUserIds);
+          console.log('取得したユーザー名：', ChatgroupEditSelectedUserNames);
+          
+          // 新たに選択したユーザーを表示/Hidden input にID反映
+          if (ChatgroupEditSelectedUserNames.length > 0) {
+            console.log('既に登録されているユーザー名表示', ChatgroupEditSelectedUserNames)
+            chatgroupEditUserDisplay.innerHTML = ChatgroupEditSelectedUserNames
+              .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
+              .join('');
+            
+            console.log('既に登録されているユーザーidを渡す', ChatgroupEditSelectedUserIds)
+            ChatgroupEditSelectedUserIds.forEach(id => {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'user';
+              input.value = id;
+              chatgroupEditUserInput.append(input);
+              console.log(chatgroupEditUserInput)
+            });
+          } else {
+            chatgroupEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
+            chatgroupEditUserInput.value = '';
+          };
         });
     });
   });
@@ -354,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.delete-chatgroup-btn').forEach((button) => {
     console.log('グループ削除読み込み')
     button.addEventListener('click', function () {
-      let chatgroupPk = this.getAttribute('data-pk');
+      let chatgroupPk = this.getAttribute('chatgroup-data-pk');
       console.log('削除対象のチャットグループPK:', chatgroupPk);
 
       let deleteForm = document.getElementById('chatgroupDeleteForm');
@@ -414,18 +422,19 @@ document.addEventListener('DOMContentLoaded', function () {
               }
             });
           });
+
+          // モーダルが閉じられた時にデータをリセット
+          modal.addEventListener('hidden.bs.modal', function () {
+            chatgroupSelectedUsers.clear();
+            userList.innerHTML = `
+              <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+              <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+              <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+            `;
+            searchInput.value = '';
+          });
         })
         .catch(error => console.error('Error:', error));
-    });
-     // モーダルが閉じられた時にデータをリセット
-     modal.addEventListener('hidden.bs.modal', function () {
-      chatgroupSelectedUsers.clear();
-      userList.innerHTML = `
-        <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-        <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-        <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-      `;
-      searchInput.value = '';
     });
   });
 });
@@ -433,35 +442,55 @@ document.addEventListener('DOMContentLoaded', function () {
 // チャットグループ編集(ユーザー選択)
 document.addEventListener('DOMContentLoaded', function () {
   console.log('チャットグループ編集ユーザー追加読み込み')
-  document.getElementById('editChatgroupUsers').addEventListener('click', () => {
+
+  const chatgroupEditSelectedUserDisplay = document.getElementById('editGroupUsersDisplay');
+  const chatgroupEditSelectedUserButton = document.getElementById('editChatgroupUsers');
+  const chatgroupEditSelectedUserInput = document.getElementById('chatgroupEditSelectedUsers');
+
+  chatgroupEditSelectedUserButton.addEventListener('click', () => {
+    window.newChatgroupEditSelectedUserIds = []
+    window.newChatgroupEditSelectedUserNames = []
     const checkedCheckboxes = document.querySelectorAll('.chatgroup-user-edit-checkbox:checked');
-    const selectedUsernames = [];
-    const selectedUserIds = [];
 
     checkedCheckboxes.forEach((checkbox) => {
+      const userId = parseInt(checkbox.value, 10);
       const username = checkbox.getAttribute('data-name');
-      const userId = checkbox.value;
-      selectedUsernames.push(username);
-      selectedUserIds.push(userId);
+
+      window.newChatgroupEditSelectedUserIds.push(userId);
+      window.newChatgroupEditSelectedUserNames.push(username);
     });
 
+    console.log('現在のユーザーID：', window.newChatgroupEditSelectedUserIds);
+    console.log('現在のユーザー名：', window.newChatgroupEditSelectedUserNames);
+
     // ユーザー名表示
-    const displayArea = document.getElementById('editGroupUsersDisplay');
-    displayArea.innerHTML = selectedUsernames
-      .map(name => `<span class="badge bg-primary me-1">${name}</span>`)
-      .join('');
+    if (window.newChatgroupEditSelectedUserNames.length > 0) {
+      console.log('新しく追加したユーザー名表示：', window.newChatgroupEditSelectedUserNames);
+      chatgroupEditSelectedUserDisplay.innerHTML = window.newChatgroupEditSelectedUserNames
+        .map(name => `<span class="badge bg-primary me-1">${name}</span>`)
+        .join('');
 
-    // Hidden input にID反映
-    document.getElementById('editGroupUsers').value = selectedUserIds.join(',');
-
-    console.log('登録されたuser_id：', selectedUserIds);
+      chatgroupEditSelectedUserInput.innerHTML = '';
+      // hidden input に選択したユーザーidセット
+      console.log('新しく追加したユーザーid:', window.newChatgroupEditSelectedUserIds)
+      window.newChatgroupEditSelectedUserIds.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'user';
+        input.value = id;
+        chatgroupEditSelectedUserInput.append(input);
+        console.log('input要素：', chatgroupEditSelectedUserInput);
+      });
+    } else {
+      chatgroupEditSelectedUserDisplay.innerHTML = `<p>ユーザーが選択されていません</p>`
+    }
 
     // ユーザ選択モーダルを閉じる
     const editChatgroupUserModalElement = document.getElementById('editChatgroupUserModal');
     const editChatgroupUserModal = bootstrap.Modal.getInstance(editChatgroupUserModalElement);
     if (editChatgroupUserModal) {
       editChatgroupUserModal.hide();
-    }
+    };
   });
 });
 
