@@ -32,7 +32,6 @@ class ChatsGroupEditForm(forms.ModelForm):
     labels = {
       'groupname':'グループ名',
       'picture':'グループアイコン',
-      'user': 'メンバー',
     }
 
 # チャット投稿フォーム

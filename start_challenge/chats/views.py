@@ -44,7 +44,8 @@ def get_chat_context(request, group):
 @login_required
 def share_chat(request):
   share_chat = get_object_or_404(ChatsGroup, group_category=1)
-  if request.user not in share_chat.user.all():
+  # if not share_chat.user.filter(pk=request.user.id).exists() and not request.user.is_staff:
+  if request.user not in share_chat.user.all() and not request.user.is_staff:
     share_chat.user.add(request.user)
   
   context = get_chat_context(request, share_chat)
@@ -140,7 +141,7 @@ def chatsgroup_edit(request, group_id):
       group.updated_at = datetime.now()
       group.save()
 
-      selected_user_ids = set(request.POST.getlist('user'))
+      selected_user_ids = set(request.POST.getlist('chatgroup_user'))
       print('登録ユーザー：', selected_user_ids)
 
       selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]

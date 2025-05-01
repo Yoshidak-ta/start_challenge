@@ -263,7 +263,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-
 // チャットグループ(ユーザ選択)
 document.addEventListener('DOMContentLoaded', function () {
   const selectedUsersDisplay = document.getElementById('selectedGroupUsersDisplay');
@@ -334,9 +333,9 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log('取得したユーザーid：', ChatgroupEditSelectedUserIds);
           console.log('取得したユーザー名：', ChatgroupEditSelectedUserNames);
           
-          // 新たに選択したユーザーを表示/Hidden input にID反映
+          // 既存データ反映
           if (ChatgroupEditSelectedUserNames.length > 0) {
-            console.log('既に登録されているユーザー名表示', ChatgroupEditSelectedUserNames)
+            console.log('既に登録されているユーザー名表示', ChatgroupEditSelectedUserNames);
             chatgroupEditUserDisplay.innerHTML = ChatgroupEditSelectedUserNames
               .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
               .join('');
@@ -345,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ChatgroupEditSelectedUserIds.forEach(id => {
               const input = document.createElement('input');
               input.type = 'hidden';
-              input.name = 'user';
+              input.name = 'chatgroup_user';
               input.value = id;
               chatgroupEditUserInput.append(input);
               console.log(chatgroupEditUserInput)
@@ -353,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function () {
           } else {
             chatgroupEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
             chatgroupEditUserInput.value = '';
-          };
+          }
         });
     });
   });
@@ -441,42 +440,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // チャットグループ編集(ユーザー選択)
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('チャットグループ編集ユーザー追加読み込み')
-
   const chatgroupEditSelectedUserDisplay = document.getElementById('editGroupUsersDisplay');
   const chatgroupEditSelectedUserButton = document.getElementById('editChatgroupUsers');
   const chatgroupEditSelectedUserInput = document.getElementById('chatgroupEditSelectedUsers');
 
   chatgroupEditSelectedUserButton.addEventListener('click', () => {
-    window.newChatgroupEditSelectedUserIds = []
-    window.newChatgroupEditSelectedUserNames = []
+    newChatgroupEditSelectedUserIds = []
+    newChatgroupEditSelectedUserNames = []
     const checkedCheckboxes = document.querySelectorAll('.chatgroup-user-edit-checkbox:checked');
 
     checkedCheckboxes.forEach((checkbox) => {
       const userId = parseInt(checkbox.value, 10);
       const username = checkbox.getAttribute('data-name');
 
-      window.newChatgroupEditSelectedUserIds.push(userId);
-      window.newChatgroupEditSelectedUserNames.push(username);
+      newChatgroupEditSelectedUserIds.push(userId);
+      newChatgroupEditSelectedUserNames.push(username);
     });
 
-    console.log('現在のユーザーID：', window.newChatgroupEditSelectedUserIds);
-    console.log('現在のユーザー名：', window.newChatgroupEditSelectedUserNames);
+    console.log('現在のユーザーID：', newChatgroupEditSelectedUserIds);
+    console.log('現在のユーザー名：', newChatgroupEditSelectedUserNames);
 
     // ユーザー名表示
-    if (window.newChatgroupEditSelectedUserNames.length > 0) {
-      console.log('新しく追加したユーザー名表示：', window.newChatgroupEditSelectedUserNames);
-      chatgroupEditSelectedUserDisplay.innerHTML = window.newChatgroupEditSelectedUserNames
+    if (newChatgroupEditSelectedUserNames.length > 0) {
+      console.log('新しく追加したユーザー名表示：', newChatgroupEditSelectedUserNames);
+      chatgroupEditSelectedUserDisplay.innerHTML = newChatgroupEditSelectedUserNames
         .map(name => `<span class="badge bg-primary me-1">${name}</span>`)
         .join('');
 
       chatgroupEditSelectedUserInput.innerHTML = '';
       // hidden input に選択したユーザーidセット
-      console.log('新しく追加したユーザーid:', window.newChatgroupEditSelectedUserIds)
-      window.newChatgroupEditSelectedUserIds.forEach(id => {
+      console.log('新しく追加したユーザーid:', newChatgroupEditSelectedUserIds)
+      newChatgroupEditSelectedUserIds.forEach(id => {
         const input = document.createElement('input');
         input.type = 'hidden';
-        input.name = 'user';
+        input.name = 'chatgroup_user';
         input.value = id;
         chatgroupEditSelectedUserInput.append(input);
         console.log('input要素：', chatgroupEditSelectedUserInput);
@@ -631,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('スケジュール登録(スケジュール詳細画面)していくよー')
 
   const selectedUsersDisplay = document.getElementById('selectedUsersDisplay');
-  const selectedUsersInput = document.getElementById('selectedUsers');
+  const selectedUsersInput = document.getElementById('scheduleSelectedUserInput');
   const confirmUserSelectionButton = document.getElementById('confirmUserSelection');
 
   confirmUserSelectionButton.addEventListener('click', () => {
@@ -639,9 +636,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const selectedUserIds = [];
     const selectedUsernames = [];
-    document.querySelectorAll('.user-checkbox:checked').forEach((checkbox) => {
-        selectedUserIds.push(parseInt(checkbox.value, 10));
-        selectedUsernames.push(checkbox.getAttribute('data-name'));
+    const checkedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+    checkedCheckboxes.forEach((checkbox) => {
+      const userId = parseInt(checkbox.value, 10);
+      const username = checkbox.getAttribute('data-name');
+      selectedUserIds.push(userId);
+      selectedUsernames.push(username);
     });
 
     console.log("選択したユーザID:", selectedUserIds);
@@ -650,12 +650,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // 選択したユーザをフォームに反映
     if (selectedUsernames.length > 0) {
         selectedUsersDisplay.innerHTML = selectedUsernames
-            .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
-            .join('');
+          .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
+          .join('');
 
         // hidden input に選択したユーザのIDをセット
-        selectedUsersInput.value = selectedUserIds.join(',');
-        console.log("Hidden Input Value:", selectedUsersInput.value);
+        selectedUsersInput.innerHTML = '';
+
+        selectedUserIds.forEach(id => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'schedule_user';
+          input.value = id;
+          selectedUsersInput.append(input);
+        })
     } else {
         selectedUsersDisplay.innerHTML = '<p>ユーザが選択されていません</p>';
         selectedUsersInput.value = "";
@@ -670,10 +677,65 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+// スケジュール登録(チャットからの登録)
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('チャットからスケジュール登録')
+  // 取得したチャットグループのユーザーを対象にデフォルトで値をセット
+  const chatgroupScheduleUserDisplay = document.getElementById('chatgroupSelectedUsersDisplay')
+  const chatgorupScheduleUserInput = document.getElementById('chatgroupScheduleUsersInput');
+
+  document.querySelectorAll('.group-schedule-rgsbtn').forEach((button) => {
+    button.addEventListener('click', function () {
+      let chatgroupPk = this.getAttribute('data-pk');
+      console.log('スケジュール登録対象グループPK：', chatgroupPk);
+
+      let scheduleRegistForm = document.getElementById('scheduleListForm');
+      scheduleRegistForm.action = `/schedules/schedule_regist`;
+
+      fetch(`/chats/chat/get_chatgroup_data/${chatgroupPk}`)
+        .then(response => response.json())
+        .then(data => {
+          const ChatgroupScheduleSelectedUserIds = []
+          const ChatgroupScheduleSelectedUserNames = []
+          ChatgroupScheduleSelectedUserIds.push(...data.user_ids);
+          ChatgroupScheduleSelectedUserNames.push(...data.usernames);
+          console.log('取得したユーザーid：', ChatgroupScheduleSelectedUserIds);
+          console.log('取得したユーザー名：', ChatgroupScheduleSelectedUserNames);
+
+          // グループメンバーをデフォルト設置
+          chatgroupScheduleUserDisplay.innerHTML = ChatgroupScheduleSelectedUserNames
+            .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
+            .join('');
+          
+          // Idを渡す
+          ChatgroupScheduleSelectedUserIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'schedule_user';
+            input.value = id;
+            chatgorupScheduleUserInput.append(input);
+            console.log(chatgorupScheduleUserInput);
+          });
+        })
+    });
+  });
+});
+
+// 時刻表示変換(UTC → JST)
+function setDatetimeLocal(inputId, utcString) {
+  const date = new Date(utcString);
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+
+  const formatted = date.toISOString().slice(0, 16);
+  document.getElementById(inputId).value = formatted;
+}
+
 // スケジュール編集
 document.addEventListener('DOMContentLoaded', function () {
+  const scheduleEditUserDisplay = document.getElementById('selectedEditUsersDisplay');
+  const scheduleEditUserInput = document.getElementById('scheduleEditSelectedUsers');
+
   document.querySelectorAll('.edit-btn').forEach((button) => {
-    window.scheduleEditSelectedUserIds = new Set();
     button.addEventListener('click', function () {
       let schedulePk = this.getAttribute('data-pk');
       console.log('編集対象のスケジュールPK:', schedulePk);
@@ -682,23 +744,45 @@ document.addEventListener('DOMContentLoaded', function () {
       editForm.action = `/schedules/schedule_edit/${schedulePk}`;
 
       document.getElementById('editTask').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
-      document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
+      document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim().replace(/@/, '');
 
       // ユーザー情報を取得しておく（グローバルに保存など）
       fetch(`/schedules/schedule_show/get_schedule_data/${schedulePk}`)
         .then(response => response.json())
         .then(data => {
-          window.scheduleEditSelectedUserIds = new Set(data.user_ids);
-          console.log('ユーザー情報を取得しました：', scheduleEditSelectedUserIds)
+          // スケジュール開始・終了時間を表示
+          setDatetimeLocal('ScheduleStartAt', data.start_at);
+          setDatetimeLocal('ScheduleEndAt', data.end_at);
+          console.log('受け取ったstart_at：', data.start_at);
+          console.log('受け取ったend_at：', data.end_at);
 
-          document.getElementById('ScheduleStartAt').value = data.start_at
-          document.getElementById('ScheduleEndAt').value = data.end_at
+          const ScheduleEditSelectedUserIds = []
+          const ScheduleEditSelectedUserNames = []
+          ScheduleEditSelectedUserIds.push(...data.user_ids);
+          ScheduleEditSelectedUserNames.push(...data.usernames);
+          console.log('取得したユーザーid：', ScheduleEditSelectedUserIds);
+          console.log('取得したユーザー名：', ScheduleEditSelectedUserNames);
 
-          document.querySelectorAll('#editUserModal .user-edit-checkbox').forEach(checkbox => {
-            const userId = parseInt(checkbox.value, 10);
-            checkbox.checked = window.scheduleEditSelectedUserIds.has(userId);
-          });
-          console.log('checkの入ったuserId取得:', window.scheduleEditSelectedUserIds)
+          // 既存データ反映
+          if (ScheduleEditSelectedUserNames.length > 0) {
+            console.log('既に登録されているユーザー名表示：', ScheduleEditSelectedUserNames);
+            scheduleEditUserDisplay.innerHTML = ScheduleEditSelectedUserNames
+              .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
+              .join('');
+            
+            console.log('既に登録されているユーザーidを渡す', ScheduleEditSelectedUserIds);
+            ScheduleEditSelectedUserIds.forEach(id => {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'schedule_edit_user';
+              input.value = id;
+              scheduleEditUserInput.append(input);
+              console.log(scheduleEditUserInput);
+            });
+          } else {
+            scheduleEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
+            scheduleEditUserInput.value = '';
+          }
         });
 
       // 編集履歴
@@ -803,38 +887,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // スケジュール編集(ユーザ選択)
 document.addEventListener('DOMContentLoaded', function () {
-  const selectedUsersDisplay = document.getElementById('selectedEditUsersDisplay');
-  const selectedUsersInput = document.getElementById('selectedEditUsers');
+  const scheduleEditSelectedUserDisplay = document.getElementById('selectedEditUsersDisplay');
+  const scheduleEditSelectedUserInput = document.getElementById('scheduleEditSelectedUsers');
   const confirmUserSelectionButton = document.getElementById('confirmEditUserSelection');
-
-  // data-nameのidを登録しておく処理実装
   
   confirmUserSelectionButton.addEventListener('click', () => {
     console.log("追加（登録）ボタンが押されました");
-
-    const selectedUserIds = [];
-    const selectedUsernames = [];
+    newScheduleEditSelectedUserIds = [];
+    newScheduleEditSelectedUserNames = [];
+    const checkedCheckboxes = document.querySelectorAll('.user-edit-checkbox:checked');
     
-    document.querySelectorAll('.user-edit-checkbox:checked').forEach((checkbox) => {
-        selectedUserIds.push(parseInt(checkbox.value, 10));
-        selectedUsernames.push(checkbox.getAttribute('data-name'));
+    checkedCheckboxes.forEach((checkbox) => {
+      const userId = parseInt(checkbox.value, 10);
+      const username = checkbox.getAttribute('data-name');
+      newScheduleEditSelectedUserIds.push(userId);
+      newScheduleEditSelectedUserNames.push(username);
     });
 
-    console.log("選択したユーザID:", selectedUserIds);
-    console.log("選択したユーザ名:", selectedUsernames);
+    console.log("選択したユーザID:", newScheduleEditSelectedUserIds);
+    console.log("選択したユーザ名:", newScheduleEditSelectedUserNames);
 
-    // 選択したユーザをフォームに反映
-    if (selectedUsernames.length > 0) {
-        selectedUsersDisplay.innerHTML = selectedUsernames
-            .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
-            .join('');
-
-        // hidden input に選択したユーザのIDをセット
-        selectedUsersInput.value = selectedUserIds.join(',');
-        console.log("Hidden Input Value:", selectedUsersInput.value);
+    // ユーザー表示
+    if (newScheduleEditSelectedUserNames.length > 0) {
+      console.log('新しく追加したユーザー名：', newScheduleEditSelectedUserNames);
+      scheduleEditSelectedUserDisplay.innerHTML = newScheduleEditSelectedUserNames
+        .map(name => `<span class="badge bg-primary me-1">${name}</span>`)
+        .join('');
+      
+      scheduleEditSelectedUserInput.innerHTML = '';
+      // hidden valueに選択したユーザーidをセット
+      console.log('新しく追加したユーザーidを渡す：', newScheduleEditSelectedUserIds);
+      newScheduleEditSelectedUserIds.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'schedule_edit_user';
+        input.value = id;
+        scheduleEditSelectedUserInput.append(input);
+        console.log('input要素：', scheduleEditSelectedUserInput);
+      });
     } else {
-        selectedUsersDisplay.innerHTML = '<p>ユーザが選択されていません</p>';
-        selectedUsersInput.value = "";
+      scheduleEditSelectedUserDisplay.innerHTML = '<p>ユーザが選択されていません</p>';
     }
 
     // ユーザ選択モーダルを閉じる

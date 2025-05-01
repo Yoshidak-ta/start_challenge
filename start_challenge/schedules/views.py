@@ -74,11 +74,11 @@ def schedule_show(request, year=None, month=None, day=None):
   users = Users.objects.filter(is_staff=False, is_active=True)
   schedule_history = SchedulesHistory.objects.all()
   formatted_date = datetime.strptime(f'{year}-{month}-{day}', '%Y-%m-%d').date()
-  schedules = Schedules.objects.filter(
+  schedules = Schedules.objects.prefetch_related('user').filter(
     start_at__date__lte=formatted_date,
     end_at__date__gte=formatted_date,
-    user=request.user
   )
+
   searchform = SearchForm(request.GET or None)
   results = Users.objects.all()
 
@@ -155,10 +155,10 @@ def complete_todo(request, year, month, todo_id):
 
 # スケジュール登録
 @login_required
-def schedule_regist(request, year=None, month=None, day=None):
-  if year is None or month is None or day is None:
-    now = datetime.now()
-    year, month, day = now.year, now.month, now.day
+def schedule_regist(request):
+  year = datetime.now().year
+  month = datetime.now().month
+  day = datetime.now().day
 
   if request.method == "POST":
     schedule_regist_form = forms.ScheduleRegistForm(request.POST)
@@ -168,15 +168,18 @@ def schedule_regist(request, year=None, month=None, day=None):
         regist.start_at = datetime.strptime(request.POST['start_at'], '%Y-%m-%dT%H:%M')
         regist.end_at = datetime.strptime(request.POST['end_at'], '%Y-%m-%dT%H:%M')
       except ValueError:
+        print(regist.start_at, regist.end_at)
         messages.error(request, "日付のフォーマットが不正です。")
         return redirect('schedules:schedule_show', year=year, month=month, day=day)
       regist.save()
 
-      selected_user_ids_str = request.POST.get('users', '')
-      selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
-      valid_user_ids = [int(user_id.strip()) for user_id in selected_user_ids if user_id.strip().isdigit()]
+      selected_user_ids = set(request.POST.getlist('schedule_user'))
+      print('登録ユーザー：', selected_user_ids)
+      selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
+      print('登録ユーザーid：', selected_user_ids)
+
       if selected_user_ids:
-        regist.user.set(Users.objects.filter(id__in=valid_user_ids))
+        regist.user.set(Users.objects.filter(id__in=selected_user_ids))
       else:
         regist.user.clear()
 
@@ -204,15 +207,16 @@ def schedule_edit(request, pk):
         user=request.user,
         updated_at=timezone.now()
       )
-      schedule_edit_form.save(commit=False)
+      schedule_edit_form.save(commit=True)
       schedule.updated_at = datetime.now()
       schedule.save()
 
-      selected_user_ids_str = request.POST.get('users', '')
-      selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
-      valid_user_ids = [int(user_id.strip()) for user_id in selected_user_ids if user_id.strip().isdigit()]
-      if valid_user_ids:
-        schedule.user.set(Users.objects.filter(id__in=valid_user_ids))
+      selected_user_ids = set(request.POST.getlist('schedule_edit_user'))
+      print('編集ユーザー：', selected_user_ids)
+      selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
+      print('編集ユーザーids：', selected_user_ids)
+      if selected_user_ids:
+        schedule.user.set(Users.objects.filter(id__in=selected_user_ids))
       else:
         schedule.user.clear()
 
@@ -230,7 +234,8 @@ def schedule_edit(request, pk):
 def get_schedule_data(request, pk):
   schedule = get_object_or_404(Schedules, pk=pk)
   user_ids = list(schedule.user.values_list('id', flat=True))
-  return JsonResponse({'user_ids': user_ids, 'start_at':schedule.start_at.strftime('%Y-%m-%d %H:%M'), 'end_at': schedule.end_at.strftime('%Y-%m-%d %H:%M')})
+  usernames = list(schedule.user.values_list('username', flat=True))
+  return JsonResponse({'user_ids': user_ids, 'usernames': usernames, 'start_at':schedule.start_at.isoformat(), 'end_at': schedule.end_at.isoformat()})
 
 # スケジュール更新履歴取得
 @login_required
