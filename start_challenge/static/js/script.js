@@ -1074,7 +1074,12 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
           console.log('取得データ：', data);
           document.getElementById('editObjective').value = data.objective;
-          document.getElementById('editObjectiveDueDate').value = data.objective_due_date;
+          const rawDate = data.objective_due_date;
+          const isoDate = rawDate.replace(" ", "T") + ":00Z";
+          setDatetimeLocal('editObjectiveDueDate', isoDate);
+          console.log('受け取ったデータ:', data.objective_due_date);
+          console.log('文字列→Date:', new Date(data.objective_due_date));
+          // document.getElementById('editObjectiveDueDate').value = data.objective_due_date;
         })
         .catch(error => {
           console.log('エラー：', error);
@@ -1082,7 +1087,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   })
 });
-
 
 // 目標設定
 document.addEventListener('DOMContentLoaded', function () {

@@ -61,8 +61,7 @@ def question_show(request, pk):
 
   else:
     question_answer_form = forms.QuestionAnswerForm()
-  # answers = question.answers.all()
-  # user = request.user
+    
   return render(request, 'questions/question_show.html', context={
     'question':question, 'question_answer_form': question_answer_form, 'answers':answers,
   })
