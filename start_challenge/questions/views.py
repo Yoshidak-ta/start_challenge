@@ -39,8 +39,6 @@ def question_regist(request):
 def question_show(request, pk):
   question = get_object_or_404(Questions, pk=pk)
   answers = question.answers.all()
-  user = request.user
-  answer_count = Answers.objects.filter(user=user).count()
   if request.method == "POST":
     if not request.user.is_authenticated:
       messages.error(request, '回答するにはログインが必要です。')
@@ -53,6 +51,8 @@ def question_show(request, pk):
       answer.question = question
       answer.save()
 
+      user = request.user
+      answer_count = Answers.objects.filter(user=user).count()
       if answer_count % 3 == 0:
         user.rank += 10
         user.save()
@@ -69,7 +69,6 @@ def question_show(request, pk):
   # user = request.user
   return render(request, 'questions/question_show.html', context={
     'question':question, 'question_answer_form': question_answer_form, 'answers':answers,
-    'user':user,
   })
 
 # 質問削除
