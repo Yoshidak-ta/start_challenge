@@ -74,6 +74,11 @@
       <div class="mb-4 mt-2 d-flex justify-content-center align-items-center">
         <button type="button" class="btn btn-primary mt-2" id="answer-btn">回答する</button>
       </div>
+      {% else %}
+      <div class="mb-4 mt-2 row justify-content-center align-items-center">
+        <h4 class="text-center">回答するにはログインが必要です</h4></br>
+        <a href="{% url 'accounts:user_login' %}" class="text-center">ログインする</a>
+      </div>
       {% endif %}
       <div id="answer-form-container" style="display: none;" class="row mt-3">
         <div class="card">

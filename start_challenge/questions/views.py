@@ -40,10 +40,6 @@ def question_show(request, pk):
   question = get_object_or_404(Questions, pk=pk)
   answers = question.answers.all()
   if request.method == "POST":
-    if not request.user.is_authenticated:
-      messages.error(request, '回答するにはログインが必要です。')
-      return redirect('accounts:user_login')
-    
     question_answer_form = forms.QuestionAnswerForm(request.POST, request.FILES or None)
     if question_answer_form.is_valid():
       answer = question_answer_form.save(commit=False)
