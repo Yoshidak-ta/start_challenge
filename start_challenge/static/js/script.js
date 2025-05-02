@@ -1079,7 +1079,6 @@ document.addEventListener('DOMContentLoaded', function () {
           setDatetimeLocal('editObjectiveDueDate', isoDate);
           console.log('受け取ったデータ:', data.objective_due_date);
           console.log('文字列→Date:', new Date(data.objective_due_date));
-          // document.getElementById('editObjectiveDueDate').value = data.objective_due_date;
         })
         .catch(error => {
           console.log('エラー：', error);
