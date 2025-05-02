@@ -200,18 +200,13 @@ def schedule_regist(request):
 def schedule_edit(request, pk):
   schedule = get_object_or_404(Schedules, pk=pk)
   if request.method == 'POST':
-    schedule_edit_form = forms.ScheduleEditForm(request.POST, instance=schedule)
+    schedule_edit_form = forms.ScheduleEditForm(request.POST or None, instance=schedule)
     if schedule_edit_form.is_valid():
-      SchedulesHistory.objects.create(
-        schedule=schedule,
-        user=request.user,
-        updated_at=timezone.now()
-      )
       schedule_edit_form.save(commit=True)
       schedule.updated_at = datetime.now()
       schedule.save()
-
-      selected_user_ids = set(request.POST.getlist('schedule_edit_user'))
+      
+      selected_user_ids = set(request.POST.getlist('edit_user'))
       print('編集ユーザー：', selected_user_ids)
       selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
       print('編集ユーザーids：', selected_user_ids)
@@ -219,6 +214,13 @@ def schedule_edit(request, pk):
         schedule.user.set(Users.objects.filter(id__in=selected_user_ids))
       else:
         schedule.user.clear()
+      
+      # 編集履歴取得
+      SchedulesHistory.objects.create(
+        schedule=schedule,
+        user=request.user,
+        updated_at=timezone.now()
+      )
 
       messages.info(request, 'スケジュールを編集しました')
       return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)

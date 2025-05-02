@@ -46,12 +46,10 @@ class ScheduleRegistForm(forms.ModelForm):
 
 # スケジュール編集フォーム
 class ScheduleEditForm(forms.ModelForm):
-
   user = forms.ModelMultipleChoiceField(
     queryset=get_user_model().objects.all(),
     widget=forms.CheckboxSelectMultiple,
-    required=False,
-    label=None
+    required=False
   )
 
   class Meta():

@@ -307,8 +307,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // チャットグループ編集
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('チャットグループ編集読み込み');
-
   const chatgroupEditUserDisplay = document.getElementById('editGroupUsersDisplay')
   const chatgroupEditUserInput = document.getElementById('chatgroupEditSelectedUsers')
 
@@ -746,6 +744,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('editTask').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
       document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim().replace(/@/, '');
 
+      scheduleEditUserInput.innerHTML = '';
       // ユーザー情報を取得しておく（グローバルに保存など）
       fetch(`/schedules/schedule_show/get_schedule_data/${schedulePk}`)
         .then(response => response.json())
@@ -753,8 +752,6 @@ document.addEventListener('DOMContentLoaded', function () {
           // スケジュール開始・終了時間を表示
           setDatetimeLocal('ScheduleStartAt', data.start_at);
           setDatetimeLocal('ScheduleEndAt', data.end_at);
-          console.log('受け取ったstart_at：', data.start_at);
-          console.log('受け取ったend_at：', data.end_at);
 
           const ScheduleEditSelectedUserIds = []
           const ScheduleEditSelectedUserNames = []
@@ -765,6 +762,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           // 既存データ反映
           if (ScheduleEditSelectedUserNames.length > 0) {
+            scheduleEditUserDisplay.innerHTML = '';
             console.log('既に登録されているユーザー名表示：', ScheduleEditSelectedUserNames);
             scheduleEditUserDisplay.innerHTML = ScheduleEditSelectedUserNames
               .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
@@ -774,14 +772,13 @@ document.addEventListener('DOMContentLoaded', function () {
             ScheduleEditSelectedUserIds.forEach(id => {
               const input = document.createElement('input');
               input.type = 'hidden';
-              input.name = 'schedule_edit_user';
+              input.name = 'edit_user';
               input.value = id;
               scheduleEditUserInput.append(input);
               console.log(scheduleEditUserInput);
             });
           } else {
             scheduleEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
-            scheduleEditUserInput.value = '';
           }
         });
 
@@ -893,8 +890,8 @@ document.addEventListener('DOMContentLoaded', function () {
   
   confirmUserSelectionButton.addEventListener('click', () => {
     console.log("追加（登録）ボタンが押されました");
-    newScheduleEditSelectedUserIds = [];
-    newScheduleEditSelectedUserNames = [];
+    const newScheduleEditSelectedUserIds = [];
+    const newScheduleEditSelectedUserNames = [];
     const checkedCheckboxes = document.querySelectorAll('.user-edit-checkbox:checked');
     
     checkedCheckboxes.forEach((checkbox) => {
@@ -909,6 +906,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ユーザー表示
     if (newScheduleEditSelectedUserNames.length > 0) {
+      scheduleEditSelectedUserDisplay.innerHTML = '';
       console.log('新しく追加したユーザー名：', newScheduleEditSelectedUserNames);
       scheduleEditSelectedUserDisplay.innerHTML = newScheduleEditSelectedUserNames
         .map(name => `<span class="badge bg-primary me-1">${name}</span>`)
@@ -920,13 +918,14 @@ document.addEventListener('DOMContentLoaded', function () {
       newScheduleEditSelectedUserIds.forEach(id => {
         const input = document.createElement('input');
         input.type = 'hidden';
-        input.name = 'schedule_edit_user';
+        input.name = 'edit_user';
         input.value = id;
         scheduleEditSelectedUserInput.append(input);
         console.log('input要素：', scheduleEditSelectedUserInput);
       });
     } else {
       scheduleEditSelectedUserDisplay.innerHTML = '<p>ユーザが選択されていません</p>';
+      // scheduleEditSelectedUserInput.value = '';
     }
 
     // ユーザ選択モーダルを閉じる
