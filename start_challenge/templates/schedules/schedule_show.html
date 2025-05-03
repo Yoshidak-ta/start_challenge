@@ -31,85 +31,86 @@
               <a href="#" class="btn btn-custom-warning delete-btn" data-pk="{{ schedule.id }}" data-bs-toggle="modal" data-bs-target="#deleteScheduleModal">削除</a>
             </td>
             {% endif %}
-            <!-- 編集モーダル -->
-            <div class="modal fade" id="editScheduleModal" tabindex="-1" aria-labelledby="editScheduleModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="editScheduleModalLabel">スケジュール編集</h5>
-                  </div>
-                  <div class="modal-body">
-                    <!-- スケジュール編集フォーム -->
-                    <div class="row justify-content-center">
-                      <div class="col"> 
-                        <h3 class="text-center mb-4">スケジュール編集</h3>
-                        <form id="scheduleEditForm" method="POST">
-                          {% csrf_token %}
-                          <div class="row">
-                            <div class="col-6">
-                            <!-- 左フィールド -->
-                            {% for edit in schedule_edit_form %}
-                              {% if edit.name in fields_left %}
-                                <div class="form-group mb-3">
-                                  <h5>{{ edit.label }}</h5>
-                                  {% for error in edit.errors %}
-                                  <p style="color: red;">{{ error }}</p>
-                                  {% endfor %}
-                                  {% if edit.name == 'start_at' %}
-                                  <input type="datetime-local" id="ScheduleStartAt" class="form-control" name="{{ edit.name }}" value="{{ edit.value }}">
-                                  {% elif edit.name == 'end_at' %}
-                                  <input type="datetime-local" id="ScheduleEndAt" class="form-control" name="{{ edit.name }}" value="{{ edit.value }}">
-                                  {% endif %}
-                                </div>
-                              {% endif %}
-                            {% endfor %}
-                            </div>
-                            <div class="col-6">
-                            <!-- 右フィールド -->
-                            {% for edit in schedule_edit_form %}
-                              {% if edit.name in fields_right %}
-                                {% if edit.name == 'task' %}
-                                <div class="form-group mb-3">
-                                  <h5>{{ edit.label }}</h5>
-                                  {% for error in edit.errors %}
-                                  <p style="color: red;">{{ error }}</p>
-                                  {% endfor %}
-                                  <textarea name="task" cols="1" rows="1" class="form-control" id="editTask" value="{{ edit.value }}"></textarea>
-                                </div>
-                                {% elif edit.name == 'place' %}
-                                <div class="form-group mb-3">
-                                  <h5>{{ edit.label }}</h5>
-                                  {% for error in edit.errors %}
-                                  <p style="color: red;">{{ error }}</p>
-                                  {% endfor %}
-                                  <input type="text" class="form-control" id="editPlace" name="place">
-                                </div>
-                                {% elif edit.name == 'user' %}
-                                <div class="form-group mb-3">
-                                  <h5>登録ユーザ</h5>
-                                  {% for error in edit.errors %}
-                                  <p style="color: red;">{{ error }}</p>
-                                  {% endfor %}
-                                  <div id="selectedEditUsersDisplay" class="p-4"></div>
-                                </div>
-                                {% endif %}
-                              {% endif %}
-                            {% endfor %}
-                            </div>
-                            <div class="d-flex flex-column mb-2">
-                              <div class="row justify-content-center py-4">
-                                <button class="btn btn-custom-edit w-50 m-2" type="button" data-bs-toggle="modal" data-bs-target="#editUserModal">登録ユーザを選択する</button>
-                                <div id="scheduleEditSelectedUsers"></div>
-                                <button type="submit" class="btn btn-primary w-50">更新</button>
-                              </div>
-                            </div>
-                          </div>
-                        </form>
+          </tr>
+        {% endfor %}
+          <!-- 編集モーダル -->
+          <div class="modal fade" id="editScheduleModal" tabindex="-1" aria-labelledby="editScheduleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editScheduleModalLabel">スケジュール編集</h5>
+                </div>
+                <div class="modal-body">
+                  <!-- スケジュール編集フォーム -->
+                  <div class="row justify-content-center">
+                    <div class="col"> 
+                      <h3 class="text-center mb-4">スケジュール編集</h3>
+                      <form id="scheduleEditForm" method="POST">
+                        {% csrf_token %}
                         <div class="row">
-                          <div class="justify-content-center">
-                            <h4 class="text-center mt-3">更新履歴</h4>
-                            <div id="scheduleUpdateDisplay"></div>
+                          <div class="col-6">
+                          <!-- 左フィールド -->
+                          {% for edit in schedule_edit_form %}
+                            {% if edit.name in fields_left %}
+                              <div class="form-group mb-3">
+                                <h5>{{ edit.label }}</h5>
+                                {% for error in edit.errors %}
+                                <p style="color: red;">{{ error }}</p>
+                                {% endfor %}
+                                {% if edit.name == 'start_at' %}
+                                <input type="datetime-local" id="ScheduleStartAt" class="form-control" name="{{ edit.name }}">
+                                {% elif edit.name == 'end_at' %}
+                                <input type="datetime-local" id="ScheduleEndAt" class="form-control" name="{{ edit.name }}">
+                                {% endif %}
+                              </div>
+                            {% endif %}
+                          {% endfor %}
                           </div>
+                          <div class="col-6">
+                          <!-- 右フィールド -->
+                          {% for edit in schedule_edit_form %}
+                            {% if edit.name in fields_right %}
+                              {% if edit.name == 'task' %}
+                              <div class="form-group mb-3">
+                                <h5>{{ edit.label }}</h5>
+                                {% for error in edit.errors %}
+                                <p style="color: red;">{{ error }}</p>
+                                {% endfor %}
+                                <textarea name="task" cols="1" rows="1" class="form-control" id="editTask"></textarea>
+                              </div>
+                              {% elif edit.name == 'place' %}
+                              <div class="form-group mb-3">
+                                <h5>{{ edit.label }}</h5>
+                                {% for error in edit.errors %}
+                                <p style="color: red;">{{ error }}</p>
+                                {% endfor %}
+                                <input type="text" class="form-control" id="editPlace" name="place">
+                              </div>
+                              {% elif edit.name == 'user' %}
+                              <div class="form-group mb-3">
+                                <h5>登録ユーザ</h5>
+                                {% for error in edit.errors %}
+                                <p style="color: red;">{{ error }}</p>
+                                {% endfor %}
+                                <div id="selectedEditUsersDisplay" class="p-4"></div>
+                              </div>
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                          </div>
+                          <div class="d-flex flex-column mb-2">
+                            <div class="row justify-content-center py-4">
+                              <button class="btn btn-custom-edit w-50 m-2" type="button" data-bs-toggle="modal" data-bs-target="#editUserModal">登録ユーザを選択する</button>
+                              <div id="scheduleEditSelectedUsers"></div>
+                              <button type="submit" class="btn btn-primary w-50">更新</button>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                      <div class="row">
+                        <div class="justify-content-center">
+                          <h4 class="text-center mt-3">更新履歴</h4>
+                          <div id="scheduleUpdateDisplay"></div>
                         </div>
                       </div>
                     </div>
@@ -117,66 +118,67 @@
                 </div>
               </div>
             </div>
-            <!-- ユーザ選択モーダル -->
-            <div class="modal fade schedule-edit-selectuser-modal" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="editUserModalLabel">ユーザを選択する</h5>
-                  </div>
-                  <div class="modal-body">
-                    <form id="scheduleEditSelectSearchForm">
-                      <div class="d-flex align-items-center justify-content-center m-2">
-                        <input type="text" id="scheduleEditSelectSearchInput" name="search" placeholder="名前を検索" class="form-control me-2 w-75">
-                        <div class="me-2">
-                          <button type="submit" class="btn btn-custom-edit">検索</button>
-                        </div>
+          </div>
+          <!-- ユーザ選択モーダル -->
+          <div class="modal fade schedule-edit-selectuser-modal" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editUserModalLabel">ユーザを選択する</h5>
+                </div>
+                <div class="modal-body">
+                  <form id="scheduleEditSelectSearchForm">
+                    <div class="d-flex align-items-center justify-content-center m-2">
+                      <input type="text" id="scheduleEditSelectSearchInput" name="search" placeholder="名前を検索" class="form-control me-2 w-75">
+                      <div class="me-2">
+                        <button type="submit" class="btn btn-custom-edit">検索</button>
                       </div>
-                    </form>
-                    <form id="userEditSelectForm">
-                      <div id="scheduleEditSelectUserList">
-                        {% for user in users %}
-                        <div class="form-check">
-                          {% if user in schedule.user.all %}
-                            <input class="form-check-input user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
-                            <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                            <label class="form-check-label">{{ user.username }}</label>
-                          {% else %}
-                            <input class="form-check-input user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
-                            <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                            <label class="form-check-label">{{ user.username }}</label>
-                          {% endif %}
-                        </div>
-                        {% endfor %}
+                    </div>
+                  </form>
+                  <form id="userEditSelectForm">
+                    <div id="scheduleEditSelectUserList">
+                      {% for user in users %}
+                      <div class="form-check">
+                      {% for schedule in schedules %} 
+                        {% if user in schedule.user.all %}
+                          <input class="form-check-input user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}" checked>
+                          <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                          <label class="form-check-label">{{ user.username }}</label>
+                        {% else %}
+                          <input class="form-check-input user-edit-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
+                          <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                          <label class="form-check-label">{{ user.username }}</label>
+                        {% endif %}
+                      {% endfor %}
                       </div>
-                      <button type="button" class="btn btn-primary mt-3" id="confirmEditUserSelection">追加する</button>
-                    </form>
-                  </div>
+                      {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-primary mt-3" id="confirmEditUserSelection">追加する</button>
+                  </form>
                 </div>
               </div>
             </div>
-            <!-- 削除モーダル -->
-            <div class="modal fade" id="deleteScheduleModal" tabindex="-1" aria-labelledby="deleteScheduleModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="deleteScheduleModalLabel">削除確認</h5>
-                  </div>
-                  <div class="modal-body">
-                    本当に削除しますか？
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
-                    <form id="scheduleDeleteForm" method="POST">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-danger">はい</button>
-                    </form>
-                  </div>
+          </div>
+          <!-- 削除モーダル -->
+          <div class="modal fade" id="deleteScheduleModal" tabindex="-1" aria-labelledby="deleteScheduleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteScheduleModalLabel">削除確認</h5>
+                </div>
+                <div class="modal-body">
+                  本当に削除しますか？
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                  <form id="scheduleDeleteForm" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">はい</button>
+                  </form>
                 </div>
               </div>
             </div>
-          </tr>
-        {% endfor %}
+          </div>
         </tbody>
       </table>
       {% if not schedules %}
