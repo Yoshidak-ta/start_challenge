@@ -29,8 +29,14 @@ class ToDoListForm(forms.ModelForm):
 
 # スケジュール登録フォーム
 class ScheduleRegistForm(forms.ModelForm):
-  start_at = forms.DateTimeField(label='開始')
-  end_at = forms.DateTimeField(label='終了')
+  start_at = forms.DateTimeField(
+    label='開始',
+    widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),  
+  )
+  end_at = forms.DateTimeField(
+    label='終了',
+    widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),  
+  )
   task = forms.CharField(label='内容')
   place = forms.CharField(label='場所', required=False)
   user = forms.ModelMultipleChoiceField(

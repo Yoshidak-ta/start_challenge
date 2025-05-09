@@ -39,14 +39,24 @@ document.addEventListener('DOMContentLoaded', function () {
   const enableModalBtn = document.getElementById('enableModal');
   const enableBtn = document.getElementById('enableNotifications');
   const disableBtn = document.getElementById('disableNotifications');
+  console.log(Notification.permission);
+
 
   // 通知設定状況を確認し表示するボタンを切り替える
-  console.log(Notification.permission);
-  if (Notification.permission === 'granted') {
+  navigator.serviceWorker.ready.then((registration) => {
+    return registration.pushManager.getSubscription();
+  }).then((subscription) => {
+    // 通知許可されていて、購読もされている→無効化ボタン
+    if (Notification.permission === 'granted' && subscription) {
       disableBtn.style.display = 'block';
-  } else {
+      // 購読されていないか、通知距腓→有効化ボタン
+    } else {
       enableModalBtn.style.display = 'block';
-  }
+    }
+  }).catch((error) => {
+    console.log('購読状態確認失敗：', error);
+    enableModalBtn.style.display = 'block';
+  });
 
   // 通知を有効にする処理
   enableBtn.addEventListener('click', () => {

@@ -163,10 +163,11 @@
                     {% if create.name == 'user' %}
                     <div class="form-group mb-3">
                       <h5>{{ create.label }}</h5>
+                      <small style="color: red;">※デフォルトで本人にチェックが入っていますが、「追加」ボタンを押下しないと登録ユーザーに反映されません</small>
                       {% for error in create.errors %}
                       <p style="color: red;">{{ error }}</p>
                       {% endfor %}
-                      <div id="selectedGroupUsersDisplay" class="p-4">ユーザーを選択してください</div>
+                      <div id="selectedGroupUsersDisplay" class="p-4">ユーザーを「登録ユーザを選択する」ボタンから選択しください</div>
                     </div>
                     {% else %}
                     <div class="form-group mb-3">

@@ -12,6 +12,7 @@ from django.http import JsonResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.db import models
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.dateparse import parse_datetime
 
 # スケジュール画面
 @login_required
@@ -66,8 +67,19 @@ def schedule_show(request, year=None, month=None, day=None):
   year = year
   month = month
   day = day
+
+  try:
+    date_value = datetime(year, month, day)
+  except ValueError:
+    date_value = None
   
-  schedule_regist_form = forms.ScheduleRegistForm()
+  initial_data = {}
+  if date_value:
+    initial_data = {
+      'start_at': date_value,
+      'end_at': date_value,
+    }
+  schedule_regist_form = forms.ScheduleRegistForm(initial=initial_data)
   schedule_edit_form = forms.ScheduleEditForm()
   fields_left = ['start_at', 'end_at']
   fields_right = ['task', 'place', 'user']
@@ -187,10 +199,16 @@ def schedule_regist(request):
       return redirect('schedules:schedule_show', year=regist.start_at.year, month=regist.start_at.month, day=regist.start_at.day)
 
     else:
-      messages.error(request, 'スケジュール登録の入力項目に誤りがございます。')
+      messages.error(request, 'スケジュール登録に失敗しました。以下をご確認ください。')
+
+      for field, errors in schedule_regist_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{schedule_regist_form.fields[field].label}:{error}")
+      
+      print('エラー発生', schedule_regist_form.errors)
       return redirect('schedules:schedule', year=year, month=month)
 
-  else:
+  else:    
     schedule_regist_form = forms.ScheduleRegistForm()
 
   return redirect('schedules:schedule_show', year=year, month=month, day=day)
@@ -226,7 +244,12 @@ def schedule_edit(request, pk):
       return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)
     
     else:
-      messages.error(request, 'スケジュール編集の入力項目に誤りがあります。')
+      messages.error(request, 'スケジュール編集に失敗しました。')
+
+      for field, errors in schedule_edit_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{schedule_edit_form.fields[field].label}:{error}")
+      
       print('エラー発生', schedule_edit_form.errors)
 
   return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)

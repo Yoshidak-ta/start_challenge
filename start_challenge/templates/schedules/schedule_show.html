@@ -1,11 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container pt-4 pb-5 study-challenge-container">
-  {% for message in messages %}
-  <div class="alert alert-{{ message.tags }}">
-    {{ message.message }}
-  </div>
-  {% endfor %}
+  {% if messages %}
+    {% for message in messages %}
+      {% if forloop.first %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+          {{ message }}
+          {% if messages|length > 1 %}
+          <ul class="mt-2 mb-0">
+          {% endif %}
+      {% else %}
+          <li>{{ message }}</li>
+      {% endif %}
+      {% if forloop.last %}
+          {% if messages|length > 1 %}
+          </ul>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
   <div class="row justify-content-center">
     <div class="col-xxl-9 col-xl-10 col-lg-11">
       <h2 class="text-center">{{ year }}年{{ month }}月{{ day }}日の予定</h2>
@@ -209,7 +223,7 @@
                           {% for error in regist.errors %}
                           <p style="color: red;">{{ error }}</p>
                           {% endfor %}
-                          <input type="datetime-local" class="form-control" name="{{ regist.name }}">
+                          <input type="datetime-local" class="form-control" name="{{ regist.name }}" value="{{ regist.value|date:'Y-m-d\\TH:i' }}">
                         </div>
                         {% endif %}
                       {% endfor %}
@@ -237,10 +251,11 @@
                           {% else %}
                           <div class="form-group mb-3">
                             <h5>{{ regist.label }}</h5>
+                            <small style="color: red;">※デフォルトで本人にチェックが入っていますが、「追加」ボタンを押下しないと登録ユーザーに反映されません</small>
                             {% for error in regist.errors %}
                             <p style="color: red;">{{ error }}</p>
                             {% endfor %}
-                            <div id="selectedUsersDisplay" class="p-4">ユーザを選択してください</div>
+                            <div id="selectedUsersDisplay" class="p-4">ユーザーを「登録ユーザを選択する」ボタンから選択しください</div>
                           </div>
                           {% endif %}
                         {% endif %}

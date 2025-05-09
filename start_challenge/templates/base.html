@@ -57,10 +57,10 @@
                       <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 50px; height: 50px; object-fit: cover;">
                       <div>
                         <h4>{{ user.username }}</h4>
-                        <h6>Rank:{{ user.rank }}</h6>
+                        <h6>ランク:{{ user.rank }}</h6>
                       </div>
                     </div>
-                    <a href="#" class="text-center" data-bs-toggle="modal" data-bs-target="#rankModal">Rankとは</a>
+                    <a href="#" class="text-center" data-bs-toggle="modal" data-bs-target="#rankModal">ランクとは</a>
                     <p>登録日：{{ user.created_at }}</p>
                   </li>
                   <li>
@@ -75,40 +75,6 @@
                     <a href="{% url 'accounts:user_logout' %}" class="card btn btn-custom-warning">ログアウト</a>                
                   </li>
                 </ul>
-                <div class="modal fade" id="confirmEnableModal" tabindex="-1" aria-labelledby="confirmEnableModalLabel" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="confirmEnableModalLabel">通知詳細</h5>
-                      </div>
-                      <div class="modal-body">
-                        <div class="row justify-content-center">
-                          <h6 class="mt-2">通知を有効化にすることで、以下の時間帯に通知が送信されます。</h6></br>
-                          <p class="mt-2">・登録したスケジュールの当日(0:00)、開始時間1時間前・10分前に通知</br>・当日期限のTodoタスクが16:00の時点で完了していない場合に通知</p></br>
-                          <button class="btn-primary w-50" id="enableNotifications">通知を有効にする</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal fade" id="rankModal" tabindex="-1" aria-labelledby="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Rankとは</h5>
-                      </div>
-                      <div class="modal-body">
-                        <div class="row justify-content-center">
-                          <h6>ユーザーの取り組みレベルを評価する為にランクを付与する。</br>下記達成数・回答数に応じてポイントが付与され、ランクが上昇します。</h6></br>
-                          <p>・Todoタスクの達成(重要度に応じて付与されるポイントが異なる)</br>・目標の達成</br>・質問に対しての回答数</p>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">閉じる</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               {% else %}
                 <a class="navbar-brand header-link" href="{% url 'accounts:user_login' %}">ログイン</a>
                 <a class="navbar-brand header-link" href="{% url 'accounts:user_regist' %}">会員登録</a>
@@ -118,6 +84,40 @@
         </div>
       </nav>
       {% block content %}{% endblock %}
+      <div class="modal fade" id="confirmEnableModal" tabindex="-1" aria-labelledby="confirmEnableModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="confirmEnableModalLabel">通知詳細</h5>
+            </div>
+            <div class="modal-body">
+              <div class="row justify-content-center">
+                <h6 class="mt-2">通知を有効化にすることで、以下の時間帯に通知が送信されます。</h6></br>
+                <p class="mt-2">・登録したスケジュールの当日(0:00)、開始時間1時間前・10分前に通知</br>・当日期限のTodoタスクが16:00の時点で完了していない場合に通知</p></br>
+                <button class="btn-primary w-50" id="enableNotifications">通知を有効にする</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="rankModal" tabindex="-1" aria-labelledby="rankModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Rankとは</h5>
+            </div>
+            <div class="modal-body">
+              <div class="row justify-content-center">
+                <h6>ユーザーの取り組みレベルを評価する為にランクを付与する。</br>下記達成数・回答数に応じてポイントが付与され、ランクが上昇します。</h6></br>
+                <p>・Todoタスクの達成(重要度に応じて付与されるポイントが異なる)</br>・目標の達成</br>・質問に対しての回答数</p>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
