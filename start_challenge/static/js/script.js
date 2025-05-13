@@ -263,11 +263,11 @@ document.addEventListener('DOMContentLoaded', function () {
       // モーダルが閉じられた時にデータをリセット
       modal.addEventListener('hidden.bs.modal', function () {
         chatgroupSelectedUsers.clear();
-        userList.innerHTML = `
-          <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-          <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-          <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-        `;
+        // userList.innerHTML = `
+        //   <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+        //   <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+        //   <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+        // `;
         searchInput.value = '';
       });
   });
@@ -433,11 +433,11 @@ document.addEventListener('DOMContentLoaded', function () {
           // モーダルが閉じられた時にデータをリセット
           modal.addEventListener('hidden.bs.modal', function () {
             chatgroupSelectedUsers.clear();
-            userList.innerHTML = `
-              <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-              <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-              <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-            `;
+            // userList.innerHTML = `
+            //   <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+            //   <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+            //   <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+            // `;
             searchInput.value = '';
           });
         })
@@ -555,11 +555,11 @@ document.addEventListener('DOMContentLoaded', function () {
      // モーダルが閉じられた時にデータをリセット
      modal.addEventListener('hidden.bs.modal', function () {
       scheduleSelectedUsers.clear();
-      userList.innerHTML = `
-        <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-        <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-        <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-      `;
+      // userList.innerHTML = `
+      //   <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+      //   <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+      //   <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+      // `;
       searchInput.value = '';
     });
   });
@@ -621,11 +621,11 @@ document.addEventListener('DOMContentLoaded', function () {
      // モーダルが閉じられた時にデータをリセット
      modal.addEventListener('hidden.bs.modal', function () {
       scheduleSelectedUsers.clear();
-      userList.innerHTML = `
-        <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-        <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-        <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-      `;
+      // userList.innerHTML = `
+      //   <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
+      //   <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+      //   <label class="form-check-label" for='user${user.id}'>${user.username}</label>
+      // `;
       searchInput.value = '';
     });
   });
@@ -882,11 +882,6 @@ document.addEventListener('DOMContentLoaded', function () {
      // モーダルが閉じられた時にデータをリセット
      modal.addEventListener('hidden.bs.modal', function () {
       scheduleSelectedUsers.clear();
-      userList.innerHTML = `
-        <input class="form-check-input user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-        <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-        <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-      `;
       searchInput.value = '';
     });
   });
