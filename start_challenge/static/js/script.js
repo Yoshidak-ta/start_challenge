@@ -739,91 +739,94 @@ function setDatetimeLocal(inputId, utcString) {
 }
 
 // スケジュール編集
-document.addEventListener('DOMContentLoaded', function () {
-  const scheduleEditUserDisplay = document.getElementById('selectedEditUsersDisplay');
-  const scheduleEditUserInput = document.getElementById('scheduleEditSelectedUsers');
+// document.addEventListener('DOMContentLoaded', function () {
+  // const scheduleEditUserDisplay = document.getElementById('selectedEditUsersDisplay');
+  // const scheduleEditUserInput = document.getElementById('scheduleEditSelectedUsers');
 
-  document.querySelectorAll('.edit-btn').forEach((button) => {
-    button.addEventListener('click', function () {
-      let schedulePk = this.getAttribute('data-pk');
-      console.log('編集対象のスケジュールPK:', schedulePk);
+document.querySelectorAll('.edit-btn').forEach((button) => {
+  button.addEventListener('click', function () {
+    console.log('スケジュール編集ボタンが押下されました');
+    const scheduleEditUserDisplay = document.getElementById('selectedEditUsersDisplay');
+    const scheduleEditUserInput = document.getElementById('scheduleEditSelectedUsers');
+    let schedulePk = this.getAttribute('data-pk');
+    console.log('編集対象のスケジュールPK:', schedulePk);
 
-      let editForm = document.getElementById('scheduleEditForm');
-      editForm.action = `/schedules/schedule_edit/${schedulePk}`;
+    let editForm = document.getElementById('scheduleEditForm');
+    editForm.action = `/schedules/schedule_edit/${schedulePk}`;
 
-      document.getElementById('editTask').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
-      document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim().replace(/@/, '');
+    document.getElementById('editTask').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
+    document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim().replace(/@/, '');
 
-      scheduleEditUserInput.innerHTML = '';
-      // ユーザー情報を取得しておく（グローバルに保存など）
-      fetch(`/schedules/schedule_show/get_schedule_data/${schedulePk}`)
-        .then(response => response.json())
-        .then(data => {
-          // スケジュール開始・終了時間を表示
-          setDatetimeLocal('ScheduleStartAt', data.start_at);
-          setDatetimeLocal('ScheduleEndAt', data.end_at);
+    scheduleEditUserInput.innerHTML = '';
+    // ユーザー情報を取得しておく（グローバルに保存など）
+    fetch(`/schedules/schedule_show/get_schedule_data/${schedulePk}`)
+      .then(response => response.json())
+      .then(data => {
+        // スケジュール開始・終了時間を表示
+        setDatetimeLocal('ScheduleStartAt', data.start_at);
+        setDatetimeLocal('ScheduleEndAt', data.end_at);
 
-          const ScheduleEditSelectedUserIds = []
-          const ScheduleEditSelectedUserNames = []
-          ScheduleEditSelectedUserIds.push(...data.user_ids);
-          ScheduleEditSelectedUserNames.push(...data.usernames);
-          console.log('取得したユーザーid：', ScheduleEditSelectedUserIds);
-          console.log('取得したユーザー名：', ScheduleEditSelectedUserNames);
+        const ScheduleEditSelectedUserIds = []
+        const ScheduleEditSelectedUserNames = []
+        ScheduleEditSelectedUserIds.push(...data.user_ids);
+        ScheduleEditSelectedUserNames.push(...data.usernames);
+        console.log('取得したユーザーid：', ScheduleEditSelectedUserIds);
+        console.log('取得したユーザー名：', ScheduleEditSelectedUserNames);
 
-          // 既存データ反映
-          if (ScheduleEditSelectedUserNames.length > 0) {
-            scheduleEditUserDisplay.innerHTML = '';
-            console.log('既に登録されているユーザー名表示：', ScheduleEditSelectedUserNames);
-            scheduleEditUserDisplay.innerHTML = ScheduleEditSelectedUserNames
-              .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
-              .join('');
-            
-            console.log('既に登録されているユーザーidを渡す', ScheduleEditSelectedUserIds);
-            ScheduleEditSelectedUserIds.forEach(id => {
-              const input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = 'edit_user';
-              input.value = id;
-              scheduleEditUserInput.append(input);
-              console.log(scheduleEditUserInput);
-            });
-          } else {
-            scheduleEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
-          }
-        });
+        // 既存データ反映
+        if (ScheduleEditSelectedUserNames.length > 0) {
+          scheduleEditUserDisplay.innerHTML = '';
+          console.log('既に登録されているユーザー名表示：', ScheduleEditSelectedUserNames);
+          scheduleEditUserDisplay.innerHTML = ScheduleEditSelectedUserNames
+            .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
+            .join('');
+          
+          console.log('既に登録されているユーザーidを渡す', ScheduleEditSelectedUserIds);
+          ScheduleEditSelectedUserIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'edit_user';
+            input.value = id;
+            scheduleEditUserInput.append(input);
+            console.log(scheduleEditUserInput);
+          });
+        } else {
+          scheduleEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
+        }
+      });
 
-      // 編集履歴
-      let scheduleUpdateDisplay = document.getElementById('scheduleUpdateDisplay');
-      scheduleUpdateDisplay.innerHTML = '<p class="text-center">履歴を取得中...</div>';
+    // 編集履歴
+    let scheduleUpdateDisplay = document.getElementById('scheduleUpdateDisplay');
+    scheduleUpdateDisplay.innerHTML = '<p class="text-center">履歴を取得中...</div>';
 
-      fetch(`/schedules/schedule_history/${schedulePk}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success && data.history.length > 0) {
-            scheduleUpdateDisplay.innerHTML = data.history
-              .map(entry => `<p class="text-center pt-2">${entry.user}さんが${entry.updated_at}に更新しました。</p>`)
-              .join('');
-          } else {
-            scheduleUpdateDisplay.innerHTML = `<p class="text-center">現在、更新履歴はありません。</p>`;
-          }
-        })
-        .catch(error => {
-          console.error('履歴の取得に失敗:', error);
-          scheduleUpdateDisplay.innerHTML = `<p class="text-center">履歴の取得に失敗しました。</p>`
-        });
-    });
-  });
-
-  document.querySelectorAll('.delete-btn').forEach((button) => {
-    button.addEventListener('click', function () {
-      let schedulePk = this.getAttribute('data-pk');
-      console.log('削除対象のスケジュールPK:', schedulePk);
-
-      let deleteForm = document.getElementById('scheduleDeleteForm');
-      deleteForm.action = `/schedules/schedule_delete/${schedulePk}`;
-    });
+    fetch(`/schedules/schedule_history/${schedulePk}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.history.length > 0) {
+          scheduleUpdateDisplay.innerHTML = data.history
+            .map(entry => `<p class="text-center pt-2">${entry.user}さんが${entry.updated_at}に更新しました。</p>`)
+            .join('');
+        } else {
+          scheduleUpdateDisplay.innerHTML = `<p class="text-center">現在、更新履歴はありません。</p>`;
+        }
+      })
+      .catch(error => {
+        console.error('履歴の取得に失敗:', error);
+        scheduleUpdateDisplay.innerHTML = `<p class="text-center">履歴の取得に失敗しました。</p>`
+      });
   });
 });
+
+document.querySelectorAll('.delete-btn').forEach((button) => {
+  button.addEventListener('click', function () {
+    let schedulePk = this.getAttribute('data-pk');
+    console.log('削除対象のスケジュールPK:', schedulePk);
+
+    let deleteForm = document.getElementById('scheduleDeleteForm');
+    deleteForm.action = `/schedules/schedule_delete/${schedulePk}`;
+  });
+});
+// });
 
 // モーダル内ユーザ検索機能(スケジュール編集)
 document.addEventListener('DOMContentLoaded', function () {
