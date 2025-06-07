@@ -732,17 +732,13 @@ document.addEventListener('DOMContentLoaded', function () {
 // 時刻表示変換(UTC → JST)
 function setDatetimeLocal(inputId, utcString) {
   const date = new Date(utcString);
-  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
 
   const formatted = date.toISOString().slice(0, 16);
   document.getElementById(inputId).value = formatted;
 }
 
 // スケジュール編集
-// document.addEventListener('DOMContentLoaded', function () {
-//   const scheduleEditUserDisplay = document.getElementById('selectedEditUsersDisplay');
-//   const scheduleEditUserInput = document.getElementById('scheduleEditSelectedUsers');
-
 document.querySelectorAll('.edit-btn').forEach((button) => {
   button.addEventListener('click', function () {
     console.log('スケジュール編集ボタンが押下されました');

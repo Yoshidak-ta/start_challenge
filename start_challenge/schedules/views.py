@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from . import forms
 from django.utils import timezone
-from datetime import datetime
+from django.utils.timezone import localtime
+from datetime import datetime, timedelta
 from accounts.models import Users
 from accounts.forms import ObjectiveRegistForm, ObjectiveEditForm, SearchForm
 from .models import Schedules, ToDos, SchedulesHistory
@@ -45,6 +46,9 @@ def schedule(request, year=None, month=None):
   first_day, last_day = calendar_helper.get_month_days()
 
   schedules = Schedules.objects.filter(user=user)
+  for s in schedules:
+    s.start_date_jst = localtime(s.start_at).date()
+    s.end_date_jst = localtime(s.end_at).date()
 
   return render(request, 'schedules/schedule.html', context={
     'today':today,
@@ -90,7 +94,6 @@ def schedule_show(request, year=None, month=None, day=None):
     start_at__date__lte=formatted_date,
     end_at__date__gte=formatted_date,
   )
-
   searchform = SearchForm(request.GET or None)
   results = Users.objects.all()
 
@@ -178,7 +181,7 @@ def schedule_regist(request):
       regist = schedule_regist_form.save(commit=False)
       try:
         regist.start_at = datetime.strptime(request.POST['start_at'], '%Y-%m-%dT%H:%M')
-        regist.end_at = datetime.strptime(request.POST['end_at'], '%Y-%m-%dT%H:%M')
+        regist.end_at = datetime.strptime(request.POST['end_at'], '%Y-%m-%dT%H:%M') 
       except ValueError:
         print(regist.start_at, regist.end_at)
         messages.error(request, "日付のフォーマットが不正です。")
@@ -220,7 +223,7 @@ def schedule_edit(request, pk):
   if request.method == 'POST':
     schedule_edit_form = forms.ScheduleEditForm(request.POST or None, instance=schedule)
     if schedule_edit_form.is_valid():
-      schedule_edit_form.save(commit=True)
+      schedule_edit_form.save(commit=False)
       schedule.updated_at = datetime.now()
       schedule.save()
       
@@ -302,6 +305,8 @@ def objective_regist(request):
   if request.method == 'POST':
     regist = ObjectiveRegistForm(request.POST or None, instance=user)
     if regist.is_valid():
+      regist.save(commit=False)
+      regist.objective_due_date += timedelta(hours=9)
       saved_objective = regist.save()
       messages.info(request, '目標を設定しました')
       return JsonResponse({
@@ -327,6 +332,7 @@ def objective_edit(request, user_id):
     objective_edit_form = ObjectiveEditForm(request.POST, instance=user)
     if objective_edit_form.is_valid():
       objective_edit_form.save(commit=False)
+      objective_edit_form.objective_due_date += timedelta(hours=9)
       user.updated_at = datetime.now()
       user.save()
       messages.info(request, '目標を編集しました')

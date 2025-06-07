@@ -276,9 +276,9 @@
                   <a href="{% url 'schedules:schedule_show' year=year month=month day=day %}">{{ day }}</a>
                   <div class="row">
                   {% for schedule in schedules %}
-                    {% if schedule.start_at.year <= year and schedule.end_at.year >= year%}
-                      {% if schedule.start_at.month <= month and schedule.end_at.month >= month %}
-                        {% if schedule.start_at.day <= day and schedule.end_at.day >= day %}
+                    {% if schedule.start_date_jst.year <= year and schedule.end_date_jst.year >= year%}
+                      {% if schedule.start_date_jst.month <= month and schedule.end_date_jst.month >= month %}
+                        {% if schedule.start_date_jst.day <= day and schedule.end_date_jst.day >= day %}
                         <span>{{ schedule.task }}</span>
                         <small style="color: gray;">  @{{ schedule.place }}</small>
                         {% endif %}
