@@ -263,11 +263,6 @@ document.addEventListener('DOMContentLoaded', function () {
       // モーダルが閉じられた時にデータをリセット
       modal.addEventListener('hidden.bs.modal', function () {
         chatgroupSelectedUsers.clear();
-        // userList.innerHTML = `
-        //   <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-        //   <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-        //   <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-        // `;
         searchInput.value = '';
       });
   });
@@ -786,7 +781,21 @@ document.querySelectorAll('.edit-btn').forEach((button) => {
       .then(data => {
         if (data.success && data.history.length > 0) {
           scheduleUpdateDisplay.innerHTML = data.history
-            .map(entry => `<p class="text-center pt-2">${entry.user}さんが${entry.updated_at}に更新しました。</p>`)
+            .map(entry => {
+              // 表示時間をUTC → JSTへ変換
+              const date = new Date(entry.updated_at);
+              date.setHours(date.getHours() + 9);
+
+              const formatted = date.toLocaleString('ja-JP', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+
+              return `<p class="text-center pt-2">${entry.user}さんが${formatted}に更新しました。</p>`;
+            })
             .join('');
         } else {
           scheduleUpdateDisplay.innerHTML = `<p class="text-center">現在、更新履歴はありません。</p>`;
