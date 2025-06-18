@@ -433,11 +433,6 @@ document.addEventListener('DOMContentLoaded', function () {
           // モーダルが閉じられた時にデータをリセット
           modal.addEventListener('hidden.bs.modal', function () {
             chatgroupSelectedUsers.clear();
-            // userList.innerHTML = `
-            //   <input class="form-check-input chatgroup-user-edit-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-            //   <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-            //   <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-            // `;
             searchInput.value = '';
           });
         })
@@ -555,11 +550,6 @@ document.addEventListener('DOMContentLoaded', function () {
      // モーダルが閉じられた時にデータをリセット
      modal.addEventListener('hidden.bs.modal', function () {
       scheduleSelectedUsers.clear();
-      // userList.innerHTML = `
-      //   <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-      //   <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-      //   <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-      // `;
       searchInput.value = '';
     });
   });
@@ -621,11 +611,6 @@ document.addEventListener('DOMContentLoaded', function () {
      // モーダルが閉じられた時にデータをリセット
      modal.addEventListener('hidden.bs.modal', function () {
       scheduleSelectedUsers.clear();
-      // userList.innerHTML = `
-      //   <input class="form-check-input user-group-checkbox" type="checkbox" value="${user.id}" id='user${user.id}' data-name="${user.username}">
-      //   <img class="profile-icon rounded-circle" id="profile-icon" src="${user.picture}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-      //   <label class="form-check-label" for='user${user.id}'>${user.username}</label>
-      // `;
       searchInput.value = '';
     });
   });
@@ -748,6 +733,8 @@ document.querySelectorAll('.edit-btn').forEach((button) => {
     console.log('編集対象のスケジュールPK:', schedulePk);
 
     let editForm = document.getElementById('scheduleEditForm');
+    const childEditForm = document.getElementById('editForm');
+    editForm.appendChild(childEditForm);
     editForm.action = `/schedules/schedule_edit/${schedulePk}`;
 
     document.getElementById('editTask').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
@@ -784,7 +771,6 @@ document.querySelectorAll('.edit-btn').forEach((button) => {
             input.name = 'edit_user';
             input.value = id;
             scheduleEditUserInput.append(input);
-            console.log(scheduleEditUserInput);
           });
         } else {
           scheduleEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
@@ -825,7 +811,7 @@ document.querySelectorAll('.delete-btn').forEach((button) => {
 // });
 
 // モーダル内ユーザ検索機能(スケジュール編集)
-document.addEventListener('DOMContentLoaded', function () {
+// document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.schedule-edit-selectuser-modal').forEach(modal => {
     const searchForm = document.getElementById('scheduleEditSelectSearchForm');
     const searchInput = document.getElementById('scheduleEditSelectSearchInput');
@@ -884,10 +870,10 @@ document.addEventListener('DOMContentLoaded', function () {
       searchInput.value = '';
     });
   });
-});
+// });
 
 // スケジュール編集(ユーザ選択)
-document.addEventListener('DOMContentLoaded', function () {
+// document.addEventListener('DOMContentLoaded', function () {
   const scheduleEditSelectedUserDisplay = document.getElementById('selectedEditUsersDisplay');
   const scheduleEditSelectedUserInput = document.getElementById('scheduleEditSelectedUsers');
   const confirmUserSelectionButton = document.getElementById('confirmEditUserSelection');
@@ -929,7 +915,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     } else {
       scheduleEditSelectedUserDisplay.innerHTML = '<p>ユーザが選択されていません</p>';
-      // scheduleEditSelectedUserInput.value = '';
+      scheduleEditSelectedUserInput.value = '';
     }
 
     // ユーザ選択モーダルを閉じる
@@ -938,8 +924,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (userModal) {
         userModal.hide();
     }
+    // モーダルを閉じた際に編集ボタンにフォーカスを移す
+    document.getElementById('scheduleEditFormButton').focus();
   });
-});
+// });
 
 // Todoリスト
 document.getElementById('todoListForm').addEventListener('submit', function (e) {

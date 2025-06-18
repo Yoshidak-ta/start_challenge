@@ -60,63 +60,66 @@
                     <div class="col"> 
                       <h3 class="text-center mb-4">スケジュール編集</h3>
                       <form id="scheduleEditForm" method="POST">
-                        {% csrf_token %}
-                        <div class="row">
-                          <div class="col-6">
-                          <!-- 左フィールド -->
-                          {% for edit in schedule_edit_form %}
-                            {% if edit.name in fields_left %}
-                              <div class="form-group mb-3">
-                                <h5>{{ edit.label }}</h5>
-                                {% for error in edit.errors %}
-                                <p style="color: red;">{{ error }}</p>
-                                {% endfor %}
-                                {% if edit.name == 'start_at' %}
-                                <input type="datetime-local" id="ScheduleStartAt" class="form-control" name="{{ edit.name }}">
-                                {% elif edit.name == 'end_at' %}
-                                <input type="datetime-local" id="ScheduleEndAt" class="form-control" name="{{ edit.name }}">
-                                {% endif %}
-                              </div>
-                            {% endif %}
-                          {% endfor %}
-                          </div>
-                          <div class="col-6">
-                          <!-- 右フィールド -->
-                          {% for edit in schedule_edit_form %}
-                            {% if edit.name in fields_right %}
-                              {% if edit.name == 'task' %}
-                              <div class="form-group mb-3">
-                                <h5>{{ edit.label }}</h5>
-                                {% for error in edit.errors %}
-                                <p style="color: red;">{{ error }}</p>
-                                {% endfor %}
-                                <textarea name="task" cols="1" rows="1" class="form-control" id="editTask"></textarea>
-                              </div>
-                              {% elif edit.name == 'place' %}
-                              <div class="form-group mb-3">
-                                <h5>{{ edit.label }}</h5>
-                                {% for error in edit.errors %}
-                                <p style="color: red;">{{ error }}</p>
-                                {% endfor %}
-                                <input type="text" class="form-control" id="editPlace" name="place">
-                              </div>
-                              {% elif edit.name == 'user' %}
-                              <div class="form-group mb-3">
-                                <h5>登録ユーザ</h5>
-                                {% for error in edit.errors %}
-                                <p style="color: red;">{{ error }}</p>
-                                {% endfor %}
-                                <div id="selectedEditUsersDisplay" class="p-4"></div>
-                              </div>
+                        <div id="editForm">
+                          <input type="hidden" name="schedule_pk" id="targetPk">
+                          {% csrf_token %}
+                          <div class="row">
+                            <div class="col-6">
+                            <!-- 左フィールド -->
+                            {% for edit in schedule_edit_form %}
+                              {% if edit.name in fields_left %}
+                                <div class="form-group mb-3">
+                                  <h5>{{ edit.label }}</h5>
+                                  {% for error in edit.errors %}
+                                  <p style="color: red;">{{ error }}</p>
+                                  {% endfor %}
+                                  {% if edit.name == 'start_at' %}
+                                  <input type="datetime-local" id="ScheduleStartAt" class="form-control" name="{{ edit.name }}">
+                                  {% elif edit.name == 'end_at' %}
+                                  <input type="datetime-local" id="ScheduleEndAt" class="form-control" name="{{ edit.name }}">
+                                  {% endif %}
+                                </div>
                               {% endif %}
-                            {% endif %}
-                          {% endfor %}
-                          </div>
-                          <div class="d-flex flex-column mb-2">
-                            <div class="row justify-content-center py-4">
-                              <button class="btn btn-custom-edit w-50 m-2" type="button" data-bs-toggle="modal" data-bs-target="#editUserModal">登録ユーザを選択する</button>
-                              <div id="scheduleEditSelectedUsers"></div>
-                              <button type="submit" class="btn btn-primary w-50">更新</button>
+                            {% endfor %}
+                            </div>
+                            <div class="col-6">
+                            <!-- 右フィールド -->
+                            {% for edit in schedule_edit_form %}
+                              {% if edit.name in fields_right %}
+                                {% if edit.name == 'task' %}
+                                <div class="form-group mb-3">
+                                  <h5>{{ edit.label }}</h5>
+                                  {% for error in edit.errors %}
+                                  <p style="color: red;">{{ error }}</p>
+                                  {% endfor %}
+                                  <textarea name="task" cols="1" rows="1" class="form-control" id="editTask"></textarea>
+                                </div>
+                                {% elif edit.name == 'place' %}
+                                <div class="form-group mb-3">
+                                  <h5>{{ edit.label }}</h5>
+                                  {% for error in edit.errors %}
+                                  <p style="color: red;">{{ error }}</p>
+                                  {% endfor %}
+                                  <input type="text" class="form-control" id="editPlace" name="place">
+                                </div>
+                                {% elif edit.name == 'user' %}
+                                <div class="form-group mb-3">
+                                  <h5>登録ユーザ</h5>
+                                  {% for error in edit.errors %}
+                                  <p style="color: red;">{{ error }}</p>
+                                  {% endfor %}
+                                  <div id="selectedEditUsersDisplay" class="p-4"></div>
+                                </div>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+                            </div>
+                            <div class="d-flex flex-column mb-2">
+                              <div class="row justify-content-center py-4">
+                                <button class="btn btn-custom-edit w-50 m-2" type="button" data-bs-toggle="modal" data-bs-target="#editUserModal">登録ユーザを選択する</button>
+                                <div id="scheduleEditSelectedUsers"></div>
+                                <button type="submit" id="scheduleEditFormButton" class="btn btn-primary w-50">更新</button>
+                              </div>
                             </div>
                           </div>
                         </div>

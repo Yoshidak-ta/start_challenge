@@ -169,18 +169,25 @@ WEBPUSH_SETTINGS = {
     "VAPID_ADMIN_EMAIL": "bsk.gooserock@gmail.com",
 }
 
+CELERY_BROKER_URL = 'sqs://'
+
+# CELERY_BROKER_TRANSPORT_OPTIONS = {
+#     'region': os.environ.get('AWS_DEFAULT_REGION'),
+#     'visibility_timeout': 3600,
+#     'polling_interval': 1,
+#     'queue_name_prefix': '',
+#     'wait_time_seconds': 20,
+#     'use_ssl': True,
+#     'predefined_queues': {
+#         'celery': {
+#             'url':f'https://sqs.us-east-1.amazonaws.com/105417737441/celery',
+#         }
+#     }
+# }
 CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'region': os.environ.get('AWS_DEFAULT_REGION'),
+    'region': 'ap-northeast-1',
+    'queue_name_prefix': 'celery-',
     'visibility_timeout': 3600,
-    'polling_interval': 1,
-    'queue_name_prefix': '',
-    'wait_time_seconds': 20,
-    'use_ssl': True,
-    'predefined_queues': {
-        'celery': {
-            'url':f'https://sqs.us-east-1.amazonaws.com/105417737441/celery',
-        }
-    }
 }
 
 # Celery Configuration
