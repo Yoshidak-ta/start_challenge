@@ -49,8 +49,9 @@
           {% endif %}
         {% endfor %}
         </ul>
-        <p class="mt-auto text-primary text-decoration-underline" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p>
+        <!-- <p class="mt-auto p-2 btn-custom-edit" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p> -->
       </div>
+      <p class="p-2 btn-custom-edit" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p>
     </div>
     <!-- モーダル -->
     <div class="modal fade" id="addTodoModal" tabindex="-1" aria-labelledby="addTodoModalLabel" aria-hidden="true">
@@ -196,7 +197,7 @@
                         </div>
                       {% endfor %}
                         <div class="objective-group d-flex justify-content-center">
-                          <input type="submit" class="btn btn-primary w-50" value="登録"></button>
+                          <input type="submit" class="btn btn-primary w-50" value="更新"></button>
                         </div>
                       </form>
                     </div>
@@ -229,11 +230,11 @@
       <div class="col-9">
       {% if objective_due_date %}
         {% if limit > 0 %}
-        <h5 class="text-end" style="color: red;">達成まであと{{ limit }}日</h5>
-        {% elif limit == 0 %}
-        <h5 class="text-end" style="color: red;">本日達成日です！</h5>
-        {% elif limit < 0 %}
-        <h3 class="bold text-end" style="color: red;">期限が過ぎています！！</h3>
+        <h5 class="text-end" style="color: red;">達成まであと{{ limit }}日(期限：{{ objective_due_date }})</h5>
+        {% elif limit == 0 and total_seconds > 0 %}
+        <h5 class="text-end" style="color: red;">本日達成日です！(期限：{{ objective_due_date }})</h5>
+        {% else %}
+        <h3 class="bold text-end" style="color: red;">期限が過ぎています！！(期限：{{ objective_due_date }})</h3>
         {% endif %}
       {% endif %}
       </div>

@@ -7,7 +7,7 @@
   </div>
   {% endfor %}
   <div class="row justify-content-center">
-    <div class="col-md-6"> 
+    <div class="col-md-7"> 
       <h3 class="text-center mb-4">会員情報編集</h3>
       <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -55,13 +55,13 @@
           {% endfor %}
           </div>
           <div class="form-group d-flex justify-content-center my-4">
-            <input class="btn btn-primary w-50" type="submit" value="更新">
+            <input class="btn btn-primary w-25" type="submit" value="更新">
           </div>
         </div>
       </form>
       <!-- 退会処理 -->
-      <div class="d-flex justify-content-center mt-2">
-        <a class="test-center" href="#" data-bs-toggle="modal" data-bs-target="#confirmModal" style="color: red;">退会する</a>
+      <div class="d-flex justify-content-center">
+        <a class="test-center btn btn-custom-warning w-25" href="#" data-bs-toggle="modal" data-bs-target="#confirmModal" style="color: white;">退会する</a>
       </div>
       <!-- 退会を選択した場合の確認メッセージ表示 -->
       <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">

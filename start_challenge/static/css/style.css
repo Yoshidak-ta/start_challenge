@@ -209,6 +209,16 @@ td {
   text-align: left;
 }
 
+.genre-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  height: 2.4rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2rem;
+}
 
 @media screen and (min-width: 1400px) {
   .study-challenge-container {

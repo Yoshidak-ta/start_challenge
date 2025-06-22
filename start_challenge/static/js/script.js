@@ -665,6 +665,15 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+// 時刻表示変換(UTC → JST)
+function setDatetimeLocal(inputId, utcString) {
+  const date = new Date(utcString);
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+
+  const formatted = date.toISOString().slice(0, 16);
+  document.getElementById(inputId).value = formatted;
+}
+
 // スケジュール登録(チャットからの登録)
 document.addEventListener('DOMContentLoaded', function () {
   console.log('チャットからスケジュール登録')
@@ -709,125 +718,117 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// 時刻表示変換(UTC → JST)
-function setDatetimeLocal(inputId, utcString) {
-  const date = new Date(utcString);
-    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-
-  const formatted = date.toISOString().slice(0, 16);
-  document.getElementById(inputId).value = formatted;
-}
-
 // スケジュール編集
-document.querySelectorAll('.edit-btn').forEach((button) => {
-  button.addEventListener('click', function () {
-    console.log('スケジュール編集ボタンが押下されました');
-    const scheduleEditUserDisplay = document.getElementById('selectedEditUsersDisplay');
-    const scheduleEditUserInput = document.getElementById('scheduleEditSelectedUsers');
-    let schedulePk = this.getAttribute('data-pk');
-    console.log('編集対象のスケジュールPK:', schedulePk);
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.edit-btn').forEach((button) => {
+    button.addEventListener('click', function () {
+      console.log('スケジュール編集ボタンが押下されました');
+      const scheduleEditUserDisplay = document.getElementById('selectedEditUsersDisplay');
+      const scheduleEditUserInput = document.getElementById('scheduleEditSelectedUsers');
+      let schedulePk = this.getAttribute('data-pk');
+      console.log('編集対象のスケジュールPK:', schedulePk);
 
-    let editForm = document.getElementById('scheduleEditForm');
-    const childEditForm = document.getElementById('editForm');
-    editForm.appendChild(childEditForm);
-    editForm.action = `/schedules/schedule_edit/${schedulePk}`;
+      let editForm = document.getElementById('scheduleEditForm');
+      const childEditForm = document.getElementById('editForm');
+      editForm.appendChild(childEditForm);
+      editForm.action = `/schedules/schedule_edit/${schedulePk}`;
 
-    document.getElementById('editTask').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
-    document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim().replace(/@/, '');
+      document.getElementById('editTask').value = this.closest('tr').querySelector('td:nth-child(2)').textContent.trim();
+      document.getElementById('editPlace').value = this.closest('tr').querySelector('td:nth-child(3)').textContent.trim().replace(/@/, '');
 
-    scheduleEditUserInput.innerHTML = '';
-    // ユーザー情報を取得しておく（グローバルに保存など）
-    fetch(`/schedules/schedule_show/get_schedule_data/${schedulePk}`)
-      .then(response => response.json())
-      .then(data => {
-        // スケジュール開始・終了時間を表示
-        setDatetimeLocal('ScheduleStartAt', data.start_at);
-        setDatetimeLocal('ScheduleEndAt', data.end_at);
+      scheduleEditUserInput.innerHTML = '';
+      // ユーザー情報を取得しておく（グローバルに保存など）
+      fetch(`/schedules/schedule_show/get_schedule_data/${schedulePk}`)
+        .then(response => response.json())
+        .then(data => {
+          // スケジュール開始・終了時間を表示
+          setDatetimeLocal('ScheduleStartAt', data.start_at);
+          setDatetimeLocal('ScheduleEndAt', data.end_at);
 
-        const ScheduleEditSelectedUserIds = []
-        const ScheduleEditSelectedUserNames = []
-        ScheduleEditSelectedUserIds.push(...data.user_ids);
-        ScheduleEditSelectedUserNames.push(...data.usernames);
-        console.log('取得したユーザーid：', ScheduleEditSelectedUserIds);
-        console.log('取得したユーザー名：', ScheduleEditSelectedUserNames);
+          const ScheduleEditSelectedUserIds = []
+          const ScheduleEditSelectedUserNames = []
+          ScheduleEditSelectedUserIds.push(...data.user_ids);
+          ScheduleEditSelectedUserNames.push(...data.usernames);
+          console.log('取得したユーザーid：', ScheduleEditSelectedUserIds);
+          console.log('取得したユーザー名：', ScheduleEditSelectedUserNames);
 
-        // 既存データ反映
-        if (ScheduleEditSelectedUserNames.length > 0) {
-          scheduleEditUserDisplay.innerHTML = '';
-          console.log('既に登録されているユーザー名表示：', ScheduleEditSelectedUserNames);
-          scheduleEditUserDisplay.innerHTML = ScheduleEditSelectedUserNames
-            .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
-            .join('');
-          
-          console.log('既に登録されているユーザーidを渡す', ScheduleEditSelectedUserIds);
-          ScheduleEditSelectedUserIds.forEach(id => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'edit_user';
-            input.value = id;
-            scheduleEditUserInput.append(input);
-          });
-        } else {
-          scheduleEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
-        }
-      });
+          // 既存データ反映
+          if (ScheduleEditSelectedUserNames.length > 0) {
+            scheduleEditUserDisplay.innerHTML = '';
+            console.log('既に登録されているユーザー名表示：', ScheduleEditSelectedUserNames);
+            scheduleEditUserDisplay.innerHTML = ScheduleEditSelectedUserNames
+              .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
+              .join('');
+            
+            console.log('既に登録されているユーザーidを渡す', ScheduleEditSelectedUserIds);
+            ScheduleEditSelectedUserIds.forEach(id => {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'edit_user';
+              input.value = id;
+              scheduleEditUserInput.append(input);
+            });
+          } else {
+            scheduleEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
+          }
+        });
 
-    // 編集履歴
-    let scheduleUpdateDisplay = document.getElementById('scheduleUpdateDisplay');
-    scheduleUpdateDisplay.innerHTML = '<p class="text-center">履歴を取得中...</div>';
+      // 編集履歴
+      let scheduleUpdateDisplay = document.getElementById('scheduleUpdateDisplay');
+      scheduleUpdateDisplay.innerHTML = '<p class="text-center">履歴を取得中...</div>';
 
-    fetch(`/schedules/schedule_history/${schedulePk}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success && data.history.length > 0) {
-          scheduleUpdateDisplay.innerHTML = data.history
-            .map(entry => {
-              // 表示時間をUTC → JSTへ変換
-              const date = new Date(entry.updated_at);
-              date.setHours(date.getHours() + 9);
+      fetch(`/schedules/schedule_history/${schedulePk}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.history.length > 0) {
+            scheduleUpdateDisplay.innerHTML = data.history
+              .map(entry => {
+                // 表示時間をUTC → JSTへ変換
+                const date = new Date(entry.updated_at);
+                date.setHours(date.getHours() + 9);
 
-              const formatted = date.toLocaleString('ja-JP', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-              });
+                const formatted = date.toLocaleString('ja-JP', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
 
-              return `<p class="text-center pt-2">${entry.user}さんが${formatted}に更新しました。</p>`;
-            })
-            .join('');
-        } else {
-          scheduleUpdateDisplay.innerHTML = `<p class="text-center">現在、更新履歴はありません。</p>`;
-        }
-      })
-      .catch(error => {
-        console.error('履歴の取得に失敗:', error);
-        scheduleUpdateDisplay.innerHTML = `<p class="text-center">履歴の取得に失敗しました。</p>`
-      });
+                return `<p class="text-center pt-2">${entry.user}さんが${formatted}に更新しました。</p>`;
+              })
+              .join('');
+          } else {
+            scheduleUpdateDisplay.innerHTML = `<p class="text-center">現在、更新履歴はありません。</p>`;
+          }
+        })
+        .catch(error => {
+          console.error('履歴の取得に失敗:', error);
+          scheduleUpdateDisplay.innerHTML = `<p class="text-center">履歴の取得に失敗しました。</p>`
+        });
+    });
+  });
+
+  document.querySelectorAll('.delete-btn').forEach((button) => {
+    button.addEventListener('click', function () {
+      let schedulePk = this.getAttribute('data-pk');
+      console.log('削除対象のスケジュールPK:', schedulePk);
+
+      let deleteForm = document.getElementById('scheduleDeleteForm');
+      deleteForm.action = `/schedules/schedule_delete/${schedulePk}`;
+    });
   });
 });
-
-document.querySelectorAll('.delete-btn').forEach((button) => {
-  button.addEventListener('click', function () {
-    let schedulePk = this.getAttribute('data-pk');
-    console.log('削除対象のスケジュールPK:', schedulePk);
-
-    let deleteForm = document.getElementById('scheduleDeleteForm');
-    deleteForm.action = `/schedules/schedule_delete/${schedulePk}`;
-  });
-});
-// });
 
 // モーダル内ユーザ検索機能(スケジュール編集)
-// document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.schedule-edit-selectuser-modal').forEach(modal => {
     const searchForm = document.getElementById('scheduleEditSelectSearchForm');
     const searchInput = document.getElementById('scheduleEditSelectSearchInput');
     const userList = document.getElementById('scheduleEditSelectUserList');
 
     let scheduleSelectedUsers = new Set();
-  
+
     searchForm.addEventListener('submit', function(event) {
       event.preventDefault();
 
@@ -873,20 +874,20 @@ document.querySelectorAll('.delete-btn').forEach((button) => {
         })
         .catch(error => console.error('Error:', error));
     });
-     // モーダルが閉じられた時にデータをリセット
-     modal.addEventListener('hidden.bs.modal', function () {
+      // モーダルが閉じられた時にデータをリセット
+      modal.addEventListener('hidden.bs.modal', function () {
       scheduleSelectedUsers.clear();
       searchInput.value = '';
     });
   });
-// });
+});
 
 // スケジュール編集(ユーザ選択)
-// document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
   const scheduleEditSelectedUserDisplay = document.getElementById('selectedEditUsersDisplay');
   const scheduleEditSelectedUserInput = document.getElementById('scheduleEditSelectedUsers');
   const confirmUserSelectionButton = document.getElementById('confirmEditUserSelection');
-  
+
   confirmUserSelectionButton.addEventListener('click', () => {
     console.log("追加（登録）ボタンが押されました");
     const newScheduleEditSelectedUserIds = [];
@@ -936,72 +937,78 @@ document.querySelectorAll('.delete-btn').forEach((button) => {
     // モーダルを閉じた際に編集ボタンにフォーカスを移す
     document.getElementById('scheduleEditFormButton').focus();
   });
-// });
+});
 
 // Todoリスト
-document.getElementById('todoListForm').addEventListener('submit', function (e) {
-  console.log('ToDo読み込み完了')
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('todo機能が読み込まれました')
+  document.getElementById('todoListForm').addEventListener('submit', function (e) {
+    console.log('ToDo読み込み完了')
 
-  e.preventDefault();
-  const formData = new FormData(this);
+    e.preventDefault();
+    const formData = new FormData(this);
 
-  fetch(addToDoUrl, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-    },
-  })
+    fetch(addToDoUrl, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      },
+    })
 
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      console.log("ToDOリスト追加成功:", data.task, "優先度:", data.priority);
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log("ToDOリスト追加成功:", data.task, "優先度:", data.priority);
 
-      // モーダル閉じる
-      const modalElement = document.getElementById('addTodoModal')
-      const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-      modal.hide();
+        // モーダル閉じる
+        const modalElement = document.getElementById('addTodoModal')
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.hide();
 
-      // 新しいタスクをリストに追加
-      const newTodo = document.createElement('li');
+        // フォームはリセット
+        document.getElementById('todoListForm').reset();
 
-      // 優先度ごとのクラスを適用
-      if (data.priority == "重") {
-        newTodo.className = 'list-group-item priority-high';
-      } else if (data.priority == "中") {
-        newTodo.className = 'list-group-item priority-middle';
-      } else {
-        newTodo.className = 'list-group-item';
-      }
+        // 新しいタスクをリストに追加
+        const newTodo = document.createElement('li');
 
-      // チェックボックス追加
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.className = 'todo-checkbox me-2';
-      checkbox.dataset.todoId = data.todo_id;
-
-      // タスクテキスト作成
-      const text = document.createTextNode(`${data.task}(期限：${data.due_date})`);
-
-      // 要素組み合わせ
-      newTodo.appendChild(checkbox);
-      newTodo.appendChild(text);
-
-      //Todoリスト追加 
-      document.querySelector('.list-group').appendChild(newTodo);
-
-      checkbox.addEventListener('change', function () {
-        if (this.checked) {
-          completeTodo(this.dataset.todoId, newTodo);
+        // 優先度ごとのクラスを適用
+        if (data.priority == "重") {
+          newTodo.className = 'list-group-item priority-high';
+        } else if (data.priority == "中") {
+          newTodo.className = 'list-group-item priority-middle';
+        } else {
+          newTodo.className = 'list-group-item';
         }
-      });
-    
-    } else {
-      console.error(data.errors);
-    }
-  })
-  .catch(error => console.error('Error:', error));
+
+        // チェックボックス追加
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'todo-checkbox me-2';
+        checkbox.dataset.todoId = data.todo_id;
+
+        // タスクテキスト作成
+        const text = document.createTextNode(`${data.task}(期限：${data.due_date})`);
+
+        // 要素組み合わせ
+        newTodo.appendChild(checkbox);
+        newTodo.appendChild(text);
+
+        //Todoリスト追加 
+        document.querySelector('.list-group').appendChild(newTodo);
+
+        checkbox.addEventListener('change', function () {
+          if (this.checked) {
+            completeTodo(this.dataset.todoId, newTodo);
+          }
+        });
+      
+      } else {
+        console.error(data.errors);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  });
 });
 
 // Todo達成
@@ -1055,6 +1062,46 @@ function getCookie(name) {
   return cookieValue;
 }
 
+// 目標設定
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('objectiveRegistForm').addEventListener('submit', function (e) {
+
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('目標登録実施開始')
+      if (data.success) {
+        // モーダル閉じる
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addObjectiveModal'));
+        modal.hide();
+
+        // 新しい目標を追加
+        const newObjective = document.createElement('h3');
+        newObjective.className = 'objective-item';
+        console.log(data.objective);
+        newObjective.textContent = `${data.objective}`;
+        document.querySelector('.objective-group').appendChild(newObjective);
+
+        console.log("リダイレクトURL:", data.redirect_url);
+        window.location.href = data.redirect_url;
+
+      } else {
+        console.error("エラー", data.errors)
+      }
+    })
+    .catch(error => console.error("通信エラー", error));
+  });
+});
+
 // 目標編集
 document.addEventListener('DOMContentLoaded', function () {
   console.log('目標編集機能読み込み完了');
@@ -1085,44 +1132,5 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log('エラー：', error);
         });
     });
-  })
-});
-
-// 目標設定
-document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('objectiveRegistForm').addEventListener('submit', function (e) {
-    console.log('目標設定')
-
-    e.preventDefault();
-    const formData = new FormData(this);
-
-    fetch(this.action, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
-      },
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // モーダル閉じる
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addObjectiveModal'));
-        modal.hide();
-
-        // 新しい目標をを追加
-        const newObjective = document.createElement('h3');
-        newObjective.className = 'objective-item';
-        newObjective.textContent = `${data.objective}`;
-        document.querySelector('.objective-group').appendChild(newObjective);
-
-        console.log("リダイレクトURL:", data.redirect_url);
-        window.location.href = data.redirect_url;
-
-      } else {
-        console.error("エラー", data.errors)
-      }
-    })
-    .catch(error => console.error("通信エラー", error));
   });
 });

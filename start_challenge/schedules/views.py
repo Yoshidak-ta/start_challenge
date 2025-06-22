@@ -24,10 +24,12 @@ def schedule(request, year=None, month=None):
   user = Users.objects.get(pk=request.user.id)
   objective = user.objective
   objective_due_date = user.objective_due_date
-  if objective and objective_due_date:
-    limit = (objective_due_date.date() - datetime.now().date()).days
-  else:
-    limit = None
+
+  now = localtime()
+  due = localtime(objective_due_date)
+  delta = due - now
+  total_seconds = int(delta.total_seconds())
+  limit = (due.date() - now.date()).days
   objective_regist_form = ObjectiveRegistForm()
   objective_edit_form = ObjectiveEditForm()
   today = datetime.now()
@@ -55,6 +57,7 @@ def schedule(request, year=None, month=None):
     'year':year, 
     'month':month,
     'limit':limit,
+    'total_seconds':total_seconds,
     'month_calendar':month_calendar, 
     'schedules':schedules, 
     'todos':todos,
@@ -303,23 +306,27 @@ def objective_regist(request):
   year = datetime.now().year
   month = datetime.now().month
   if request.method == 'POST':
-    regist = ObjectiveRegistForm(request.POST or None, instance=user)
+    regist = ObjectiveRegistForm(request.POST, instance=user)
     if regist.is_valid():
-      regist.save(commit=False)
-      regist.objective_due_date += timedelta(hours=9)
-      saved_objective = regist.save()
+      regist.save()
       messages.info(request, '目標を設定しました')
       return JsonResponse({
         "success": True,
-        "objective": saved_objective.objective,
+        "objective": regist.cleaned_data['objective'],
         "redirect_url": f"/schedules/schedule/{year}/{month}"
       })
     else:
       messages.error(request, '目標の入力項目に誤りがございます。')
-      redirect('schedules:schedule', year=year, month=month)
+      return JsonResponse({
+        "success": False,
+        "errors": regist.errors,
+      }, status=400)
   
   messages.error(request, '目標設定ができませんでした')
-  return redirect('schedules:schedule', year=year, month=month)
+  return JsonResponse({
+    "success": False,
+    "errors": '無効なリクエスト'
+  })
 
 # 目標編集
 @login_required
@@ -332,7 +339,6 @@ def objective_edit(request, user_id):
     objective_edit_form = ObjectiveEditForm(request.POST, instance=user)
     if objective_edit_form.is_valid():
       objective_edit_form.save(commit=False)
-      objective_edit_form.objective_due_date += timedelta(hours=9)
       user.updated_at = datetime.now()
       user.save()
       messages.info(request, '目標を編集しました')

@@ -252,7 +252,12 @@
       <div id="chat-container">
         <div id="messages" class="overflow-auto border p-2 mt-3 mb-3" style="height: 450px;">
           <div class="header top-0 mx-2 border-bottom d-flex justify-content-between">
-            <h5 class="pt-2">{{ group.groupname }}</h5>
+            <div class="d-flex justify-content-first">
+              <h5 class="pt-2 mx-2">{{ group.groupname }}</h5>
+              {% for group_user in group.user.all %}
+              <img class="profile-icon rounded-circle mx-1" id="profile-icon" src="{{ group_user.picture.url }}" alt="Profile Icon" title="{{ group_user.username }}" style="width: 30px; height: 30px; object-fit: cover;">
+              {% endfor %}
+            </div>
             <div>
               <a href="#" class="btn btn-custom-edit edit-chatgroup-btn" chatgroup-data-pk="{{ group.id }}" data-bs-toggle="modal" data-bs-target="#editChatGroupModal">編集</a>
               <a href="#" class="btn btn-custom-warning delete-chatgroup-btn" chatgroup-data-pk="{{ group.id }}" data-bs-toggle="modal" data-bs-target="#deleteChatGroupModal">削除</a>
