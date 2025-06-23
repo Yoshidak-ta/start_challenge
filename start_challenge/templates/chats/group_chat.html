@@ -163,7 +163,7 @@
                     {% if create.name == 'user' %}
                     <div class="form-group mb-3">
                       <h5>{{ create.label }}</h5>
-                      <small style="color: red;">※デフォルトで本人にチェックが入っていますが、「追加」ボタンを押下しないと登録ユーザーに反映されません</small>
+                      <small id="default-message" style="color: red;">※デフォルトで本人にチェックが入っていますが、「追加」ボタンを押下しないと登録ユーザーに反映されません</small>
                       {% for error in create.errors %}
                       <p style="color: red;">{{ error }}</p>
                       {% endfor %}

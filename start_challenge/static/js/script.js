@@ -307,6 +307,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (userModal) {
         userModal.hide();
     }
+    // デフォルトメッセージ削除
+    document.getElementById('default-message').innerHTML = '';
   });
 });
 
@@ -485,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const editChatgroupUserModal = bootstrap.Modal.getInstance(editChatgroupUserModalElement);
     if (editChatgroupUserModal) {
       editChatgroupUserModal.hide();
-    };
+    }
   });
 });
 
@@ -662,6 +664,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (userModal) {
         userModal.hide();
     }
+    // デフォルトメッセージ削除
+    document.getElementById('default-message').innerHTML = '';
   });
 });
 
