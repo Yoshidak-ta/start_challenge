@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from . import forms
 from django.utils import timezone
 from django.utils.timezone import localtime
-from datetime import datetime, timedelta
+from datetime import datetime
 from accounts.models import Users
 from accounts.forms import ObjectiveRegistForm, ObjectiveEditForm, SearchForm
 from .models import Schedules, ToDos, SchedulesHistory
@@ -13,7 +13,6 @@ from django.http import JsonResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.db import models
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.dateparse import parse_datetime
 
 # スケジュール画面
 @login_required

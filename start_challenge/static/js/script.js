@@ -2,65 +2,87 @@
 window.year = new Date().getFullYear();
 window.month = new Date().getMonth() + 1;
 
-// Service Workerアクティブ
-function waitForServiceWorkerReady(attempts = 10) {
-  return new Promise((resolve, reject) => {
-    let checkInterval = setInterval(() => {
-      navigator.serviceWorker.ready.then((registration) => {
-        if (registration.active) {
-          console.log("Service Worker がアクティブになりました", registration);
-          clearInterval(checkInterval);
-          resolve(registration);
-        }
-      }).catch(reject);
-
-      attempts--;
-      if (attempts <= 0) {
-        clearInterval(checkInterval);
-        reject(new Error("Service Worker がアクティブになりませんでした"));
-      }
-    }, 1000);
-  });
-}
-
-// トークン取得
-function getCsrfToken() {
-  const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || 
-                    document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
-  if (!csrfToken) {
-      console.error("CSRFトークンが見つかりませんでした");
-  }
-  return csrfToken;
-}
-
-// Webプッシュ通知登録
+// ブラウザ通知設定
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('通知設定読み込み');
-  const enableModalBtn = document.getElementById('enableModal');
   const enableBtn = document.getElementById('enableNotifications');
   const disableBtn = document.getElementById('disableNotifications');
-  console.log(Notification.permission);
+  const enableModalBtn = document.getElementById('enableModal');
 
+  const NOTIFICATION_KEY = 'notificationEnabled';
 
-  // 通知設定状況を確認し表示するボタンを切り替える
-  navigator.serviceWorker.ready.then((registration) => {
-    return registration.pushManager.getSubscription();
-  }).then((subscription) => {
-    // 通知許可されていて、購読もされている→無効化ボタン
-    if (Notification.permission === 'granted' && subscription) {
-      disableBtn.style.display = 'block';
-      // 購読されていないか、通知距腓→有効化ボタン
-    } else {
-      enableModalBtn.style.display = 'block';
-    }
-  }).catch((error) => {
-    console.log('購読状態確認失敗：', error);
+  // 通知ボタンの表示切替
+  if (Notification.permission === 'granted' && localStorage.getItem(NOTIFICATION_KEY) === 'true') {
+    disableBtn.style.display = 'block';
+    enableModalBtn.style.display = 'none';
+
+    fetch('user/notification_data')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('データ取得失敗');
+        }
+        return response.json();
+      })
+      .then(data => {
+          // スケジュールメッセージ
+          let sch_message = '';
+          if (data.schedules.length > 0) {
+            data.schedules.forEach(schedule => {
+              sch_message += `${schedule}\n`;
+            })
+          } else {
+            sch_message += 'なし\n';
+          }
+          
+          // タスクメッセージ
+          let tsk_message = '';
+          if (data.tasks) {
+            tsk_message += `残りのタスク${data.tasks}個\n`;
+          }
+          let tsk_tdy_message = '';
+          if (data.tasks_today) {
+            tsk_tdy_message += `本日期限のタスクは${data.tasks_today}個\n`;
+          }
+
+          // 目標メッセージ
+          let obj_message = '';
+          if (data.due_days) {
+            obj_message += `目標達成まであと${data.due_days}日!\n達成に向けてコツコツ取り組もう!!`
+          } else if (data.due_days === 0) {
+            obj_message += '本日目標達成期日です!\nラストスパート!!'
+          }
+
+          // 通知：スケジュール(5秒後)
+          setTimeout(() => {
+            new Notification('本日の予定', {
+              body: '本日の予定：' + sch_message,
+              icon: '/static/generals/notification-icon.png'
+            });
+          }, 5000);
+
+          // 通知：タスク
+          setTimeout(() => {
+            new Notification('残りのタスク', {
+              body: tsk_message + tsk_tdy_message + 'タスクを倒してランクアップしよう!!',
+              icon: '/static/generals/notification-icon.png'
+            });
+          }, 6000);
+
+          // 通知：目標
+          setTimeout(() => {
+            new Notification('目標カウントダウン', {
+              body: obj_message,
+              icon: '/static/generals/notification-icon.png'
+            });
+          }, 7000);
+      })
+  
+  } else {
     enableModalBtn.style.display = 'block';
-  });
+    disableBtn.style.display = 'none';
+  }
 
-  // 通知を有効にする処理
+  // 通知有効化
   enableBtn.addEventListener('click', () => {
-
     // モーダルを閉じる
     const confirmModalElement = document.getElementById('confirmEnableModal')
     const confirmModal = bootstrap.Modal.getInstance(confirmModalElement);
@@ -68,104 +90,24 @@ document.addEventListener('DOMContentLoaded', function () {
         confirmModal.hide();
     }
     
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            console.log('通知が許可されました');
-
-            // Service Workerを登録
-            navigator.serviceWorker.register('/sw.js').then((registration) => {
-              console.log('Service Worker 登録完了', registration);
-
-              return navigator.serviceWorker.ready;
-            }).then((registration) => {
-              console.log('Service Worker がアクティブになりました', registration);
-
-              // プッシュ通知の購読を開始
-              return registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: 'BHJYaOwq1s3Tu18w6gr1o0hF7_P7NQHTI8k-S4z2dNTVZoZvjQBUi73ssZNe1NEQRYPBwa09befpLFz33ZipktU'
-              });
-            }).then(subscription => {
-              console.log('プッシュ通知の購読成功', subscription);
-
-              return fetch('/api/save-subscription/', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': getCsrfToken()
-                },
-                body: JSON.stringify(subscription)
-            });
-          }).then(response => {
-            if (response.ok) {
-              console.log('サーバーへの登録成功');
-              enableModalBtn.style.display = 'none';
-              disableBtn.style.display = 'block';
-            } else {
-              console.log('サーバー登録エラー：', response.statusText);
-            }
-
-          }).catch(error => {
-              console.error("プッシュ通知の登録に失敗:", error);
-          });
-        } else {
-            console.log('通知が拒否されました');
-        }
-    });
-  });
-
-  // Service Worker 更新を強制実行
-  navigator.serviceWorker.getRegistration().then((registration) => {
-      if (registration) {
-          registration.update().then(() => {
-              console.log("Service Worker を手動更新しました");
-          });
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        localStorage.setItem(NOTIFICATION_KEY, 'true');
+        disableBtn.style.display = 'block';
+        enableModalBtn.style.display = 'none';
+      } else {
+        console.log('通知が拒否されました');
       }
+    });
   });
 
- // 通知を無効にする処理
-  disableBtn.addEventListener("click", () => {
-    console.log('通知無効ボタンを押下')
-    navigator.serviceWorker.ready.then((registration) => {
-      registration.pushManager.getSubscription().then((subscription) => {
-        if (subscription) {
-          subscription.unsubscribe().then((success) => {
-            if (success) {
-              console.log("通知を無効にしました。");
-              
-              // Django サーバーにも解除を通知
-              fetch("/api/unregister-subscription/", {
-                method: "POST",
-                body: JSON.stringify({ "endpoint": subscription.endpoint }),
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-CSRFToken": getCsrfToken()
-                }
-              }).then(response => {
-                console.log("送信データ:", JSON.stringify({ "endpoint": subscription.endpoint })); 
-                if (response.ok) {
-                  console.log("通知解除成功");
-                  disableBtn.style.display = "none";
-                  enableModalBtn.style.display = "block";
-                } else {
-                  console.error("通知解除エラー:", response.statusText);
-                }
-              }).catch(error => {
-                console.error("サーバーへの通知解除リクエスト失敗:", error);
-              });
-                
-            }
-          }).catch((error) => {
-            console.error("プッシュ通知の登録解除に失敗しました:", error);
-          });
-        } else {
-          console.log("プッシュ通知の登録はありません。");
-        }
-      });
-    });
-  }); 
+  // 通知無効化
+  disableBtn.addEventListener('click', () => {
+    localStorage.removeItem(NOTIFICATION_KEY);
+    enableModalBtn.style.display = 'block';
+    disableBtn.style.display = 'none';
+  });
 });
-
 
 // 回答アコーディオン
 document.addEventListener("DOMContentLoaded", function () {

@@ -1,19 +1,18 @@
 from django.shortcuts import render, redirect
 from . import forms
 from django.core.exceptions import ValidationError
-from .models import UserActivateTokens, Users, WebPushSubscription
+from .models import UserActivateTokens, Users
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils.timezone import now
 from questions.models import Questions, Answers
+from schedules.models import Schedules, ToDos
 from django.shortcuts import get_object_or_404
 from django.db import models
-from django.views.decorators.csrf import csrf_exempt
-from pywebpush import webpush, WebPushException
-import json
 import logging
 
 # ホーム画面（Q&A)
@@ -106,6 +105,40 @@ def user_login(request):
     }
   )
 
+# ログイン時にユーザー情報を取得
+@login_required
+def notification_data(request):
+  user = request.user
+  today = now().date()
+
+  schedules = Schedules.objects.filter(user=user)
+  target_schedules = []
+  
+  for schedule in schedules:
+    start = schedule.start_at.date()
+    end = schedule.end_at.date()
+    if start <= today and end >= today:
+      task = schedule.task
+      target_schedules.append(task)
+
+  sub_today = now() + timedelta(hours=9)
+  sub_today = sub_today.date()
+  tasks_today = ToDos.objects.filter(user=user, due_date=sub_today).count()
+  tasks = ToDos.objects.filter(user=user, is_completed=0).count()
+
+  due_days = None
+  if user.objective_due_date:
+    objective_date = user.objective_due_date.date()
+    due_days = (objective_date - today).days
+
+  data = {
+    'schedules': target_schedules,
+    'tasks_today': tasks_today,
+    'tasks': tasks,
+    'due_days': due_days
+  }
+  return JsonResponse(data)
+
 # ログアウト
 @login_required
 def user_logout(request):
@@ -122,7 +155,7 @@ def user_edit(request):
   if user_edit_form.is_valid():
     user_edit_form.save(commit=True)
     user = request.user
-    user.updated_at = datetime.now()
+    user.updated_at = now()
     user.save()
     messages.info(request, '更新が完了しました')
     return redirect('accounts:home')
@@ -209,86 +242,3 @@ def user_show(request, pk):
   })
 
 logger = logging.getLogger(__name__)
-
-# プッシュ通知登録
-@csrf_exempt  # CSRF チェックを無効化（必要に応じて）
-@login_required
-def register_push(request):
-  if request.method == 'POST':
-    try:
-      data = json.loads(request.body)
-      endpoint = data.get('endpoint')
-      p256dh_key = data.get('keys', {}).get('p256dh')
-
-      if not endpoint or not p256dh_key:
-        return JsonResponse({'error': 'Missing endpoint'}, status=400)
-      
-      subscription, created = WebPushSubscription.objects.update_or_create(
-        endpoint=endpoint,
-        defaults={'p256dh_key': p256dh_key},
-        user = request.user
-      )
-      
-      if created:
-        return JsonResponse({'message': 'Subscription created'}, status=201)
-      else:
-        return JsonResponse({'message': 'Subscription updated'}, status=200)
-    
-    except json.JSONDecodeError:
-      return JsonResponse({'error': 'Invalid JSON format'}, status=400)
-    
-    except Exception as e:
-      return JsonResponse({'error': str(e)}, status=500)
-  
-  return JsonResponse({'error': 'Invalid request'}, status=400)
-
-# プッシュ通知送信
-@login_required
-def send_push_notification(title, message):
-  subscriptions = WebPushSubscription.objects.all()
-  payload = json.dumps({'title': title, 'message': message})
-  print(f'通知送信開始：{title} - {message}')
-
-  for sub in subscriptions:
-    print(f'通知送信：{sub.endpoint}')
-    try:
-      webpush(
-        subscription_info={
-          'endpoint': sub.endpoint,
-          'keys': {
-            'p256dh': sub.p256dh_key
-          }
-        },
-        data=payload,
-        vapid_private_key=settings.VAPID_PRIVATE_KEY,
-        vapid_claims={'sub':'mailto:bsk.gooserock@gmail.com'}
-      )
-      print('通知送信成功')
-    except WebPushException as e:
-      print(f'プッシュ通知の送信に失敗しました： {str(e)}')
-
-# プッシュ通知解除
-@csrf_exempt
-@login_required
-def unregister_subscription(request):
-    if request.method == "POST":
-        try:
-          data = json.loads(request.body)
-          print(f'受信データ：{data}')
-          endpoint = data.get("endpoint")
-
-          if not endpoint:
-            return JsonResponse({'error': 'エンドポイントが提供されていません'}, status=400)
-
-          subscription = WebPushSubscription.objects.filter(endpoint=endpoint)
-          if subscription.exists():
-            print(f'削除対象：{subscription}')
-            subscription.delete()
-            return JsonResponse({'message': '登録解除成功'}, status=200)
-          else:
-            return JsonResponse({'error': '登録が見つかりません'}, status=404)
-        
-        except json.JSONDecodeError:
-          return JsonResponse({'error': '無効なJSON'}, status=400)
-        
-    return JsonResponse({"message": "無効なリクエスト"}, status=405)

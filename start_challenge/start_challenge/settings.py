@@ -26,7 +26,7 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 SECRET_KEY = "django-insecure-yrm^v1e$0*zb5d$g647jv41u7=0ez-vnzxn9submx4p77i0%2x"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['kyoshida511.pythonanywhere.com', '127.0.0.1', 'localhost']
 
@@ -162,55 +162,5 @@ MESSAGE_TAGS = {
   messages.ERROR: 'danger',
 }
 
-# Webプッシュ通知設定
-WEBPUSH_SETTINGS = {
-    "VAPID_PUBLIC_KEY": "BHJYaOwq1s3Tu18w6gr1o0hF7_P7NQHTI8k-S4z2dNTVZoZvjQBUi73ssZNe1NEQRYPBwa09befpLFz33ZipktU",
-    "VAPID_PRIVATE_KEY": "ka7tZ9cJ_W2WssQsOkimnmZAQlNfKUW42Nd9TP4g5Gc",
-    "VAPID_ADMIN_EMAIL": "bsk.gooserock@gmail.com",
-}
-
-CELERY_BROKER_URL = 'sqs://'
-
-# CELERY_BROKER_TRANSPORT_OPTIONS = {
-#     'region': os.environ.get('AWS_DEFAULT_REGION'),
-#     'visibility_timeout': 3600,
-#     'polling_interval': 1,
-#     'queue_name_prefix': '',
-#     'wait_time_seconds': 20,
-#     'use_ssl': True,
-#     'predefined_queues': {
-#         'celery': {
-#             'url':f'https://sqs.us-east-1.amazonaws.com/105417737441/celery',
-#         }
-#     }
-# }
-CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'region': 'ap-northeast-1',
-    'queue_name_prefix': 'celery-',
-    'visibility_timeout': 3600,
-}
-
-# Celery Configuration
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-
-INSTALLED_APPS += [
-  'django_celery_beat',
-]
-
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-
-from django.core.management.utils import get_random_secret_key
-
-SECRET_KEY = get_random_secret_key()
-
-try:
-    from .local_settings import *
-except ImportError:
-    from django.core.management.utils import get_random_secret_key
-    SECRET_KEY = get_random_secret_key()
-
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')

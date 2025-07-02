@@ -143,16 +143,3 @@ class Categories(models.Model):
   def __str__(self):
     return self.categoryname
 
-
-# Webプッシュ通知管理テーブル
-class WebPushSubscription(models.Model):
-  user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-  endpoint = models.TextField(unique=True)
-  p256dh_key = models.CharField(max_length=255)
-  created_at = models.DateTimeField(auto_now_add=True)
-
-  class Meta():
-    db_table = 'webpush_subscription'
-
-  def __str__(self):
-    return self.endpoint
