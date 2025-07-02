@@ -35,20 +35,28 @@ document.addEventListener('DOMContentLoaded', function () {
           
           // タスクメッセージ
           let tsk_message = '';
-          if (data.tasks) {
+          if (data.tasks > 0) {
             tsk_message += `残りのタスク${data.tasks}個\n`;
+          } else {
+            tsk_message = '';
           }
           let tsk_tdy_message = '';
-          if (data.tasks_today) {
+          if (data.tasks_today > 0) {
             tsk_tdy_message += `本日期限のタスクは${data.tasks_today}個\n`;
+          } else {
+            tsk_tdy_message = '';
           }
 
           // 目標メッセージ
           let obj_message = '';
-          if (data.due_days) {
+          if (data.due_days > 0) {
             obj_message += `目標達成まであと${data.due_days}日!\n達成に向けてコツコツ取り組もう!!`
+          } else if (data.due_days < 0) {
+            obj_message += '目標の達成期限が過ぎています！\n最後までやり切ろう!!';
           } else if (data.due_days === 0) {
-            obj_message += '本日目標達成期日です!\nラストスパート!!'
+            obj_message += '本日目標達成期日です!\nラストスパート!!';
+          } else {
+            obj_message = '';
           }
 
           // 通知：スケジュール(5秒後)
@@ -60,20 +68,24 @@ document.addEventListener('DOMContentLoaded', function () {
           }, 5000);
 
           // 通知：タスク
-          setTimeout(() => {
-            new Notification('残りのタスク', {
-              body: tsk_message + tsk_tdy_message + 'タスクを倒してランクアップしよう!!',
-              icon: '/static/generals/notification-icon.png'
-            });
-          }, 6000);
+          if (tsk_message != '' && tsk_tdy_message != '') {
+            setTimeout(() => {
+              new Notification('残りのタスク', {
+                body: tsk_message + tsk_tdy_message + 'タスクを倒してランクアップしよう!!',
+                icon: '/static/generals/notification-icon.png'
+              });
+            }, 6000);
+          };
 
           // 通知：目標
-          setTimeout(() => {
-            new Notification('目標カウントダウン', {
-              body: obj_message,
-              icon: '/static/generals/notification-icon.png'
-            });
-          }, 7000);
+          if (obj_message != '') {
+            setTimeout(() => {
+              new Notification('目標カウントダウン', {
+                body: obj_message,
+                icon: '/static/generals/notification-icon.png'
+              });
+            }, 7000);
+          };
       })
   
   } else {

@@ -123,7 +123,7 @@ def notification_data(request):
 
   sub_today = now() + timedelta(hours=9)
   sub_today = sub_today.date()
-  tasks_today = ToDos.objects.filter(user=user, due_date=sub_today).count()
+  tasks_today = ToDos.objects.filter(user=user, due_date=sub_today, is_completed=0).count()
   tasks = ToDos.objects.filter(user=user, is_completed=0).count()
 
   due_days = None
