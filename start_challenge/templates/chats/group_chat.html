@@ -384,16 +384,16 @@
           {% if chat.user.id == request.user.id %}
           <div class="message d-flex justify-content-end mb-3">
             <div class="d-flex flex-row">
-              <div class="d-flex flex-column">
-                <img class="profile-icon rounded-circle" id="profile-icon" src="{{ chat.user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-                <strong>{{ chat.user.username }}</strong>
-              </div>
-              <div class="d-flex flex-column">
+              <div class="d-flex flex-column" style="max-width: 300px;">
                 {% if chat.picture %}
                   <img id="chat-picture" src="{{ chat.picture.url }}" alt="Chat Picture" style="max-width: 400px; max-height: 350px; object-fit: cover;">
                 {% endif %}
-                <p class="circle-auto text-start mb-0">{{ chat.message }}</p>
-                <small class="text-muted">{{ chat.created_at }}</small>
+                <p class="chat-messages text-start mb-0">{{ chat.message }}</p>
+                <small class="text-muted text-end">{{ chat.created_at }}</small>
+              </div>
+              <div class="d-flex flex-column">
+                <img class="profile-icon rounded-circle" id="profile-icon" src="{{ chat.user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+                <strong>{{ chat.user.username }}</strong>
               </div>
             </div>
           </div>
@@ -404,9 +404,12 @@
                 <img class="profile-icon rounded-circle" id="profile-icon" src="{{ chat.user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                 <strong>{{ chat.user.username }}</strong>
               </div>
-              <div class="d-flex flex-column mt-2">
-                <p class="circle-auto text-start mb-0">{{ chat.message }}</p>
-                <small class="text-muted">{{ chat.created_at }}</small>
+              <div class="d-flex flex-column mt-2" style="max-width: 300px;">
+                {% if chat.picture %}
+                  <img id="chat-picture" src="{{ chat.picture.url }}" alt="Chat Picture" style="max-width: 400px; max-height: 350px; object-fit: cover;">
+                {% endif %}
+                <p class="chat-messages text-start mb-0">{{ chat.message }}</p>
+                <small class="text-muted text-end">{{ chat.created_at }}</small>
               </div>
             </div>
           </div>

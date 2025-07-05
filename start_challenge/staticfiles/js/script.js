@@ -977,8 +977,8 @@ document.addEventListener('DOMContentLoaded', function () {
         newObjective.textContent = `${data.objective}`;
         document.querySelector('.objective-group').appendChild(newObjective);
 
-        console.log("リダイレクトURL:", data.redirect_url);
-        window.location.href = data.redirect_url;
+        // console.log("リダイレクトURL:", data.redirect_url);
+        // window.location.href = data.redirect_url;
 
       } else {
         console.error("エラー", data.errors)

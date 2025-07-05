@@ -21,7 +21,11 @@
               {% for error in edit.errors %}
               <p style="color: red;">{{ error }}</p>
               {% endfor %}
+              {% if edit.name == 'email' %}
+              <input type="email" name="email" value="{{ edit.value }}" style="width: 270px;">
+              {% else %}
               {{ edit }}
+              {% endif %}
             </div>
             {% endif %}
           {% endfor %}

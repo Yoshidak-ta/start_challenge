@@ -220,6 +220,15 @@ td {
   line-height: 1.2rem;
 }
 
+.chat-messages {
+  border: solid;
+  border-width: thin;
+  padding: 0.2rem;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
 @media screen and (min-width: 1400px) {
   .study-challenge-container {
     max-width: 1200px;

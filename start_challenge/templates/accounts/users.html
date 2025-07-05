@@ -58,7 +58,7 @@
           {% if user.is_active %}
           {% if not user.is_staff %}
           <a class="text-decoration-none text-reset" href="{% url 'accounts:user_show' user.id %}">
-            <div class="card mt-2 mb-2 pt-2 pb-2">
+            <div class="card mt-2 mb-3 p-2">
               <div class="d-flex">
                 <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 70px; height: 70px; object-fit: cover;">
                 <div class="row">
@@ -87,7 +87,7 @@
         {% if user.is_active %}
         {% if not user.is_staff %}
         <a class="text-decoration-none text-reset" href="{% url 'accounts:user_show' user.id %}">
-          <div class="card mt-2 mb-2 pt-2 pb-2">
+          <div class="card mt-2 mb-3 p-2">
               <div class="d-flex">
                 <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 70px; height: 70px; object-fit: cover;">
                 <div class="row">

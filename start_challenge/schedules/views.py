@@ -309,23 +309,15 @@ def objective_regist(request):
     if regist.is_valid():
       regist.save()
       messages.info(request, '目標を設定しました')
-      return JsonResponse({
-        "success": True,
-        "objective": regist.cleaned_data['objective'],
-        "redirect_url": f"/schedules/schedule/{year}/{month}"
-      })
+      return redirect('schedules:schedule', year=year, month=month)
+    
     else:
       messages.error(request, '目標の入力項目に誤りがございます。')
-      return JsonResponse({
-        "success": False,
-        "errors": regist.errors,
-      }, status=400)
+      return redirect('schedules:schedule', year=year, month=month)
+
+  return redirect('schedules:schedule', year=year, month=month)
   
-  messages.error(request, '目標設定ができませんでした')
-  return JsonResponse({
-    "success": False,
-    "errors": '無効なリクエスト'
-  })
+  
 
 # 目標編集
 @login_required

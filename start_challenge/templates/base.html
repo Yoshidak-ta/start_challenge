@@ -25,6 +25,9 @@
               </a>
             </li>
           </ul>
+          {% if user.is_authenticated %}
+          <div style="width: 100px; height: 10px;"></div>
+          {% endif %}
           <ul class="navbar-nav navbar-center">
             <li class="nav-item">
               <form method="GET" action="{% url 'accounts:home' %}" class="d-flex">
@@ -94,6 +97,8 @@
               <div class="row justify-content-center">
                 <h6 class="mt-2">通知を有効化にすることで、以下の内容がログイン時に通知されます。</h6></br>
                 <p class="mt-2">・本日の予定</br>・残りのタスク数/本日期日のタスク数</br>・目標達成までの日数</p></br>
+                <h5 class="text-center fw-bold">※注意点※</h5>
+                <p class="mt-2">実行するブラウザの通知設定をご確認ください。</br>アプリケーションの通知設定がオフになっている場合、サイト内で通知を許可しても通知は届きません。</p>
                 <button class="btn-primary w-50" id="enableNotifications">通知を有効にする</button>
               </div>
             </div>
