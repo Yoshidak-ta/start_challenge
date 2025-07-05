@@ -48,4 +48,18 @@ class QuestionEditForm(forms.ModelForm):
     self.fields['picture'].required=False
     self.fields['category'].required=False
 
+# 回答編集フォーム
+class QuestionAnswerEditForm(forms.ModelForm):
+   
+  class Meta():
+    model = Answers
+    fields = ('picture', 'comment')
+    labels = {
+      'picture':'画像',
+      'comment':'回答',
+    }
+    
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.fields['picture'].required=False
 

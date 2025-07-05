@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from .models import Questions, Templates, Answers
 from datetime import datetime
+from django.http import JsonResponse, Http404
 
 # 質問投稿
 @login_required
@@ -35,10 +36,11 @@ def question_regist(request):
     }
   )
 
-# 質問詳細
+# 質問詳細/回答登録
 def question_show(request, pk):
   question = get_object_or_404(Questions, pk=pk)
   answers = question.answers.all()
+  question_answer_edit_form = forms.QuestionAnswerEditForm()
   if request.method == "POST":
     question_answer_form = forms.QuestionAnswerForm(request.POST, request.FILES or None)
     if question_answer_form.is_valid():
@@ -47,6 +49,7 @@ def question_show(request, pk):
       answer.question = question
       answer.save()
 
+      # ランクアップ
       user = request.user
       answer_count = Answers.objects.filter(user=user).count()
       if answer_count % 3 == 0:
@@ -63,7 +66,7 @@ def question_show(request, pk):
     question_answer_form = forms.QuestionAnswerForm()
     
   return render(request, 'questions/question_show.html', context={
-    'question':question, 'question_answer_form': question_answer_form, 'answers':answers,
+    'question':question, 'question_answer_form': question_answer_form, 'answers':answers, 'question_answer_edit_form': question_answer_edit_form,
   })
 
 # 質問削除
@@ -97,3 +100,51 @@ def question_edit(request, pk):
     'question':question, 
     'question_edit_form':question_edit_form,
   })
+
+# 回答データ取得
+def get_answer_data(request, pk):
+  try:
+    answer = Answers.objects.get(pk=pk)
+    return JsonResponse({
+      'picture': answer.picture.url if answer.picture else '',
+      'comment':answer.comment
+    })
+  except Answers.DoesNotExist:
+    raise Http404('回答がありません')
+
+# 回答編集
+def answer_edit(request, pk):
+  answer = get_object_or_404(Answers, pk=pk)
+  question_id = answer.question.id
+  if request.method == 'POST':
+    answer_edit_form = forms.QuestionAnswerEditForm(request.POST, request.FILES, instance=answer)
+    if answer_edit_form.is_valid():
+      answer = answer_edit_form.save(commit=False)
+      answer.updated_at = datetime.now()
+      answer.save()
+      answer_edit_form.save_m2m()
+      messages.info(request, '回答が編集されました')
+    
+    else:
+      messages.error(request, '編集内容に誤りがありました')
+      
+    return redirect('questions:question_show', question_id)
+  
+  else:
+    answer_edit_form = forms.QuestionAnswerEditForm(instance=answer)
+  
+  messages.error(request, '編集に失敗しました。もう一度入力事項を確認してください。')
+  return redirect('questions:question_show', question_id)
+
+# 回答削除
+@login_required
+def answer_delete(request, pk):
+  if request.method == 'POST':
+    answer = get_object_or_404(Answers, pk=pk)
+    question_id = answer.question.id
+    answer.delete()
+    messages.info(request, '回答が削除されました。')
+  else:
+    messages.error(request, '回答の削除に失敗しました')
+  
+  return redirect('questions:question_show', question_id)

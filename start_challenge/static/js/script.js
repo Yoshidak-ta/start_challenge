@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// 回答アコーディオン
+// 質問テンプレート
 document.addEventListener("DOMContentLoaded", function () {
 
   const headers = document.querySelectorAll(".card-header");
@@ -138,15 +138,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-  // 回答挿入
-  function insertTemplate(templateId){
-    const templateElement = document.getElementById(templateId);
-    const templateText = templateElement.innerText || templateElement.textContent;
+// テンプレート挿入
+function insertTemplate(templateId){
+  const templateElement = document.getElementById(templateId);
+  const templateText = templateElement.innerText || templateElement.textContent;
 
-    const commentField = document.getElementById('comment-field');
-    commentField.value = templateText;
-  } 
+  const commentField = document.getElementById('comment-field');
+  commentField.value = templateText;
+} 
 
+// 回答フォーム展開
 document.addEventListener("DOMContentLoaded", function () {
   const answerButton = document.getElementById("answer-btn");
   const answerFormContainer = document.getElementById("answer-form-container");
@@ -154,10 +155,46 @@ document.addEventListener("DOMContentLoaded", function () {
   answerButton.addEventListener("click", function () {
     if (answerFormContainer.style.display === "none" || answerFormContainer.style.display === "") {
       answerFormContainer.style.display = "block";
+      answerButton.textContent = '戻る';
     } else {
       answerFormContainer.style.display = "none";
+      answerButton.textContent = '回答する';
     }
   });
+});
+
+// 回答編集・削除
+const answerEditButton = document.getElementById("answer-edit-btn");
+const answerCard = document.getElementById('answer-card');
+const answerDeleteButton = document.getElementById("answer-delete-btn");
+// 編集
+answerEditButton.addEventListener('click', function () {
+  const answerId = this.dataset.answerId;
+  console.log('取得回答ID：', answerId);
+
+  // 編集フォーム表示
+  const answerEditFormContainer = document.getElementById("answer-editForm-container");
+  if (answerEditFormContainer.style.display === 'none' || answerEditFormContainer.style.display === '') {
+    answerEditFormContainer.style.display = 'block';
+    answerCard.style.display = 'none';
+    answerEditButton.textContent = '戻る';
+
+    const answerEditForm = document.getElementById('answerEditForm')
+    answerEditForm.action = `/questions/answer_edit/${answerId}`;
+
+    fetch(`/questions/get_answer_data/${answerId}`)
+      .then(response => response.json())
+      .then(data => {
+          document.getElementById('answerComment').value = data.comment;
+          if (data.picture) {
+            document.getElementById('answerPicture').src = data.picture;
+          }
+      });
+  } else {
+    answerEditFormContainer.style.display = 'none';
+    answerCard.style.display = 'block';
+    answerEditButton.textContent = '編集';
+  }
 });
 
 // モーダル内ユーザ検索機能(チャットグループ)
