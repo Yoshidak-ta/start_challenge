@@ -149,7 +149,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'bsk.gooserock@gmail.com'
-EMAIL_HOST_PASSWORD = 'tonv pdqr sihu zsxy'
+EMAIL_HOST_PASSWORD = 'ynhn omkp ptvn trus'
 DEFAULT_FROM_EMAIL = 'study.challenge@gmail.com'
 
 ACTIVATION_EXPIRED_DAYS = 3

@@ -43,19 +43,29 @@ def user_regist(request):
   user_regist_form = forms.UserRegistForm(request.POST or None, request.FILES or None)
   fields_left = ['username', 'email', 'picture', 'password', 'confirm_password']
   fields_right = ['category', 'message']
-  if user_regist_form.is_valid():
-     try:
-       user_regist_form.save()
-       messages.info(request, 'ご登録のメールアドレスに送信されました。メッセージのURLをクリックして会員登録を完了させてください。')
-       return redirect('accounts:user_login')
-     except ValidationError as e:
-       user_regist_form.add_error('password', e)
-       user_regist_form.add_error('email', e)
-       messages.warning(request, '入力事項に誤りがあります')
-       print(user_regist_form.errors)
-  else:
-     print(user_regist_form.errors)
-  
+  if request.method == 'POST':
+    if user_regist_form.is_valid():
+      try:
+        user_regist_form.save()
+        messages.info(request, 'ご登録のメールアドレスに送信されました。メッセージのURLをクリックして会員登録を完了させてください。')
+        return redirect('accounts:user_login')
+      except ValidationError as e:
+        user_regist_form.add_error('password', e)
+        user_regist_form.add_error('email', e)
+        messages.error(request, '会員登録に失敗しました。以下をご確認ください。')
+        for field, errors in user_regist_form.errors.items():
+            for error in errors:
+              messages.error(request, f"{user_regist_form.fields[field].label}:{error}")
+        print(user_regist_form.errors)
+    else:
+      messages.error(request, '会員登録に失敗しました。以下をご確認ください。')
+      for field, errors in user_regist_form.errors.items():
+          for error in errors:
+            if field == '__all__':
+              messages.error(request, f'{error}')
+            else:
+              messages.error(request, f"{user_regist_form.fields[field].label}:{error}")
+    
   return render(
     request, 'accounts/user_regist.html', context={
      'user_regist_form': user_regist_form,
