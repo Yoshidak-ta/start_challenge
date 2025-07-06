@@ -4,9 +4,21 @@
   <div class="container pt-4 pb-5 study-challenge-container">
     {% if messages %}
       {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}" role="alert">
-        {{ message }}
-      </div>
+        {% if forloop.first %}
+          <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+            {{ message }}
+            {% if messages|length > 1 %}
+            <ul class="mt-2 mb-0">
+            {% endif %}
+        {% else %}
+            <li>{{ message }}</li>
+        {% endif %}
+        {% if forloop.last %}
+            {% if messages|length > 1 %}
+            </ul>
+            {% endif %}
+          </div>
+        {% endif %}
       {% endfor %}
     {% endif %}
     <div class="row justify-content-center pt-5">

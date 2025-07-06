@@ -115,10 +115,13 @@ def chatsgroup_create(request):
       messages.info(request, 'グループが作成されました')
       return redirect('chats:group_chat', group_id=new_group_id)
     else:
-      print('エラー発生', chatsgroup_form.errors)
+      messages.error(request, 'グループ作成に失敗しました。以下をご確認ください。')
+      for field, errors in chatsgroup_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{chatsgroup_form.fields[field].label}:{error}")
 
   else:
-    messages.error(request, '入力事項に誤りがあります')
+    messages.error(request, 'エラーが発生しました')
 
   return redirect('chats:share_chat')
 

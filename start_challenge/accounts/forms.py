@@ -122,6 +122,16 @@ class ObjectiveEditForm(forms.ModelForm):
       'objective':'目標',
       'objective_due_date':'期限',
     }
+  
+  def clean(self):
+    cleaned_data = super().clean()
+    objective = cleaned_data.get('objective')
+    due_date = cleaned_data.get('objective_due_date')
+    if not objective:
+      self.add_error('objective', '必須項目です')
+    if not due_date:
+      self.add_error('objective_due_date', '必須項目です')
+    return cleaned_data
 
 # ユーザ検索フォーム
 class UsersSearchForm(forms.Form):

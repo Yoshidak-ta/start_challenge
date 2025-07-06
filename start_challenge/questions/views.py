@@ -14,22 +14,28 @@ from django.http import JsonResponse, Http404
 # 質問投稿
 @login_required
 def question_regist(request):
-  question_regist_form = forms.QuestionRegistForm(request.POST or None, request.FILES or None)
   template = Templates.objects.all()
-  if question_regist_form.is_valid():
-    try:
-      with transaction.atomic():
-        question = question_regist_form.save(commit=False)
-        question.user = request.user
-        question.save()
-        question_regist_form.save_m2m()
-      messages.info(request, '投稿されました。')
-      redirect_url = reverse('accounts:home')
-      return redirect(redirect_url)
-    except ValidationError as e:
-      print(f'エラー：{e}')
-      messages.error(request, '入力に誤りがあります。')
-  
+  question_regist_form = forms.QuestionRegistForm(request.POST or None, request.FILES or None)
+  if request.method == 'POST':
+    if question_regist_form.is_valid():
+      try:
+        with transaction.atomic():
+          question = question_regist_form.save(commit=False)
+          question.user = request.user
+          question.save()
+          question_regist_form.save_m2m()
+        messages.info(request, '投稿されました。')
+        redirect_url = reverse('accounts:home')
+        return redirect(redirect_url)
+      except ValidationError as e:
+        print(f'エラー：{e}')
+        messages.error(request, '入力に誤りがあります。')
+    else:
+      messages.error(request, '質問登録に失敗しました。以下をご確認ください。')
+      for field, errors in question_regist_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{question_regist_form.fields[field].label}:{error}")
+    
   return render(
     request, 'questions/question_regist.html', context={
       'question_regist_form':question_regist_form, 'template':template,
@@ -59,7 +65,10 @@ def question_show(request, pk):
       messages.info(request, '回答しました')
       return redirect('questions:question_show', pk=pk)
     else:
-      messages.error(request, '回答の入力項目に誤りがございます。')
+      messages.error(request, '回答登録に失敗しました。以下をご確認ください。')
+      for field, errors in question_answer_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{question_answer_form.fields[field].label}:{error}")
       return redirect('questions:question_show', pk=pk)
 
   else:
@@ -92,7 +101,10 @@ def question_edit(request, pk):
       messages.info(request, '質問内容を編集しました。')
       return redirect('questions:question_show', pk=pk)
     else:
-      messages.error(request, '編集に失敗しました。もう一度入力事項を確認してください。')
+      messages.error(request, '質問編集に失敗しました。以下をご確認ください。')
+      for field, errors in question_edit_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{question_edit_form.fields[field].label}:{error}")
   else:
     question_edit_form = forms.QuestionEditForm(instance=question)
     
@@ -126,14 +138,16 @@ def answer_edit(request, pk):
       messages.info(request, '回答が編集されました')
     
     else:
-      messages.error(request, '編集内容に誤りがありました')
+      messages.error(request, '目標編集に失敗しました。以下をご確認ください。')
+      for field, errors in answer_edit_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{answer_edit_form.fields[field].label}:{error}")
       
     return redirect('questions:question_show', question_id)
   
   else:
     answer_edit_form = forms.QuestionAnswerEditForm(instance=answer)
   
-  messages.error(request, '編集に失敗しました。もう一度入力事項を確認してください。')
   return redirect('questions:question_show', question_id)
 
 # 回答削除

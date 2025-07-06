@@ -180,15 +180,19 @@ def schedule_regist(request):
   if request.method == "POST":
     schedule_regist_form = forms.ScheduleRegistForm(request.POST)
     if schedule_regist_form.is_valid():
-      regist = schedule_regist_form.save(commit=False)
-      try:
-        regist.start_at = datetime.strptime(request.POST['start_at'], '%Y-%m-%dT%H:%M')
-        regist.end_at = datetime.strptime(request.POST['end_at'], '%Y-%m-%dT%H:%M') 
-      except ValueError:
-        print(regist.start_at, regist.end_at)
-        messages.error(request, "日付のフォーマットが不正です。")
-        return redirect('schedules:schedule_show', year=year, month=month, day=day)
-      regist.save()
+      user = schedule_regist_form.cleaned_data.get('user')
+      if not user:
+        schedule_regist_form.add_error('user', 'ユーザーを選択してください')
+      else:
+        regist = schedule_regist_form.save(commit=False)
+        try:
+          regist.start_at = datetime.strptime(request.POST['start_at'], '%Y-%m-%dT%H:%M')
+          regist.end_at = datetime.strptime(request.POST['end_at'], '%Y-%m-%dT%H:%M') 
+        except ValueError:
+          print(regist.start_at, regist.end_at)
+          messages.error(request, "日付のフォーマットが不正です。")
+          return redirect('schedules:schedule_show', year=year, month=month, day=day)
+        regist.save()
 
       selected_user_ids = set(request.POST.getlist('schedule_user'))
       print('登録ユーザー：', selected_user_ids)
@@ -341,7 +345,10 @@ def objective_edit(request, user_id):
       return redirect('schedules:schedule', year=year, month=month)
    
     else:
-      messages.error(request, '目標設定ができませんでした')
+      messages.error(request, '目標編集に失敗しました。以下をご確認ください。')
+      for field, errors in objective_edit_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{objective_edit_form.fields[field].label}:{error}")
       return redirect('schedules:schedule', year=year, month=month)
 
 # 目標データ取得
