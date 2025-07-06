@@ -36,7 +36,7 @@ class ChatsGroupEditForm(forms.ModelForm):
 
 # チャット投稿フォーム
 class ChatRegistForm(forms.ModelForm):
-  message = forms.CharField(label='メッセージ')
+  message = forms.CharField(label='メッセージ', required=False)
   picture = forms.FileField(label='画像', required=False)
 
   class Meta():

@@ -221,6 +221,8 @@ td {
 }
 
 .chat-messages {
+  display: inline-block;
+  max-width: 300px;
   border: solid;
   border-width: thin;
   padding: 0.2rem;

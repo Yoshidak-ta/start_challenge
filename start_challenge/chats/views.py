@@ -174,13 +174,17 @@ def send_message(request):
     chat_form = forms.ChatRegistForm(request.POST, request.FILES)
     group_id = request.POST.get('group_id')
     group = get_object_or_404(ChatsGroup, id=group_id)
-    user = group.user
 
     if chat_form.is_valid():
-      chat = chat_form.save(commit=False)
-      chat.user = request.user
-      chat.chatsgroup = group
-      chat.save()
+      message = chat_form.cleaned_data.get('message')
+      picture = chat_form.cleaned_data.get('picture')
+      if not message and not picture:
+        messages.error(request, 'メッセージか画像いずれかは入力してください')
+      else:
+        chat = chat_form.save(commit=False)
+        chat.user = request.user
+        chat.chatsgroup = group
+        chat.save()
       
       if group.group_category == 1:
         return redirect('chats:share_chat')
@@ -212,4 +216,3 @@ def search_users(request):
 
   user_list = [{'id': user.id, 'username': user.username, 'picture': user.picture.url} for user in users]
   return JsonResponse({'users': user_list})
-

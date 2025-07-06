@@ -22,7 +22,7 @@ class ChatsGroup(models.Model):
 
 # チャットテーブル
 class Chats(models.Model):
-  message = models.TextField()
+  message = models.TextField(null=True)
   picture = models.FileField(null=True, upload_to='chats_picture/')
   created_at = models.DateTimeField(default=now)
   updated_at = models.DateTimeField(default=now)
