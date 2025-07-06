@@ -209,6 +209,21 @@ td {
   text-align: left;
 }
 
+.qa-text-box {
+  max-width: 300px;
+  height: 2.4rem;
+}
+
+.qa-text {
+  margin: 0 auto;
+  text-align: center !important;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .genre-text {
   display: -webkit-box;
   -webkit-box-orient: vertical;

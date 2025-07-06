@@ -209,6 +209,21 @@ td {
   text-align: left;
 }
 
+.qa-text-box {
+  max-width: 300px;
+  max-height: 2.4rem;
+}
+
+.qa-text {
+  margin: 0 auto;
+  text-align: center !important;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .genre-text {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -218,6 +233,17 @@ td {
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2rem;
+}
+
+.chat-messages {
+  display: inline-block;
+  max-width: 300px;
+  border: solid;
+  border-width: thin;
+  padding: 0.2rem;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 @media screen and (min-width: 1400px) {

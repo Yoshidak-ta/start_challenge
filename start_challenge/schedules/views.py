@@ -302,21 +302,26 @@ def schedule_delete(request, pk):
 @login_required
 def objective_regist(request):
   user = request.user
-  year = datetime.now().year
-  month = datetime.now().month
+  # year = datetime.now().year
+  # month = datetime.now().month
   if request.method == 'POST':
     regist = ObjectiveRegistForm(request.POST, instance=user)
     if regist.is_valid():
       regist.save()
       messages.info(request, '目標を設定しました')
-      return redirect('schedules:schedule', year=year, month=month)
+      return JsonResponse({'success': True, 'objective': regist.cleaned_data['objective']})
     
     else:
-      messages.error(request, '目標の入力項目に誤りがございます。')
-      return redirect('schedules:schedule', year=year, month=month)
+      messages.error(request, '目標設定に失敗しました。以下をご確認ください。')
+      for field, errors in regist.errors.items():
+        for error in errors:
+          messages.error(request, f"{regist.fields[field].label}:{error}")
+      
+      print('エラー発生', regist.errors)
+      return JsonResponse({'success': False, 'errors': regist.errors}, status=400)
+    
 
-  return redirect('schedules:schedule', year=year, month=month)
-  
+  return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
   
 
 # 目標編集

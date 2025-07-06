@@ -15,13 +15,78 @@ document.addEventListener('DOMContentLoaded', function () {
     disableBtn.style.display = 'block';
     enableModalBtn.style.display = 'none';
 
-    // 通知：5秒後
-    setTimeout(() => {
-      new Notification('本日の予定', {
-        body: 'XX:XX 会議',
-        icon: '/static/generals/notification-icon.png'
-      });
-    }, 5000);
+    fetch('user/notification_data')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('データ取得失敗');
+        }
+        return response.json();
+      })
+      .then(data => {
+          // スケジュールメッセージ
+          let sch_message = '';
+          if (data.schedules.length > 0) {
+            data.schedules.forEach(schedule => {
+              sch_message += `${schedule}\n`;
+            })
+          } else {
+            sch_message += 'なし\n';
+          }
+          
+          // タスクメッセージ
+          let tsk_message = '';
+          if (data.tasks > 0) {
+            tsk_message += `残りのタスク${data.tasks}個\n`;
+          } else {
+            tsk_message = '';
+          }
+          let tsk_tdy_message = '';
+          if (data.tasks_today > 0) {
+            tsk_tdy_message += `本日期限のタスクは${data.tasks_today}個\n`;
+          } else {
+            tsk_tdy_message = '';
+          }
+
+          // 目標メッセージ
+          let obj_message = '';
+          if (data.due_days > 0) {
+            obj_message += `目標達成まであと${data.due_days}日!\n達成に向けてコツコツ取り組もう!!`
+          } else if (data.due_days < 0) {
+            obj_message += '目標の達成期限が過ぎています！\n最後までやり切ろう!!';
+          } else if (data.due_days === 0) {
+            obj_message += '本日目標達成期日です!\nラストスパート!!';
+          } else {
+            obj_message = '';
+          }
+
+          // 通知：スケジュール(5秒後)
+          setTimeout(() => {
+            new Notification('本日の予定', {
+              body: '本日の予定：' + sch_message,
+              icon: '/static/generals/notification-icon.png'
+            });
+          }, 5000);
+
+          // 通知：タスク
+          if (tsk_message != '' && tsk_tdy_message != '') {
+            setTimeout(() => {
+              new Notification('残りのタスク', {
+                body: tsk_message + tsk_tdy_message + 'タスクを倒してランクアップしよう!!',
+                icon: '/static/generals/notification-icon.png'
+              });
+            }, 6000);
+          };
+
+          // 通知：目標
+          if (obj_message != '') {
+            setTimeout(() => {
+              new Notification('目標カウントダウン', {
+                body: obj_message,
+                icon: '/static/generals/notification-icon.png'
+              });
+            }, 7000);
+          };
+      })
   
   } else {
     enableModalBtn.style.display = 'block';
@@ -30,6 +95,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 通知有効化
   enableBtn.addEventListener('click', () => {
+    // モーダルを閉じる
+    const confirmModalElement = document.getElementById('confirmEnableModal')
+    const confirmModal = bootstrap.Modal.getInstance(confirmModalElement);
+    if (confirmModal) {
+        confirmModal.hide();
+    }
+    
     Notification.requestPermission().then(permission => {
       if (permission === 'granted') {
         localStorage.setItem(NOTIFICATION_KEY, 'true');
@@ -49,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// 回答アコーディオン
+// 質問テンプレート
 document.addEventListener("DOMContentLoaded", function () {
 
   const headers = document.querySelectorAll(".card-header");
@@ -66,15 +138,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-  // 回答挿入
-  function insertTemplate(templateId){
-    const templateElement = document.getElementById(templateId);
-    const templateText = templateElement.innerText || templateElement.textContent;
+// テンプレート挿入
+function insertTemplate(templateId){
+  const templateElement = document.getElementById(templateId);
+  const templateText = templateElement.innerText || templateElement.textContent;
 
-    const commentField = document.getElementById('comment-field');
-    commentField.value = templateText;
-  } 
+  const commentField = document.getElementById('comment-field');
+  commentField.value = templateText;
+} 
 
+// 回答フォーム展開
 document.addEventListener("DOMContentLoaded", function () {
   const answerButton = document.getElementById("answer-btn");
   const answerFormContainer = document.getElementById("answer-form-container");
@@ -82,10 +155,46 @@ document.addEventListener("DOMContentLoaded", function () {
   answerButton.addEventListener("click", function () {
     if (answerFormContainer.style.display === "none" || answerFormContainer.style.display === "") {
       answerFormContainer.style.display = "block";
+      answerButton.textContent = '戻る';
     } else {
       answerFormContainer.style.display = "none";
+      answerButton.textContent = '回答する';
     }
   });
+});
+
+// 回答編集・削除
+const answerEditButton = document.getElementById("answer-edit-btn");
+const answerCard = document.getElementById('answer-card');
+const answerDeleteButton = document.getElementById("answer-delete-btn");
+// 編集
+answerEditButton.addEventListener('click', function () {
+  const answerId = this.dataset.answerId;
+  console.log('取得回答ID：', answerId);
+
+  // 編集フォーム表示
+  const answerEditFormContainer = document.getElementById("answer-editForm-container");
+  if (answerEditFormContainer.style.display === 'none' || answerEditFormContainer.style.display === '') {
+    answerEditFormContainer.style.display = 'block';
+    answerCard.style.display = 'none';
+    answerEditButton.textContent = '戻る';
+
+    const answerEditForm = document.getElementById('answerEditForm')
+    answerEditForm.action = `/questions/answer_edit/${answerId}`;
+
+    fetch(`/questions/get_answer_data/${answerId}`)
+      .then(response => response.json())
+      .then(data => {
+          document.getElementById('answerComment').value = data.comment;
+          if (data.picture) {
+            document.getElementById('answerPicture').src = data.picture;
+          }
+      });
+  } else {
+    answerEditFormContainer.style.display = 'none';
+    answerCard.style.display = 'block';
+    answerEditButton.textContent = '編集';
+  }
 });
 
 // モーダル内ユーザ検索機能(チャットグループ)
@@ -976,9 +1085,6 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log(data.objective);
         newObjective.textContent = `${data.objective}`;
         document.querySelector('.objective-group').appendChild(newObjective);
-
-        // console.log("リダイレクトURL:", data.redirect_url);
-        // window.location.href = data.redirect_url;
 
       } else {
         console.error("エラー", data.errors)

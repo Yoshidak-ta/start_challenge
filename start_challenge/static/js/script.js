@@ -164,37 +164,39 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // 回答編集・削除
-const answerEditButton = document.getElementById("answer-edit-btn");
-const answerCard = document.getElementById('answer-card');
-const answerDeleteButton = document.getElementById("answer-delete-btn");
-// 編集
-answerEditButton.addEventListener('click', function () {
-  const answerId = this.dataset.answerId;
-  console.log('取得回答ID：', answerId);
+document.addEventListener('DOMContentLoaded', function () {
+  const answerEditButton = document.getElementById("answer-edit-btn");
+  const answerCard = document.getElementById('answer-card');
 
-  // 編集フォーム表示
-  const answerEditFormContainer = document.getElementById("answer-editForm-container");
-  if (answerEditFormContainer.style.display === 'none' || answerEditFormContainer.style.display === '') {
-    answerEditFormContainer.style.display = 'block';
-    answerCard.style.display = 'none';
-    answerEditButton.textContent = '戻る';
+  // 編集
+  answerEditButton.addEventListener('click', function () {
+    const answerId = this.dataset.answerId;
+    console.log('取得回答ID：', answerId);
 
-    const answerEditForm = document.getElementById('answerEditForm')
-    answerEditForm.action = `/questions/answer_edit/${answerId}`;
+    // 編集フォーム表示
+    const answerEditFormContainer = document.getElementById("answer-editForm-container");
+    if (answerEditFormContainer.style.display === 'none' || answerEditFormContainer.style.display === '') {
+      answerEditFormContainer.style.display = 'block';
+      answerCard.style.display = 'none';
+      answerEditButton.textContent = '戻る';
 
-    fetch(`/questions/get_answer_data/${answerId}`)
-      .then(response => response.json())
-      .then(data => {
-          document.getElementById('answerComment').value = data.comment;
-          if (data.picture) {
-            document.getElementById('answerPicture').src = data.picture;
-          }
-      });
-  } else {
-    answerEditFormContainer.style.display = 'none';
-    answerCard.style.display = 'block';
-    answerEditButton.textContent = '編集';
-  }
+      const answerEditForm = document.getElementById('answerEditForm')
+      answerEditForm.action = `/questions/answer_edit/${answerId}`;
+
+      fetch(`/questions/get_answer_data/${answerId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('answerComment').value = data.comment;
+            if (data.picture) {
+              document.getElementById('answerPicture').src = data.picture;
+            }
+        });
+    } else {
+      answerEditFormContainer.style.display = 'none';
+      answerCard.style.display = 'block';
+      answerEditButton.textContent = '編集';
+    }
+  });
 });
 
 // モーダル内ユーザ検索機能(チャットグループ)
@@ -1059,6 +1061,7 @@ function getCookie(name) {
 
 // 目標設定
 document.addEventListener('DOMContentLoaded', function () {
+  console.log('目標設定読み込み')
   document.getElementById('objectiveRegistForm').addEventListener('submit', function (e) {
 
     e.preventDefault();
@@ -1071,7 +1074,10 @@ document.addEventListener('DOMContentLoaded', function () {
         'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
       },
     })
-    .then(response => response.json())
+    .then(response => {
+      if(!response.ok) location.reload();
+      return response.json();
+    })
     .then(data => {
       console.log('目標登録実施開始')
       if (data.success) {
@@ -1085,6 +1091,9 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log(data.objective);
         newObjective.textContent = `${data.objective}`;
         document.querySelector('.objective-group').appendChild(newObjective);
+
+        // ページリロード
+        location.reload();
 
       } else {
         console.error("エラー", data.errors)
