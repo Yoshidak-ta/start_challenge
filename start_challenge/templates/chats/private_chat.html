@@ -266,10 +266,10 @@
     </div>
     <div class="col-xl-9 col-lg-8 col-md-12">
       <div id="chat-container">
-        <div id="messages" class="overflow-auto border p-3 mt-3 mb-3" style="height: 450px;">
-          <div class="header top-0 border-bottom">
-            <h5>{{ target_user.username }}</h5>
-          </div>
+        <div class="border py-2 px-3 mt-2">
+          <h5 class="my-auto">{{ target_user.username }}</h5>
+        </div>
+        <div id="messages" class="overflow-auto border p-3 mb-3" style="height: 450px;">
           {% for chat in chats %}
           {% if chat.user.id == request.user.id %}
           <div class="message d-flex justify-content-end mb-3">
