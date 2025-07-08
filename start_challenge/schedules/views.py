@@ -89,7 +89,7 @@ def schedule_show(request, year=None, month=None, day=None):
   schedule_edit_form = forms.ScheduleEditForm()
   fields_left = ['start_at', 'end_at']
   fields_right = ['task', 'place', 'user']
-  users = Users.objects.filter(is_staff=False, is_active=True)
+  users = Users.objects.filter(is_staff=False)
   schedule_history = SchedulesHistory.objects.all()
   formatted_date = datetime.strptime(f'{year}-{month}-{day}', '%Y-%m-%d').date()
   schedules = Schedules.objects.prefetch_related('user').filter(

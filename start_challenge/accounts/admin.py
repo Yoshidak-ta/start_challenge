@@ -1,12 +1,13 @@
 from django.contrib import admin
 from .models import (
-  Users, UserActivateTokens, Categories
+  Users, Categories
 )
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 class UserAdmin(BaseUserAdmin):
   ordering = ('id',)
-  list_display = ('email', 'id', 'is_active', 'password')
+  list_display = ('email', 'id', 'password')
+  list_filter = ('is_staff', 'is_superuser')
   fieldsets = (
     (None, {'fields': ('email', 'password')}),
     ('Personal Information', {'fields': ('username',)}),
@@ -14,7 +15,6 @@ class UserAdmin(BaseUserAdmin):
       'Permissions',
       {
         'fields': (
-          'is_active',
           'is_staff',
           'is_superuser',
         )
@@ -29,13 +29,9 @@ class UserAdmin(BaseUserAdmin):
     }),
   )
 
-class UserActivateTokensAdmin(admin.ModelAdmin):
-  list_display = ('user', 'token', 'expired_at')
-
 class CategoriesAdmin(admin.ModelAdmin):
   list_display = ('id', 'categoryname')
 
 
 admin.site.register(Users, UserAdmin)
-admin.site.register(UserActivateTokens, UserActivateTokensAdmin)
 admin.site.register(Categories, CategoriesAdmin)

@@ -1,13 +1,12 @@
 from django.shortcuts import render, redirect
 from . import forms
 from django.core.exceptions import ValidationError
-from .models import UserActivateTokens, Users
-from django.http import HttpResponse, JsonResponse
+from .models import Users
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.utils.timezone import now
 from questions.models import Questions, Answers
 from schedules.models import Schedules, ToDos
@@ -47,11 +46,15 @@ def user_regist(request):
     if user_regist_form.is_valid():
       try:
         user_regist_form.save()
-        messages.info(request, 'ご登録のメールアドレスに送信されました。メッセージのURLをクリックして会員登録を完了させてください。')
-        return redirect('accounts:user_login')
+        email = user_regist_form.cleaned_data.get('email')
+        password = user_regist_form.cleaned_data.get('password')
+        user = authenticate(email=email, password=password)
+        login(request, user)
+        messages.info(request, '会員登録が完了いたしました。ログインを実行し、スタチャレをお楽しみください')
+        # return redirect('accounts:user_login')
+        return redirect('accounts:home')
       except ValidationError as e:
         user_regist_form.add_error('password', e)
-        user_regist_form.add_error('email', e)
         messages.error(request, '会員登録に失敗しました。以下をご確認ください。')
         for field, errors in user_regist_form.errors.items():
             for error in errors:
@@ -74,25 +77,6 @@ def user_regist(request):
    }
  )
 
-# 会員登録時のトークン発行
-def activate_user(request, token):
-  user_activated_token = UserActivateTokens.objects.activate_user_by_token(token)
-  if hasattr(user_activated_token, 'is_active'):
-    if user_activated_token.is_active:
-      message = '''
-        <div style="height: 50vh; display: flex; justify-content: center; align-items: center; text-align: center;">
-          <div>
-            <h3>会員登録が完了しました!</h3>
-            <a href="http://127.0.0.1:8000/accounts/user_login"">ログイン画面へ戻る</a>
-          </div>
-        </div>
-      '''
-    if not user_activated_token.is_active:
-      message = '有効化が失敗しています'
-  if not hasattr(user_activated_token, 'is_active'):
-    message = 'エラーが発生しました'
-  return HttpResponse(message)
-
 # ログイン
 def user_login(request):
   login_form = forms.LoginForm(request.POST or None)
@@ -101,12 +85,9 @@ def user_login(request):
     password = login_form.cleaned_data.get('password')
     user = authenticate(email=email, password=password)
     if user:
-      if user.is_active:
-        login(request, user)
-        messages.info(request, 'ログインしました')
-        return redirect('accounts:home')
-      else:
-        messages.warning(request, 'ユーザが仮会員登録状態です。登録を完了させてください。')
+      login(request, user)
+      messages.info(request, 'ログインしました')
+      return redirect('accounts:home')
     else:
       messages.warning(request, 'ユーザまたはパスワードが間違っています。')
   return render(

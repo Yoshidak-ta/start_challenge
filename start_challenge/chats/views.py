@@ -17,7 +17,7 @@ def get_chat_context(request, group):
   chat_group_form = forms.ChatsGroupForm()
   chatgroups = ChatsGroup.objects.filter(group_category=2, user=request.user)
   private = ChatsGroup.objects.filter(group_category=3)
-  users = Users.objects.filter(is_staff=False, is_active=True)
+  users = Users.objects.filter(is_staff=False)
   schedule_regist_form = ScheduleRegistForm()
   private_user = set()
   for private in private:
@@ -215,7 +215,7 @@ def search_users(request):
   if search_query:
     users = Users.objects.filter(username__icontains=search_query)
   else:
-    users = Users.objects.filter(is_staff=False, is_active=True)
+    users = Users.objects.filter(is_staff=False)
 
   user_list = [{'id': user.id, 'username': user.username, 'picture': user.picture.url} for user in users]
   return JsonResponse({'users': user_list})

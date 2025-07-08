@@ -69,7 +69,6 @@
         {% if usearchform.cleaned_data.category %} カテゴリー: <strong>{{ usearchform.cleaned_data.category }}</strong> {% endif %}
       </p>
         {% for user in results %}
-          {% if user.is_active %}
           {% if not user.is_staff %}
           <a class="text-decoration-none text-reset" href="{% url 'accounts:user_show' user.id %}">
             <div class="card mt-2 mb-3 p-2">
@@ -92,13 +91,11 @@
             </div>
           </a>
           {% endif %}
-          {% endif %}
         {% empty %}
         <h3 class="text-center">検索結果がありません</h3>
         {% endfor %} 
       {% else %}
       {% for user in results %}
-        {% if user.is_active %}
         {% if not user.is_staff %}
         <a class="text-decoration-none text-reset" href="{% url 'accounts:user_show' user.id %}">
           <div class="card mt-2 mb-3 p-2">
@@ -120,7 +117,6 @@
               </div>
           </div>
         </a>
-        {% endif %}
         {% endif %}
       {% endfor %}
       {% endif %}

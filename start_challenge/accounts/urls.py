@@ -9,7 +9,6 @@ urlpatterns = [
   path('user_regist', views.user_regist, name='user_regist'),
   path('user_login', views.user_login, name='user_login'),
   path('user_logout', views.user_logout, name='user_logout'),
-  path('users/<uuid:token>/', views.activate_user, name='users-activation'),
   path('user_edit', views.user_edit, name='user_edit'),
   path('reset_password', views.reset_password, name='reset_password'),
   path('user_delete', views.user_delete, name='user_delete'),

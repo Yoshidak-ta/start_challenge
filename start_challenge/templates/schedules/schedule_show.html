@@ -304,11 +304,9 @@
                       <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                       <label class="form-check-label">{{ user.username }}</label>
                     {% elif not user.is_staff  %}
-                      {% if user.is_active %}
                       <input class="form-check-input user-checkbox" type="checkbox" value="{{ user.id }}" data-name="{{ user.username }}">
                       <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
                       <label class="form-check-label">{{ user.username }}</label>
-                      {% endif %}
                     {% endif %}
                   </div>
                 {% endfor %}
