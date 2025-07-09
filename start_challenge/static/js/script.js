@@ -31,12 +31,13 @@ document.addEventListener('DOMContentLoaded', function () {
   if (Notification.permission === 'granted' && localStorage.getItem(NOTIFICATION_KEY) === 'true') {
     disableBtn.style.display = 'block';
     enableModalBtn.style.display = 'none';
-
+    console.log('通知前準備')
     fetch('/accounts/user/notification_data')
       .then(response => {
         if (!response.ok) {
           throw new Error('データ取得失敗');
         }
+        console.log('レスポンス受信')
         return response.json();
       })
       .then(data => {

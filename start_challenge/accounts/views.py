@@ -86,6 +86,8 @@ def user_login(request):
     user = authenticate(email=email, password=password)
     if user:
       login(request, user)
+      user.notification_sent = True
+      user.save()
       messages.info(request, 'ログインしました')
       return redirect('accounts:home')
     else:
@@ -183,14 +185,14 @@ def user_delete(request):
     messages.info(request, '退会が完了しました。')
     return redirect('accounts:home')
 
-# パスワード再設定
+# パスワードリセット
 def reset_password(request):
   if request.method == 'POST':
     password_reset_form = forms.PasswordResetForm(request.POST or None)
     if password_reset_form.is_valid():
       try:
         password_reset_form.save()
-        messages.info(request, 'パスワードの再設定が完了しました。ログインをおこなってください')
+        messages.info(request, 'パスワードのリセットが完了しました。ログインをおこなってください')
         return redirect('accounts:user_login')
       except Users.DoesNotExist:
         messages.error(request, 'このメールアドレスは登録されていません。会員登録をおこなってください。')
