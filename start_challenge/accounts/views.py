@@ -12,6 +12,7 @@ from questions.models import Questions, Answers
 from schedules.models import Schedules, ToDos
 from django.shortcuts import get_object_or_404
 from django.db import models
+from django.views.decorators.csrf import csrf_exempt
 import logging
 
 # ホーム画面（Q&A)
@@ -99,39 +100,48 @@ def user_login(request):
 @login_required
 def notification_data(request):
   user = request.user
-  today = now().date()
+  today = now() + timedelta(hours=9)
+  today = today.date()
+  sub_today = now() + timedelta(hours=9)
+  sub_today = sub_today.date()
 
   schedules = Schedules.objects.filter(user=user)
   target_schedules = []
   
   for schedule in schedules:
-    start = schedule.start_at.date()
-    end = schedule.end_at.date()
-    if start <= today and end >= today:
+    sub_start = schedule.start_at + timedelta(hours=9)
+    sub_end = schedule.end_at + timedelta(hours=9)
+    start = sub_start.date()
+    end = sub_end.date()
+    print(start, end)
+    if start <= sub_today and end >= sub_today:
       task = schedule.task
       target_schedules.append(task)
 
-  sub_today = now() + timedelta(hours=9)
-  sub_today = sub_today.date()
   tasks_today = ToDos.objects.filter(user=user, due_date=sub_today, is_completed=0).count()
   tasks = ToDos.objects.filter(user=user, is_completed=0).count()
+  notification = user.notification_sent
 
   due_days = None
   if user.objective_due_date:
-    objective_date = user.objective_due_date.date()
+    objective_date = user.objective_due_date + timedelta(hours=9)
+    objective_date = objective_date.date()
     due_days = (objective_date - today).days
 
   data = {
     'schedules': target_schedules,
     'tasks_today': tasks_today,
     'tasks': tasks,
-    'due_days': due_days
+    'due_days': due_days,
+    'notification': notification,
   }
   return JsonResponse(data)
 
 # ログアウト
 @login_required
 def user_logout(request):
+  user = request.user
+  user.notification_sent = True
   logout(request)
   messages.warning(request, 'ログアウトしました')
   return redirect('accounts:home')
@@ -235,3 +245,14 @@ def user_show(request, pk):
   })
 
 logger = logging.getLogger(__name__)
+
+# 通知フラグ
+@csrf_exempt
+@login_required
+def mark_notification_sent(request):
+  if request.method == "POST":
+    user = request.user
+    user.notification_sent = False
+    user.save()
+    return JsonResponse({"status": "ok"})
+  return JsonResponse({"status": "error"}, status=400)

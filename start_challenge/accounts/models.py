@@ -48,6 +48,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
   objective = models.CharField(max_length=255, null=True, blank=True)
   objective_due_date = models.DateTimeField(null=True, blank=True)
   is_staff = models.BooleanField(default=False)
+  notification_sent = models.BooleanField(default=True)
   created_at = models.DateTimeField(default=now)
   updated_at = models.DateTimeField(default=now)
 

@@ -2,6 +2,22 @@
 window.year = new Date().getFullYear();
 window.month = new Date().getMonth() + 1;
 
+// クッキー取得
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(',');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
 // ブラウザ通知設定
 document.addEventListener('DOMContentLoaded', function () {
   const enableBtn = document.getElementById('enableNotifications');
@@ -11,11 +27,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const NOTIFICATION_KEY = 'notificationEnabled';
 
   // 通知ボタンの表示切替
+  console.log(Notification.permission);
   if (Notification.permission === 'granted' && localStorage.getItem(NOTIFICATION_KEY) === 'true') {
     disableBtn.style.display = 'block';
     enableModalBtn.style.display = 'none';
 
-    fetch('user/notification_data')
+    fetch('/accounts/user/notification_data')
       .then(response => {
         if (!response.ok) {
           throw new Error('データ取得失敗');
@@ -23,6 +40,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return response.json();
       })
       .then(data => {
+        if (data.notification) {
+          console.log('通知準備')
           // スケジュールメッセージ
           let sch_message = '';
           if (data.schedules.length > 0) {
@@ -86,6 +105,16 @@ document.addEventListener('DOMContentLoaded', function () {
               });
             }, 7000);
           };
+
+          console.log('これからnotificationを変更していく')
+          // notificationをFalseにする
+          fetch('/accounts/user/mark_notification_sent', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          }).then(res => {
+            if (res.ok) console.log('通知済みとしてマークしました');
+          });
+        }
       })
   
   } else {
@@ -1042,22 +1071,6 @@ function completeTodo(todoId, todoElement) {
     }
   })
   .catch(error => console.error('Error', error));
-}
-
-// クッキー取得
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(',');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
 }
 
 // 目標設定

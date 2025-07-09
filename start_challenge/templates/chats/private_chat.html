@@ -152,9 +152,9 @@
         <div class="d-flex flex-wrap justify-content-evenly mx-2">
           {% for group in chatgroups %}
             <a class="text-decoration-none text-reset" href="{% url 'chats:group_chat' group.id %}">
-              <div class="mx-2 text-center">
+              <div class="mx-2 d-flex flex-column align-items-center">
                 <img class="profile-icon rounded-circle" id="profile-icon" src="{{ group.picture.url }}" alt="Group Icon" style="width: 50px; height: 50px; object-fit: cover;">
-                <p class="text-center">{{ group.groupname }}</p>
+                <p class="text-center text-limit mb-0" style="width: 80px;">{{ group.groupname }}</p>
               </div>
             </a>
           {% empty %}
@@ -253,9 +253,9 @@
           {% for user in private_user %}
             {% if not user == request.user %}
             <a class="text-decoration-none text-reset" href="{% url 'chats:private_chat' user.id %}">
-              <div class="mx-2">
+              <div class="mx-2 d-flex flex-column align-items-center">
                 <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 50px; height: 50px; object-fit: cover;">
-                <p class="text-center">{{ user.username }}</p>
+                <p class="text-center text-limit mb-0" style="width: 80px;">{{ user.username }}</p>
               </div>
             </a>
             {% endif %}
@@ -266,8 +266,10 @@
     </div>
     <div class="col-xl-9 col-lg-8 col-md-12">
       <div id="chat-container">
-        <div class="border py-2 px-3 mt-2">
-          <h5 class="my-auto">{{ target_user.username }}</h5>
+        <div class="border pt-3 px-3" style="height: 55px;">
+          <div class="d-flex justify-content-first">
+            <h5 class="my-auto text-limit" style="max-width: 600px;">{{ target_user.username }}</h5>
+          </div>
         </div>
         <div id="messages" class="overflow-auto border p-3 mb-3" style="height: 450px;">
           {% for chat in chats %}

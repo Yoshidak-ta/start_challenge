@@ -246,6 +246,13 @@ td {
   white-space: pre-wrap;
 }
 
+.text-limit {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
 @media screen and (min-width: 1400px) {
   .study-challenge-container {
     max-width: 1200px;

@@ -149,9 +149,9 @@
         <div class="d-flex flex-wrap justify-content-evenly mx-2">
         {% for group in chatgroups %}
           <a class="text-decoration-none text-reset" href="{% url 'chats:group_chat' group.id %}">
-            <div class="mx-2 text-center">
+            <div class="mx-2 d-flex flex-column align-items-center">
               <img class="profile-icon rounded-circle" id="profile-icon" src="{{ group.picture.url }}" alt="Group Icon" style="width: 50px; height: 50px; object-fit: cover;">
-              <p class="text-center">{{ group.groupname }}</p>
+              <p class="text-center text-limit mb-0" style="width: 80px;">{{ group.groupname }}</p>
             </div>
           </a>
         {% empty %}
@@ -250,9 +250,9 @@
           {% for user in private_user %}
             {% if not user == request.user %}
             <a class="text-decoration-none text-reset" href="{% url 'chats:private_chat' user.id %}">
-              <div class="mx-2">
+              <div class="mx-2 d-flex flex-column align-items-center">
                 <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 50px; height: 50px; object-fit: cover;">
-                <p class="text-center">{{ user.username }}</p>
+                <p class="text-center text-limit mb-0" style="width: 80px;">{{ user.username }}</p>
               </div>
             </a>
             {% endif %}
@@ -265,7 +265,7 @@
       <div id="chat-container">
         <div class="border py-2 px-3 mt-2 d-flex justify-content-between">
           <div class="d-flex justify-content-first">
-            <h5 class="my-auto">{{ group.groupname }}</h5>
+            <h5 class="my-auto text-limit" style="max-width: 600px;">{{ group.groupname }}</h5>
             {% for group_user in group.user.all %}
             <img class="profile-icon rounded-circle mx-1 my-auto" id="profile-icon" src="{{ group_user.picture.url }}" alt="Profile Icon" title="{{ group_user.username }}" style="width: 30px; height: 30px; object-fit: cover;">
             {% endfor %}
