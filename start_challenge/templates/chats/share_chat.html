@@ -143,7 +143,7 @@
         <div class="d-flex flex-wrap justify-content-evenly mx-2">
         {% for group in chatgroups %}
           <a class="text-decoration-none text-reset" href="{% url 'chats:group_chat' group.id %}">
-            <div class="mx-2">
+            <div class="mx-2 text-center">
               <img class="profile-icon rounded-circle" id="profile-icon" src="{{ group.picture.url }}" alt="Group Icon" style="width: 50px; height: 50px; object-fit: cover;">
               <p class="text-center">{{ group.groupname }}</p>
             </div>

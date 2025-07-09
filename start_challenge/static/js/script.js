@@ -646,6 +646,7 @@ document.addEventListener('DOMContentLoaded', function () {
           input.value = id;
           selectedUsersInput.append(input);
         })
+        console.log('ユーザーを追加しました：', selectedUsersInput);
     } else {
         selectedUsersDisplay.innerHTML = '<p>ユーザが選択されていません</p>';
         selectedUsersInput.value = "";

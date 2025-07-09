@@ -51,7 +51,6 @@ def user_regist(request):
         user = authenticate(email=email, password=password)
         login(request, user)
         messages.info(request, '会員登録が完了いたしました。ログインを実行し、スタチャレをお楽しみください')
-        # return redirect('accounts:user_login')
         return redirect('accounts:home')
       except ValidationError as e:
         user_regist_form.add_error('password', e)
@@ -151,7 +150,10 @@ def user_edit(request):
     messages.info(request, '更新が完了しました')
     return redirect('accounts:home')
   elif request.method == 'POST':  
-    messages.warning(request, '更新に失敗しました。もう一度入力してください。')
+    messages.error(request, '会員情報の編集に失敗しました。以下をご確認ください。')
+    for field, errors in user_edit_form.errors.items():
+      for error in errors:
+        messages.error(request, f"{user_edit_form.fields[field].label}:{error}")
 
   return render(request, 'accounts/user_edit.html', context={
     'user_edit_form': user_edit_form,

@@ -99,13 +99,17 @@ def chatsgroup_create(request):
   if request.method == 'POST':
     chatsgroup_form = forms.ChatsGroupForm(request.POST, request.FILES or None)
     if chatsgroup_form.is_valid():
+      selected_user_ids_str = request.POST.get('group_users', '')
+      selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
+      if not selected_user_ids:
+        messages.error(request, 'グループ作成に失敗しました。以下をご確認ください。')
+        messages.error(request, '登録ユーザー：ユーザーを選択してください')
+        return redirect('chats:share_chat')
       new_group = chatsgroup_form.save(commit=False)
       new_group.group_category = 2
       new_group.save()
       new_group_id = new_group.id
 
-      selected_user_ids_str = request.POST.get('group_users', '')
-      selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
       valid_user_ids = [int(user_id.strip()) for user_id in selected_user_ids if user_id.strip().isdigit()]
       if selected_user_ids:
         new_group.user.set(Users.objects.filter(id__in=valid_user_ids))
@@ -140,27 +144,28 @@ def chatsgroup_edit(request, group_id):
   if request.method == 'POST':
     chatgroup_edit_form = forms.ChatsGroupEditForm(request.POST or None, request.FILES or None, instance=group)
     if chatgroup_edit_form.is_valid():
+      selected_user_ids = set(request.POST.getlist('chatgroup_user'))
+      print('登録ユーザー：', selected_user_ids)
+      if not selected_user_ids:
+        messages.error(request, 'グループの編集に失敗しました。以下をご確認ください。')
+        messages.error(request, '登録ユーザー：ユーザーを選択してください')
+        return redirect('chats:group_chat', group_id=group_id)
       chatgroup_edit_form.save(commit=True)
       group.updated_at = datetime.now()
       group.save()
 
-      selected_user_ids = set(request.POST.getlist('chatgroup_user'))
-      print('登録ユーザー：', selected_user_ids)
-
       selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
-      print('登録ユーザーId：', selected_user_ids)
-
-      if selected_user_ids:
-        group.user.set(Users.objects.filter(id__in=selected_user_ids))
-      else:
-        group.user.clear()
+      group.user.set(Users.objects.filter(id__in=selected_user_ids))
       
       messages.info(request, 'グループを編集しました')
       return redirect('chats:group_chat', group_id=group_id)
 
     else:
       print("フォームエラー:", chatgroup_edit_form.errors)
-      messages.error(request, 'グループ編集の入力項目に誤りがあります')
+      messages.error(request, 'グループの編集に失敗しました。以下をご確認ください。')
+      for field, errors in chatgroup_edit_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{chatgroup_edit_form.fields[field].label}:{error}")
       return redirect('chats:group_chat', group_id=group_id)
 
 # グループ削除

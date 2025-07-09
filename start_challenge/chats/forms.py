@@ -17,13 +17,7 @@ class ChatsGroupForm(forms.ModelForm):
   class Meta():
     model = ChatsGroup
     fields = ('groupname', 'picture', 'user')
-  
-  def clean(self):
-    cleaned_data = super().clean()
-    user = cleaned_data.get('user')
-    if not user:
-      self.add_error('user', 'ユーザーを選択してください')
-    return cleaned_data
+
 
 # チャットグループ編集フォーム
 class ChatsGroupEditForm(forms.ModelForm):
@@ -40,13 +34,7 @@ class ChatsGroupEditForm(forms.ModelForm):
       'groupname':'グループ名',
       'picture':'グループアイコン',
     }
-  
-  def clean(self):
-    cleaned_data = super().clean()
-    user = cleaned_data.get('user')
-    if not user:
-      self.add_error('user', 'ユーザーを選択してください')
-    return cleaned_data
+
 
 # チャット投稿フォーム
 class ChatRegistForm(forms.ModelForm):

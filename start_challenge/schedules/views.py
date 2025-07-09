@@ -179,30 +179,28 @@ def schedule_regist(request):
 
   if request.method == "POST":
     schedule_regist_form = forms.ScheduleRegistForm(request.POST)
+    print(schedule_regist_form)
     if schedule_regist_form.is_valid():
-      user = schedule_regist_form.cleaned_data.get('user')
-      if not user:
-        schedule_regist_form.add_error('user', 'ユーザーを選択してください')
-      else:
-        regist = schedule_regist_form.save(commit=False)
-        try:
-          regist.start_at = datetime.strptime(request.POST['start_at'], '%Y-%m-%dT%H:%M')
-          regist.end_at = datetime.strptime(request.POST['end_at'], '%Y-%m-%dT%H:%M') 
-        except ValueError:
-          print(regist.start_at, regist.end_at)
-          messages.error(request, "日付のフォーマットが不正です。")
-          return redirect('schedules:schedule_show', year=year, month=month, day=day)
-        regist.save()
-
       selected_user_ids = set(request.POST.getlist('schedule_user'))
       print('登録ユーザー：', selected_user_ids)
+      if not selected_user_ids:
+        messages.error(request, 'スケジュール登録に失敗しました。以下をご確認ください。')
+        messages.error(request, '登録ユーザー：ユーザーを選択してください')
+        return redirect('schedules:schedule', year=year, month=month)
+      
+      regist = schedule_regist_form.save(commit=False)
+      try:
+        regist.start_at = datetime.strptime(request.POST['start_at'], '%Y-%m-%dT%H:%M')
+        regist.end_at = datetime.strptime(request.POST['end_at'], '%Y-%m-%dT%H:%M') 
+      except ValueError:
+        print(regist.start_at, regist.end_at)
+        messages.error(request, "日付のフォーマットが不正です。")
+        return redirect('schedules:schedule_show', year=year, month=month, day=day)
+      regist.save()
+
       selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
       print('登録ユーザーid：', selected_user_ids)
-
-      if selected_user_ids:
-        regist.user.set(Users.objects.filter(id__in=selected_user_ids))
-      else:
-        regist.user.clear()
+      regist.user.set(Users.objects.filter(id__in=selected_user_ids))
 
       messages.info(request, 'スケジュールが登録されました。')
       return redirect('schedules:schedule_show', year=regist.start_at.year, month=regist.start_at.month, day=regist.start_at.day)

@@ -128,85 +128,89 @@
     </div>
   </div>
   <!-- 回答対象の質問と現在表示されている質問のidが同一の場合 -->
-  {% for answer in answers %}
-  <div class="row justify-content-center">
-    <div class="col-8">
-      <div class="card mb-4 d-flex justify-content-center align-items-center" style="display: block;">
-        <div class="d-flex justify-content-between align-items-center px-2 mt-3 mb-2 gap-2 w-100 ps-3">
-          <div>
-            <img class="profile-icon rounded-circle" id="profile-icon" src="{{ answer.user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
-            {{ answer.user.username }}
-          </div>
-          {% if answer.user == request.user %}
-          <div>
-            <button class="btn btn-custom-edit" id="answer-edit-btn" data-answer-id="{{ answer.id }}">編集</button>
-            <button class="btn btn-custom-warning" id="answer-modal-btn" data-bs-toggle="modal" data-bs-target="#deleteAnswerModal"">削除</button>
-          </div>
-          {% endif %}
-        </div>
-        <!-- 回答 -->
-        <div id="answer-card">
-          <div class="d-flex justify-content-center mb-4 mt-2 mx-4">
-            <img src="{{ answer.picture.url }}" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Picture">
-          </div>
-          <div class="d-flex justify-content-center mt-4">
-            <h5 class="fw-bold text-center">内容</h5>
-          </div>
-          <div class="mb-4 mt-2 px-4 d-flex justify-content-center align-items-center">
-            {{ answer.comment|linebreaksbr }}
-          </div>
-        </div>
-        <!-- 回答編集 -->
-        <div id="answer-editForm-container" style="display: none;">
-          <div class="row justify-content-center m-3">
-            <form method="POST" id="answerEditForm" class="my-4 mx-4" enctype="multipart/form-data">
-              {% csrf_token %}
-              {% for answer_edit in question_answer_edit_form %}
-              <div class="form-group mb-3 align-items-center">
-                <h5>{{ answer_edit.label }}</h5>
-                {% for error in answer_edit.errors %}
-                <p style="color: red;">{{ error }}</p>
-                {% endfor %}
-                {% if answer_edit.name == 'comment' %}
-                <textarea id="answerComment" name="comment" rows="20" class="form-control"></textarea>
-                {% else %}
-                <input type="file" name="picture">
-                <p class="small">
-                  現在の画像：
-                  <img src="" id="answerPicture" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Edit Picture">
-                </p>
-                {% endif %}
-              </div>
-              {% endfor %}
-              <div class="form-group d-flex justify-content-center my-4">
-                <input class="btn btn-primary" type="submit" value="更新">
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <!-- 回答削除モーダル -->
-      <div class="modal fade" id="deleteAnswerModal" tabindex="-1" aria-labelledby="deleteAnswerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="deleteAnswerModalLabel">回答削除</h5>
+  {% if answers %}
+    {% for answer in answers %}
+    <div class="row justify-content-center">
+      <div class="col-8">
+        <div class="card mb-4 d-flex justify-content-center align-items-center" style="display: block;">
+          <div class="d-flex justify-content-between align-items-center px-2 mt-3 mb-2 gap-2 w-100 ps-3">
+            <div>
+              <img class="profile-icon rounded-circle" id="profile-icon" src="{{ answer.user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
+              {{ answer.user.username }}
             </div>
-            <div class="modal-body">
-              本当に削除しますか？
+            {% if answer.user == request.user %}
+            <div>
+              <button class="btn btn-custom-edit" id="answer-edit-btn" data-answer-id="{{ answer.id }}">編集</button>
+              <button class="btn btn-custom-warning" id="answer-modal-btn" data-bs-toggle="modal" data-bs-target="#deleteAnswerModal"">削除</button>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
-              <form method="POST" action="{% url 'questions:answer_delete' answer.id %}">
+            {% endif %}
+          </div>
+          <!-- 回答 -->
+          <div id="answer-card">
+            <div class="d-flex justify-content-center mb-4 mt-2 mx-4">
+              <img src="{{ answer.picture.url }}" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Picture">
+            </div>
+            <div class="d-flex justify-content-center mt-4">
+              <h5 class="fw-bold text-center">内容</h5>
+            </div>
+            <div class="mb-4 mt-2 px-4 d-flex justify-content-center align-items-center">
+              {{ answer.comment|linebreaksbr }}
+            </div>
+          </div>
+          <!-- 回答編集 -->
+          <div id="answer-editForm-container" style="display: none;">
+            <div class="row justify-content-center m-3">
+              <form method="POST" id="answerEditForm" class="my-4 mx-4" enctype="multipart/form-data">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger">はい</button>
+                {% for answer_edit in question_answer_edit_form %}
+                <div class="form-group mb-3 align-items-center">
+                  <h5>{{ answer_edit.label }}</h5>
+                  {% for error in answer_edit.errors %}
+                  <p style="color: red;">{{ error }}</p>
+                  {% endfor %}
+                  {% if answer_edit.name == 'comment' %}
+                  <textarea id="answerComment" name="comment" rows="20" class="form-control"></textarea>
+                  {% else %}
+                  <input type="file" name="picture">
+                  <p class="small">
+                    現在の画像：
+                    <img src="" id="answerPicture" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Edit Picture">
+                  </p>
+                  {% endif %}
+                </div>
+                {% endfor %}
+                <div class="form-group d-flex justify-content-center my-4">
+                  <input class="btn btn-primary" type="submit" value="更新">
+                </div>
               </form>
+            </div>
+          </div>
+        </div>
+        <!-- 回答削除モーダル -->
+        <div class="modal fade" id="deleteAnswerModal" tabindex="-1" aria-labelledby="deleteAnswerModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteAnswerModalLabel">回答削除</h5>
+              </div>
+              <div class="modal-body">
+                本当に削除しますか？
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                <form method="POST" action="{% url 'questions:answer_delete' answer.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">はい</button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  {% endfor %}
+    {% endfor %}
+  {% else %}
+  <h4 class="text-center">まだ回答はありません</h4>
+  {% endif %}
 </div>
 {% endblock %}
