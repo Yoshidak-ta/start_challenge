@@ -50,13 +50,6 @@ class ScheduleRegistForm(forms.ModelForm):
     model = Schedules
     fields = ['start_at', 'end_at', 'task', 'place', 'user']
 
-  # def clean(self):
-  #   cleaned_data = super().clean()
-  #   user = cleaned_data.get('user')
-  #   if not user:
-  #     self.add_error('user', 'ユーザーを選択してください')
-  #   return cleaned_data
-
 # スケジュール編集フォーム
 class ScheduleEditForm(forms.ModelForm):
   user = forms.ModelMultipleChoiceField(
@@ -74,5 +67,18 @@ class ScheduleEditForm(forms.ModelForm):
       'task':'内容',
       'place':'場所',
     }
+  
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.fields['place'].required=False
+
+    if self.instance and self.instance.place is None:
+      self.initial['place'] = ''
+    
+  def clean_place(self):
+    place = self.cleaned_data.get('place')
+    if place is None:
+      return ''
+    return place
 
 

@@ -69,6 +69,10 @@ class UserEditForm(forms.ModelForm):
     super().__init__(*args, **kwargs)
     self.fields['picture'].required=False
     self.fields['category'].required=False
+    self.fields['message'].required=False
+
+    if self.instance and self.instance.message is None:
+      self.initial['message'] = ''
 
 # パスワードリセットフォーム
 class PasswordResetForm(forms.Form):
