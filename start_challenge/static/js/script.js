@@ -973,6 +973,8 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('todoListForm').addEventListener('submit', function (e) {
     console.log('ToDo読み込み完了')
 
+    const pageErrorContainer = document.getElementById('todoFormErrors');
+
     e.preventDefault();
     const formData = new FormData(this);
 
@@ -1030,9 +1032,41 @@ document.addEventListener('DOMContentLoaded', function () {
             completeTodo(this.dataset.todoId, newTodo);
           }
         });
+
+        // 成功メッセージ
+        pageErrorContainer.innerHTML = '';
+        const successMsg = document.createElement('div');
+        successMsg.className = 'alert alert-info';
+        successMsg.textContent = 'ToDoタスクを登録しました。';
+        pageErrorContainer.appendChild(successMsg);
       
       } else {
         console.error(data.errors);
+
+        // エラーメッセージ表示
+        pageErrorContainer.innerHTML = '';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'alert alert-danger';
+
+        const title = document.createElement('div');
+        title.textContent = 'ToDoタスク登録に失敗しました。以下をご確認ください。';
+        wrapper.appendChild(title);
+
+        for (const field in data.errors) {
+          data.errors[field].forEach(errorMsg => {
+            const errorLine = document.createElement('li');
+            errorLine.textContent = `${field}: ${errorMsg}`;
+            wrapper.appendChild(errorLine);
+          });
+        }
+
+        pageErrorContainer.appendChild(wrapper);
+
+        // モーダル閉じる
+        const modalElement = document.getElementById('addTodoModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.hide();
       }
     })
     .catch(error => console.error('Error:', error));

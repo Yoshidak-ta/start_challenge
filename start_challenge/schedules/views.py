@@ -142,12 +142,22 @@ def add_todo(request, year=None, month=None):
         'todo_id':todo.id
       })
     else:
+      # messages.error(request, 'ToDoタスク登録に失敗しました。以下をご確認ください。')
+      # for field, errors in todo_list_form.errors.items():
+      #   for error in errors:
+      #     messages.error(request, f"{todo_list_form.fields[field].label}:{error}")
+      # return redirect(request, 'schedules:schedule', year=year, month=month)
+      
       return JsonResponse({
         'success': False, 
-        'errors': todo_list_form.errors
+        'errors': {
+          todo_list_form.fields[field].label: [str(error) for error in errors]
+          for field, errors in todo_list_form.errors.items()
+        }
       })
   else:
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+    return redirect(request, 'schedules:schedule', year=year, month=month)
+    # return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
 # ToDoリストタスク達成
 @login_required
