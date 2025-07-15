@@ -106,7 +106,38 @@ class PasswordResetForm(forms.Form):
     user.set_password(password)
     user.save()
     return user
-      
+
+# パスワード変更
+class ChangePasswordForm(forms.Form):
+  password = forms.CharField(label='新しいパスワード', widget=forms.PasswordInput(attrs={'class':'form-control'}))
+  confirm_password = forms.CharField(label='パスワード再入力', widget=forms.PasswordInput(attrs={'class':'form-control'}))
+
+  def __init__(self, *args, user=None, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.user = user
+  
+  def clean(self):
+    cleaned_data =  super().clean()
+    password = cleaned_data.get('password')
+    confirm_password = cleaned_data.get('confirm_password')
+    # パスワードと再入力の一致確認
+    if password != confirm_password:
+      self.add_error('password', 'パスワードが一致しません')
+    # パスワードのバリデーション
+    try:
+      validate_password(password)
+    except ValidationError as e:
+      self.add_error('password', e)
+    return cleaned_data
+  
+  def save(self):
+    cleaned_data = self.cleaned_data
+    password = cleaned_data.get('password')
+    user = self.user
+    user.set_password(password)
+    user.save()
+    return user
+
 # 目標設定フォーム
 class ObjectiveRegistForm(forms.ModelForm):
   objective = forms.CharField(label='目標')

@@ -3,7 +3,7 @@ from . import forms
 from django.core.exceptions import ValidationError
 from .models import Users
 from django.http import JsonResponse
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from datetime import timedelta
@@ -155,7 +155,7 @@ def user_edit(request):
   fields_left = ['username', 'email', 'picture']
   fields_right = ['category', 'message']
   if user_edit_form.is_valid():
-    user_edit_form.save(commit=True)
+    user_edit_form.save(commit=False)
     user = request.user
     user.updated_at = now()
     user.save()
@@ -187,12 +187,12 @@ def user_delete(request):
 
 # パスワードリセット
 def reset_password(request):
+  password_reset_form = forms.PasswordResetForm(request.POST or None)
   if request.method == 'POST':
-    password_reset_form = forms.PasswordResetForm(request.POST or None)
     if password_reset_form.is_valid():
       try:
         password_reset_form.save()
-        messages.info(request, 'パスワードのリセットが完了しました。ログインをおこなってください')
+        messages.info(request, 'パスワードのリセットが完了しました。ログインをおこなってください。')
         return redirect('accounts:user_login')
       except Users.DoesNotExist:
         messages.error(request, 'このメールアドレスは登録されていません。会員登録をおこなってください。')
@@ -204,6 +204,34 @@ def reset_password(request):
   return render(
     request, 'accounts/reset_password.html', context={
       'password_reset_form':password_reset_form,
+    }
+  )
+
+# パスワード変更
+@login_required
+def change_password(request):
+  user = request.user
+  change_form = forms.ChangePasswordForm(request.POST, user=user)
+  if request.method == 'POST':
+    if change_form.is_valid():
+      change_form.save()
+      update_session_auth_hash(request, user)
+      messages.info(request, 'パスワードが変更されました。')
+      return redirect('accounts:home')
+    else:
+      messages.error(request, 'パスワードの変更に失敗しました。以下をご確認ください。')
+      for field, errors in change_form.errors.items():
+        for error in errors:
+          if field == '__all__':
+            messages.error(request, f'{error}')
+          else:
+            messages.error(request, f"{change_form.fields[field].label}:{error}")
+  else:
+    change_form = forms.ChangePasswordForm(user=user)
+  
+  return render(
+    request, 'accounts/change_password.html', context={
+      'change_form':change_form,
     }
   )
 

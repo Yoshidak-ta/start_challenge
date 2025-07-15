@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -60,7 +61,7 @@
                       <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 50px; height: 50px; object-fit: cover;">
                       <div>
                         <h4>{{ user.username }}</h4>
-                        <h6>ランク:{{ user.rank }}</h6>
+                        <h6>ランク:{{ user.rank|tens }}</h6>
                       </div>
                     </div>
                     <a href="#" class="text-center" data-bs-toggle="modal" data-bs-target="#rankModal">ランクとは</a>
@@ -73,6 +74,7 @@
                     </div>
                   </li>
                   <li class="mt-2"><a href="{% url 'accounts:user_edit' %}">会員情報編集</a></li>
+                  <li class="mt-2"><a href="{% url 'accounts:change_password' %}">パスワード変更</a></li>
                   <li class="mt-2"><a href="{% url 'accounts:users' %}">ユーザ検索</a></li>
                   <li class="mt-4">
                     <a href="{% url 'accounts:user_logout' %}" class="card btn btn-custom-warning">ログアウト</a>                

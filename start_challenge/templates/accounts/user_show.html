@@ -22,8 +22,11 @@
     {% endfor %}
   {% endif %}
   <div class="row justify-content-center">
-    <div class="col-6">
+    <div class="col-8">
       <h2 class="text-center mt-4 mb-2">{{ user.username }}さんの詳細ページ</h2>
+      <div class="row justify-content-end">
+        <a href="{% url 'accounts:users' %}" class="text-center">ユーザ一覧へ戻る</a>
+      </div>
       <div class="tabs">
         <input class="tab_btn" id="profile" type="radio" name="tab_btn" checked>
         <input class="tab_btn" id="question" type="radio" name="tab_btn">
