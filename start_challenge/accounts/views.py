@@ -10,6 +10,7 @@ from datetime import timedelta
 from django.utils.timezone import now
 from questions.models import Questions, Answers
 from schedules.models import Schedules, ToDos
+from chats.models import ChatsGroup
 from django.shortcuts import get_object_or_404
 from django.db import models
 from django.views.decorators.csrf import csrf_exempt
@@ -51,6 +52,8 @@ def user_regist(request):
         password = user_regist_form.cleaned_data.get('password')
         user = authenticate(email=email, password=password)
         login(request, user)
+        share_chat = get_object_or_404(ChatsGroup, group_category=1)
+        share_chat.user.add(request.user)
         messages.info(request, '会員登録が完了いたしました。ログインを実行し、スタチャレをお楽しみください')
         return redirect('accounts:home')
       except ValidationError as e:

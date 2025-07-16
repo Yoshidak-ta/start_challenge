@@ -728,9 +728,10 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log('取得したユーザー名：', ChatgroupScheduleSelectedUserNames);
 
           // グループメンバーをデフォルト設置
-          chatgroupScheduleUserDisplay.innerHTML = ChatgroupScheduleSelectedUserNames
-            .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
-            .join('');
+          chatgroupScheduleUserDisplay.innerHTML = '全ユーザーに登録されます'
+          // chatgroupScheduleUserDisplay.innerHTML = ChatgroupScheduleSelectedUserNames
+          //   .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
+          //   .join('');
           
           // Idを渡す
           ChatgroupScheduleSelectedUserIds.forEach(id => {

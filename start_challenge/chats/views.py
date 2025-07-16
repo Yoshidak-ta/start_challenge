@@ -45,8 +45,8 @@ def get_chat_context(request, group):
 def share_chat(request):
   share_chat = get_object_or_404(ChatsGroup, group_category=1)
   # if not share_chat.user.filter(pk=request.user.id).exists() and not request.user.is_staff:
-  if request.user not in share_chat.user.all() and not request.user.is_staff:
-    share_chat.user.add(request.user)
+  # if request.user not in share_chat.user.all() and not request.user.is_staff:
+  #   share_chat.user.add(request.user)
   
   context = get_chat_context(request, share_chat)
   additional_context = {
