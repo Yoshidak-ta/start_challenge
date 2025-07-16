@@ -266,12 +266,12 @@ def users(request):
 # ユーザ詳細
 @login_required
 def user_show(request, pk):
-  user = get_object_or_404(Users, pk=pk)
-  questions = Questions.objects.filter(user=user)
-  answers = Answers.objects.filter(user=user)
+  target_user = get_object_or_404(Users, pk=pk)
+  questions = Questions.objects.filter(user=target_user)
+  answers = Answers.objects.filter(user=target_user)
   
   return render(request, 'accounts/user_show.html', context={
-    'user':user, 'questions':questions, 'answers':answers,
+    'target_user':target_user, 'questions':questions, 'answers':answers,
   })
 
 logger = logging.getLogger(__name__)
