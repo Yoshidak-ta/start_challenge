@@ -80,11 +80,13 @@
                     <h5>　　</h5>
                     <h5>ランク：{{ user.rank|tens }}</h5>
                   </div>
-                  <div class="d-flex">
-                    <h5>得意分野：</h5>
-                  {% for category in user.category.all %}
-                    <h5>{{ category.categoryname }}</h5>{% if not forloop.last %}、 {% endif %}
-                  {% endfor %}
+                  <div class="d-flex flex-row">
+                    <h5 style="width: 100px; white-space: nowrap;">得意分野：</h5>
+                    <div style="width: 450; white-space: normal; word-wrap: break-word;">
+                    {% for category in user.category.all %}
+                      <h5 style="display: inline-block;">{{ category.categoryname }}</h5>{% if not forloop.last %}、 {% endif %}
+                    {% endfor %}
+                    </div>
                   </div>  
                 </div>
               </div>
