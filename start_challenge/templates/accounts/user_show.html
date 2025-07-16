@@ -47,12 +47,18 @@
                 </div>
                 <h4 class="pt-2">得意分野</h4>
                 <div class="d-flex">
-                  {% for category in target_user.category.all %}
-                  <p class="profile-item">{{ category.categoryname }}　</p>{% if not forloop.last %} {% endif %}
-                  {% endfor %}
+                  <div style="white-space: normal; word-wrap: break-word;">
+                    {% for category in target_user.category.all %}
+                    <p class="profile-item" style="display: inline-block;">{{ category.categoryname }}　</p>{% if not forloop.last %} {% endif %}
+                    {% endfor %}
+                  </div>
                 </div>
                 <h4 class="pt-2">自己紹介</h4>
-                <p class="profile-item">{{ target_user.message }}</p>
+                <div style="white-space: normal; word-break: break-all;">
+                  {% if not target_user.message == None or target_user.message == '' %}
+                  <p class="profile-item">{{ target_user.message }}</p>
+                  {% endif %}
+                </div>
               </div>
             </div>
             {% if not target_user == request.user %}

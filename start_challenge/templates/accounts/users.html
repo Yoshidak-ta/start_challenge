@@ -100,18 +100,20 @@
         <a class="text-decoration-none text-reset" href="{% url 'accounts:user_show' user.id %}">
           <div class="card mt-2 mb-3 p-2">
               <div class="d-flex">
-                <img class="profile-icon rounded-circle" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 70px; height: 70px; object-fit: cover;">
+                <img class="profile-icon rounded-circle me-2" id="profile-icon" src="{{ user.picture.url }}" alt="Profile Icon" style="width: 70px; height: 70px; object-fit: cover;">
                 <div class="row">
                   <div class="d-flex">
                     <h5>{{ user.username }}</h5>
                     <h5>　　</h5>
                     <h5>ランク：{{ user.rank|tens }}</h5>
                   </div>
-                  <div class="d-flex">
-                    <h5>得意分野：</h5>
-                  {% for category in user.category.all %}
-                    <h5>{{ category.categoryname }}</h5>{% if not forloop.last %}、 {% endif %}
-                  {% endfor %}
+                  <div class="d-flex flex-row">
+                    <h5 style="width: 100px; white-space: nowrap;">得意分野：</h5>
+                    <div style="width: 450; white-space: normal; word-wrap: break-word;">
+                    {% for category in user.category.all %}
+                      <h5 style="display: inline-block;">{{ category.categoryname }}</h5>{% if not forloop.last %}、 {% endif %}
+                    {% endfor %}
+                    </div>
                   </div>  
                 </div>
               </div>

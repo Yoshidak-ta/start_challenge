@@ -158,7 +158,7 @@ def user_edit(request):
   fields_left = ['username', 'email', 'picture']
   fields_right = ['category', 'message']
   if user_edit_form.is_valid():
-    user_edit_form.save(commit=False)
+    user_edit_form.save(commit=True)
     user = request.user
     user.updated_at = now()
     user.save()
