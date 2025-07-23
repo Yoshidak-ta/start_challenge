@@ -217,6 +217,16 @@ def change_password(request):
   change_form = forms.ChangePasswordForm(request.POST, user=user)
   if request.method == 'POST':
     if change_form.is_valid():
+      try:
+        change_form.clean_current_password()
+      except ValidationError as e:
+        change_form.add_error('password', e)
+        messages.error(request, 'パスワードの変更に失敗しました。以下をご確認ください。')
+        for field, errors in change_form.errors.items():
+          for error in errors:
+            messages.error(request, f"{change_form.fields[field].label}:{error}")
+        return redirect('accounts:change_password')
+      
       change_form.save()
       update_session_auth_hash(request, user)
       messages.info(request, 'パスワードが変更されました。')
