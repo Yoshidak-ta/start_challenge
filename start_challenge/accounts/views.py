@@ -198,9 +198,16 @@ def reset_password(request):
         messages.info(request, 'パスワードのリセットが完了しました。ログインをおこなってください。')
         return redirect('accounts:user_login')
       except Users.DoesNotExist:
-        messages.error(request, 'このメールアドレスは登録されていません。会員登録をおこなってください。')
+        # messages.error(request, 'このメールアドレスは登録されていません。会員登録をおこなってください。')
+        messages.error(request, '会員情報の編集に失敗しました。以下をご確認ください。')
+        for field, errors in password_reset_form.errors.items():
+          for error in errors:
+            messages.error(request, f"{password_reset_form.fields[field].label}:{error}")
     else:
-      messages.error(request, '入力に誤りがあります。')
+      messages.error(request, '会員情報の編集に失敗しました。以下をご確認ください。')
+      for field, errors in password_reset_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{password_reset_form.fields[field].label}:{error}")
   else:
     password_reset_form = forms.PasswordResetForm()
 
