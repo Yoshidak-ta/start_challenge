@@ -706,7 +706,7 @@ function setDatetimeLocal(inputId, utcString) {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('チャットからスケジュール登録')
   // 取得したチャットグループのユーザーを対象にデフォルトで値をセット
-  const chatgroupScheduleUserDisplay = document.getElementById('chatgroupSelectedUsersDisplay')
+  const chatgroupScheduleUserDisplay = document.getElementById('chatgroupSelectedUsersDisplay');
   const chatgorupScheduleUserInput = document.getElementById('chatgroupScheduleUsersInput');
 
   document.querySelectorAll('.group-schedule-rgsbtn').forEach((button) => {
@@ -728,11 +728,14 @@ document.addEventListener('DOMContentLoaded', function () {
           console.log('取得したユーザー名：', ChatgroupScheduleSelectedUserNames);
 
           // グループメンバーをデフォルト設置
-          chatgroupScheduleUserDisplay.innerHTML = '全ユーザーに登録されます'
-          // chatgroupScheduleUserDisplay.innerHTML = ChatgroupScheduleSelectedUserNames
-          //   .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
-          //   .join('');
-          
+          if (chatgroupPk == 1) {
+            chatgroupScheduleUserDisplay.innerHTML = '全ユーザーに登録されます';
+          } else {
+            chatgroupScheduleUserDisplay.innerHTML = ChatgroupScheduleSelectedUserNames
+              .map(username => `<span class="badge bg-primary me-1">${username}</span>`)
+              .join('');
+          }
+
           // Idを渡す
           ChatgroupScheduleSelectedUserIds.forEach(id => {
             const input = document.createElement('input');
