@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from . import forms
 from django.utils import timezone
 from django.utils.timezone import localtime
-from datetime import datetime
+from datetime import datetime, timedelta
 from accounts.models import Users
 from accounts.forms import ObjectiveRegistForm, ObjectiveEditForm, SearchForm
 from .models import Schedules, ToDos, SchedulesHistory
@@ -142,11 +142,6 @@ def add_todo(request, year=None, month=None):
         'todo_id':todo.id
       })
     else:
-      # messages.error(request, 'ToDoタスク登録に失敗しました。以下をご確認ください。')
-      # for field, errors in todo_list_form.errors.items():
-      #   for error in errors:
-      #     messages.error(request, f"{todo_list_form.fields[field].label}:{error}")
-      # return redirect(request, 'schedules:schedule', year=year, month=month)
       
       return JsonResponse({
         'success': False, 
@@ -157,7 +152,6 @@ def add_todo(request, year=None, month=None):
       })
   else:
     return redirect(request, 'schedules:schedule', year=year, month=month)
-    # return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
 # ToDoリストタスク達成
 @login_required
@@ -194,9 +188,12 @@ def schedule_regist(request):
       selected_user_ids = set(request.POST.getlist('schedule_user'))
       print('登録ユーザー：', selected_user_ids)
       if not selected_user_ids:
-        messages.error(request, 'スケジュール登録に失敗しました。以下をご確認ください。')
-        messages.error(request, '登録ユーザー：ユーザーを選択してください')
-        return redirect('schedules:schedule', year=year, month=month)
+        schedule_regist_form.add_error('user', '登録するユーザーを選択してください。')
+        errors = {
+          schedule_regist_form.fields[field].label: list(map(str, err_list))
+          for field, err_list in schedule_regist_form.errors.items()
+        }
+        return JsonResponse({'status': 'error', 'errors': errors})
       
       regist = schedule_regist_form.save(commit=False)
       try:
@@ -204,31 +201,29 @@ def schedule_regist(request):
         regist.end_at = datetime.strptime(request.POST['end_at'], '%Y-%m-%dT%H:%M') 
       except ValueError:
         print(regist.start_at, regist.end_at)
-        messages.error(request, "日付のフォーマットが不正です。")
-        return redirect('schedules:schedule_show', year=year, month=month, day=day)
+        errors = {
+          schedule_regist_form.fields[field].label: list(map(str, err_list))
+          for field, err_list in schedule_regist_form.errors.items()
+        }
+        return JsonResponse({'status': 'error', 'errors': errors})
       regist.save()
 
       selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
       print('登録ユーザーid：', selected_user_ids)
       regist.user.set(Users.objects.filter(id__in=selected_user_ids))
-
-      messages.info(request, 'スケジュールが登録されました。')
-      return redirect('schedules:schedule_show', year=regist.start_at.year, month=regist.start_at.month, day=regist.start_at.day)
+      return JsonResponse({'status': 'success'})
 
     else:
-      messages.error(request, 'スケジュール登録に失敗しました。以下をご確認ください。')
-
-      for field, errors in schedule_regist_form.errors.items():
-        for error in errors:
-          messages.error(request, f"{schedule_regist_form.fields[field].label}:{error}")
-      
-      print('エラー発生', schedule_regist_form.errors)
-      return redirect('schedules:schedule', year=year, month=month)
+      errors = {
+        schedule_regist_form.fields[field].label: list(map(str, err_list))
+        for field, err_list in schedule_regist_form.errors.items()
+      }
+      return JsonResponse({'status': 'error', 'errors': errors})
 
   else:    
     schedule_regist_form = forms.ScheduleRegistForm()
 
-  return redirect('schedules:schedule_show', year=year, month=month, day=day)
+  return JsonResponse({'status': 'error', 'errors': errors})
 
 # スケジュール編集
 @login_required
@@ -248,6 +243,7 @@ def schedule_edit(request, pk):
       if selected_user_ids:
         schedule.user.set(Users.objects.filter(id__in=selected_user_ids))
       else:
+        schedule_edit_form.add_error('user', '登録するユーザーを選択してください。')
         schedule.user.clear()
       
       # 編集履歴取得
@@ -256,20 +252,16 @@ def schedule_edit(request, pk):
         user=request.user,
         updated_at=timezone.now()
       )
-
-      messages.info(request, 'スケジュールを編集しました')
-      return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)
+      return JsonResponse({'status': 'success'})
     
     else:
-      messages.error(request, 'スケジュール編集に失敗しました。')
+      errors = {
+        schedule_edit_form.fields[field].label: list(map(str, err_list))
+        for field, err_list in schedule_edit_form.errors.items()
+      }
+      return JsonResponse({'status': 'error', 'errors': errors})
 
-      for field, errors in schedule_edit_form.errors.items():
-        for error in errors:
-          messages.error(request, f"{schedule_edit_form.fields[field].label}:{error}")
-      
-      print('エラー発生', schedule_edit_form.errors)
-
-  return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)
+  return JsonResponse({'status': 'error', 'errors': errors})
 
 # スケジュールpk取得
 @login_required
@@ -306,16 +298,15 @@ def get_schedule_history(request, pk):
 @login_required
 def schedule_delete(request, pk):
   schedule = get_object_or_404(Schedules, pk=pk)
+  schedule_date = schedule.start_at + timedelta(hours=9)
   schedule.delete()
   messages.info(request, 'スケジュールが削除されました')
-  return redirect('schedules:schedule_show', year=schedule.start_at.year, month=schedule.start_at.month, day=schedule.start_at.day)
+  return redirect('schedules:schedule_show', year=schedule_date.year, month=schedule_date.month, day=schedule_date.day)
 
 # 目標設定
 @login_required
 def objective_regist(request):
   user = request.user
-  # year = datetime.now().year
-  # month = datetime.now().month
   if request.method == 'POST':
     regist = ObjectiveRegistForm(request.POST, instance=user)
     if regist.is_valid():
@@ -324,15 +315,14 @@ def objective_regist(request):
       return JsonResponse({'success': True, 'objective': regist.cleaned_data['objective']})
     
     else:
-      messages.error(request, '目標設定に失敗しました。以下をご確認ください。')
-      for field, errors in regist.errors.items():
-        for error in errors:
-          messages.error(request, f"{regist.fields[field].label}:{error}")
-      
-      print('エラー発生', regist.errors)
-      return JsonResponse({'success': False, 'errors': regist.errors}, status=400)
-    
-
+      return JsonResponse({
+        'success': False, 
+        'errors': {
+          regist.fields[field].label: [str(error) for error in errors]
+          for field, errors in regist.errors.items()
+        }
+      })
+  
   return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
   
 
@@ -349,15 +339,17 @@ def objective_edit(request, user_id):
       objective_edit_form.save(commit=False)
       user.updated_at = datetime.now()
       user.save()
-      messages.info(request, '目標を編集しました')
-      return redirect('schedules:schedule', year=year, month=month)
+      return JsonResponse({'status': 'success', 'objective': objective_edit_form.cleaned_data['objective'], 'objective_due_date': user.objective_due_date.strftime('%Y-%m-%d %H:%M')})
    
     else:
-      messages.error(request, '目標編集に失敗しました。以下をご確認ください。')
-      for field, errors in objective_edit_form.errors.items():
-        for error in errors:
-          messages.error(request, f"{objective_edit_form.fields[field].label}:{error}")
-      return redirect('schedules:schedule', year=year, month=month)
+      errors = {
+        objective_edit_form.fields[field].label: list(map(str, err_list))
+        for field, err_list in objective_edit_form.errors.items()
+      }
+      return JsonResponse({'status': 'error', 'errors': errors})
+  
+  else:
+    return JsonResponse({'status': 'error', 'errors': errors})
 
 # 目標データ取得
 @login_required

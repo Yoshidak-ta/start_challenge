@@ -20,6 +20,7 @@
       {% endif %}
     {% endfor %}
   {% endif %}
+  <div id="FormSuccess"></div>
   <div class="row justify-content-center">
     <div class="col-xxl-9 col-xl-10 col-lg-11">
       <h2 class="text-center">{{ year }}年{{ month }}月{{ day }}日の予定</h2>
@@ -55,6 +56,7 @@
                   <h5 class="modal-title" id="editScheduleModalLabel">スケジュール編集</h5>
                 </div>
                 <div class="modal-body">
+                  <div id="chatScheduleEditFormErrors"></div>
                   <!-- スケジュール編集フォーム -->
                   <div class="row justify-content-center">
                     <div class="col"> 
@@ -212,9 +214,10 @@
               <h5 class="modal-title" id="addScheduleModalLabel">スケジュール登録</h5>
             </div>
             <div class="modal-body">
+              <div id="scheduleFormErrors"></div>
               <div class="row justify-content-center">
                 <div class="col">
-                  <form id="scheduleForm" method="POST" action="{% url 'schedules:schedule_regist' %}">
+                  <form id="scheduleForm" method="POST">
                   {% csrf_token %}
                     <div class="row">
                       <div class="col-6">

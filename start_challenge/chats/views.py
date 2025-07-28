@@ -44,9 +44,6 @@ def get_chat_context(request, group):
 @login_required
 def share_chat(request):
   share_chat = get_object_or_404(ChatsGroup, group_category=1)
-  # if not share_chat.user.filter(pk=request.user.id).exists() and not request.user.is_staff:
-  # if request.user not in share_chat.user.all() and not request.user.is_staff:
-  #   share_chat.user.add(request.user)
   
   context = get_chat_context(request, share_chat)
   additional_context = {
@@ -102,9 +99,13 @@ def chatsgroup_create(request):
       selected_user_ids_str = request.POST.get('group_users', '')
       selected_user_ids = selected_user_ids_str.split(',') if selected_user_ids_str else []
       if not selected_user_ids:
-        messages.error(request, 'グループ作成に失敗しました。以下をご確認ください。')
-        messages.error(request, '登録ユーザー：ユーザーを選択してください')
-        return redirect('chats:share_chat')
+        chatsgroup_form.add_error('user', '登録するユーザーを選択してください。')
+        errors = {
+          chatsgroup_form.fields[field].label: list(map(str, err_list))
+          for field, err_list in chatsgroup_form.errors.items()
+        }
+        return JsonResponse({'status': 'error', 'errors': errors})
+      
       new_group = chatsgroup_form.save(commit=False)
       new_group.group_category = 2
       new_group.save()
@@ -116,18 +117,16 @@ def chatsgroup_create(request):
       else:
         new_group.user.clear()
 
-      messages.info(request, 'グループが作成されました')
-      return redirect('chats:group_chat', group_id=new_group_id)
+      return JsonResponse({'status': 'success'})
     else:
-      messages.error(request, 'グループ作成に失敗しました。以下をご確認ください。')
-      for field, errors in chatsgroup_form.errors.items():
-        for error in errors:
-          messages.error(request, f"{chatsgroup_form.fields[field].label}:{error}")
+      errors = {
+        chatsgroup_form.fields[field].label: list(map(str, err_list))
+        for field, err_list in chatsgroup_form.errors.items()
+      }
+      return JsonResponse({'status': 'error', 'errors': errors})
 
   else:
-    messages.error(request, 'エラーが発生しました')
-
-  return redirect('chats:share_chat')
+    return JsonResponse({'status': 'error', 'errors': errors})
 
 # チャットグループpk取得
 @login_required
@@ -147,9 +146,12 @@ def chatsgroup_edit(request, group_id):
       selected_user_ids = set(request.POST.getlist('chatgroup_user'))
       print('登録ユーザー：', selected_user_ids)
       if not selected_user_ids:
-        messages.error(request, 'グループの編集に失敗しました。以下をご確認ください。')
-        messages.error(request, '登録ユーザー：ユーザーを選択してください')
-        return redirect('chats:group_chat', group_id=group_id)
+        chatgroup_edit_form.add_error('user', '登録するユーザーを選択してください。')
+        errors = {
+          chatgroup_edit_form.fields[field].label: list(map(str, err_list))
+          for field, err_list in chatgroup_edit_form.errors.items()
+        }
+        return JsonResponse({'status': 'error', 'errors': errors})
       chatgroup_edit_form.save(commit=True)
       group.updated_at = datetime.now()
       group.save()
@@ -157,16 +159,15 @@ def chatsgroup_edit(request, group_id):
       selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
       group.user.set(Users.objects.filter(id__in=selected_user_ids))
       
-      messages.info(request, 'グループを編集しました')
-      return redirect('chats:group_chat', group_id=group_id)
+      return JsonResponse({'status': 'success'})
 
     else:
       print("フォームエラー:", chatgroup_edit_form.errors)
-      messages.error(request, 'グループの編集に失敗しました。以下をご確認ください。')
-      for field, errors in chatgroup_edit_form.errors.items():
-        for error in errors:
-          messages.error(request, f"{chatgroup_edit_form.fields[field].label}:{error}")
-      return redirect('chats:group_chat', group_id=group_id)
+      errors = {
+        chatgroup_edit_form.fields[field].label: list(map(str, err_list))
+        for field, err_list in chatgroup_edit_form.errors.items()
+      }
+      return JsonResponse({'status': 'error', 'errors': errors})
 
 # グループ削除
 def chatsgroup_delete(request, group_id):

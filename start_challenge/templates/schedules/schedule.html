@@ -20,7 +20,7 @@
       {% endif %}
     {% endfor %}
   {% endif %}
-  <div id="todoFormErrors" class="my-2"></div>
+  <div id="FormSuccess"></div>
   <div class="row justify-content-center">
     <div class="col-xl-3 col-lg-4 col-md-12">
       <!-- ToDoリスト -->
@@ -62,6 +62,7 @@
             <h5 class="modal-title" id="addTodoModalLabel">タスク登録</h5>
           </div>
           <div class="modal-body">
+            <div id="todoFormErrors"></div>
             <div class="row justify-content-center">
               <div class="col">
                 <form id="todoListForm" method="POST" action="{% url 'schedules:add_todo' year=year month=month %}">
@@ -126,6 +127,7 @@
               <h5 class="modal-title" id="addObjectiveModalLabel">目標設定</h5>
             </div>
             <div class="modal-body">
+              <div id="objectiveFormErrors"></div>
               <div class="row justify-content-center">
                 <div class="col">
                   <form id="objectiveRegistForm" method="POST" action="{% url 'schedules:objective_regist' %}">
@@ -178,30 +180,29 @@
                 <h5 class="modal-title" id="editObjectiveModalLabel">目標編集</h5>
               </div>
               <div class="modal-body">
+                <div id="objectiveEditFormErrors"></div>
                 <!-- 目標編集フォーム -->
-                <div class="modal-body">
-                  <div class="row justify-content-center">
-                    <div class="col">
-                      <form id="objectiveEditForm" method="POST">
-                      {% csrf_token %}
-                      {% for edit_objective in objective_edit_form %}
-                        <div class="form-group mb-3">
-                          <h5>{{ edit_objective.label }}</h5>
-                          {% for error in edit_objective.errors %}
-                          <p style="color: red;">{{ error }}</p>
-                          {% endfor %}
-                          {% if edit_objective.name == 'objective_due_date' %}
-                            <input type="datetime-local" id="editObjectiveDueDate" class="form-control" name="{{ edit_objective.name }}">
-                          {% else %}
-                            <textarea id="editObjective" name="{{ edit_objective.name }}" cols="1" rows="1" class="form-control">{{ objective }}</textarea>
-                          {% endif %}
-                        </div>
-                      {% endfor %}
-                        <div class="objective-group d-flex justify-content-center">
-                          <input type="submit" class="btn btn-primary w-50" value="更新"></button>
-                        </div>
-                      </form>
-                    </div>
+                <div class="row justify-content-center">
+                  <div class="col">
+                    <form id="objectiveEditForm" method="POST">
+                    {% csrf_token %}
+                    {% for edit_objective in objective_edit_form %}
+                      <div class="form-group mb-3">
+                        <h5>{{ edit_objective.label }}</h5>
+                        {% for error in edit_objective.errors %}
+                        <p style="color: red;">{{ error }}</p>
+                        {% endfor %}
+                        {% if edit_objective.name == 'objective_due_date' %}
+                          <input type="datetime-local" id="editObjectiveDueDate" class="form-control" name="{{ edit_objective.name }}">
+                        {% else %}
+                          <textarea id="editObjective" name="{{ edit_objective.name }}" cols="1" rows="1" class="form-control">{{ objective }}</textarea>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                      <div class="objective-group d-flex justify-content-center">
+                        <input type="submit" class="btn btn-primary w-50" value="更新"></button>
+                      </div>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -257,45 +258,45 @@
           {% endwith %}
       </div>
       <div class="col-12 overflow-auto">
-          <table class="table table-fixed">
-            <thead>
-              <tr>
-                <th class="sunday">日</th>
-                <th>月</th>
-                <th>火</th>
-                <th>水</th>
-                <th>木</th>
-                <th>金</th>
-                <th class="saturday">土</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for week in month_calendar %}
-              <tr>
-              {% for day in week %}
-                <td class="text-start {% if forloop.counter0|divisibleby:7 %}sunday{% elif forloop.counter0|add:1|divisibleby:7 %}saturday{% endif %}">
-                  {% if day > 0 %}
-                  <a href="{% url 'schedules:schedule_show' year=year month=month day=day %}">{{ day }}</a>
-                  <div class="row">
-                  {% for schedule in schedules %}
-                    {% if schedule.start_date_jst.year <= year and schedule.end_date_jst.year >= year%}
-                      {% if schedule.start_date_jst.month <= month and schedule.end_date_jst.month >= month %}
-                        {% if schedule.start_date_jst.day <= day and schedule.end_date_jst.day >= day %}
-                        <span>{{ schedule.task }}</span>
-                        <small style="color: gray;">  @{{ schedule.place }}</small>
-                        {% endif %}
+        <table class="table table-fixed">
+          <thead>
+            <tr>
+              <th class="sunday">日</th>
+              <th>月</th>
+              <th>火</th>
+              <th>水</th>
+              <th>木</th>
+              <th>金</th>
+              <th class="saturday">土</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for week in month_calendar %}
+            <tr>
+            {% for day in week %}
+              <td class="text-start {% if forloop.counter0|divisibleby:7 %}sunday{% elif forloop.counter0|add:1|divisibleby:7 %}saturday{% endif %}">
+                {% if day > 0 %}
+                <a href="{% url 'schedules:schedule_show' year=year month=month day=day %}">{{ day }}</a>
+                <div class="row">
+                {% for schedule in schedules %}
+                  {% if schedule.start_date_jst.year <= year and schedule.end_date_jst.year >= year%}
+                    {% if schedule.start_date_jst.month <= month and schedule.end_date_jst.month >= month %}
+                      {% if schedule.start_date_jst.day <= day and schedule.end_date_jst.day >= day %}
+                      <span>{{ schedule.task }}</span>
+                      <small style="color: gray;">  @{{ schedule.place }}</small>
                       {% endif %}
                     {% endif %}
-                  {% endfor %}
-                  </div>
                   {% endif %}
-                </td>
-              {% endfor %}
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+                {% endfor %}
+                </div>
+                {% endif %}
+              </td>
+            {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>

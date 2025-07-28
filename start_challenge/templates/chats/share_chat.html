@@ -20,6 +20,7 @@
       {% endif %}
     {% endfor %}
   {% endif %}
+  <div id="FormSuccess"></div>
   <div class="row justify-content-center">
     <h2 class="text-center pt-3">チャット</h2>
     <div class="d-flex justify-content-end">
@@ -33,6 +34,7 @@
             <h5 class="modal-title" id="addScheduleModalLabel">スケジュール登録</h5>
           </div>
           <div class="modal-body">
+            <div id="chatScheduleFormErrors"></div>
             <div class="row justify-content-center">
               <div class="col">
                 <form id="scheduleListForm" method="POST">
@@ -163,6 +165,7 @@
               <h5 class="modal-title" id="addChatGroupModalLabel">チャットグループ作成</h5>
             </div>
             <div class="modal-body">
+              <div id="chatgroupFormErrors"></div>
               <div class="row justify-content-center">
                 <div class="col">
                   <form id="chatgroupForm" method="POST" action="{% url 'chats:chatsgroup_create' %}">

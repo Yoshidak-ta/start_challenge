@@ -296,6 +296,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const selectedUsersDisplay = document.getElementById('selectedGroupUsersDisplay');
   const selectedUsersInput = document.getElementById('selectedGroupUsers');
   const confirmUserSelectionButton = document.getElementById('addGroupUsers');
+  const pageErrorContainer = document.getElementById('chatgroupFormErrors');
+  const pageSuccessContainer = document.getElementById('FormSuccess');
 
   confirmUserSelectionButton.addEventListener('click', () => {
     console.log("追加（登録）ボタンが押されました");
@@ -333,12 +335,77 @@ document.addEventListener('DOMContentLoaded', function () {
     // デフォルトメッセージ削除
     document.getElementById('default-message').innerHTML = '';
   });
+
+  // チャットグループ登録
+  let chatGroupForm = document.getElementById('chatgroupForm');
+  chatGroupForm.action = `/chats/chat/chatsgroup_create/`;
+
+  chatGroupForm.addEventListener('submit', function (e) {
+    e.preventDefault()
+    pageErrorContainer.innerHTML = '';
+
+    const formData = new FormData(chatGroupForm);
+
+    fetch(chatGroupForm.action, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // モーダル閉じる
+          const modal = bootstrap.Modal.getInstance(document.getElementById('addChatGroupModal'));
+          modal.hide();
+
+          // 成功メッセージ
+          pageSuccessContainer.innerHTML = '';
+          const successMsg = document.createElement('div');
+          successMsg.className = 'alert alert-info';
+          successMsg.textContent = 'チャットグループを登録しました。';
+          pageSuccessContainer.appendChild(successMsg);
+
+          // ページリロード
+          location.reload();
+
+        } else if (data.status === 'error') {
+          console.error("エラー", data.errors)
+
+          // エラーメッセージ表示
+          pageErrorContainer.innerHTML = '';
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'alert alert-danger';
+
+          const title = document.createElement('div');
+          title.textContent = 'チャットグループに失敗しました。以下をご確認ください。';
+          wrapper.appendChild(title);
+
+          for (const label in data.errors) {
+            data.errors[label].forEach(errorMsg => {
+              const errorLine = document.createElement('li');
+              errorLine.textContent = `${label}: ${errorMsg}`;
+              wrapper.appendChild(errorLine);
+            });
+          }
+
+          pageErrorContainer.appendChild(wrapper);
+        }
+      })
+      .catch(err => {
+      console.log('通信エラー：', err);
+    });
+  })
 });
 
 // チャットグループ編集
 document.addEventListener('DOMContentLoaded', function () {
   const chatgroupEditUserDisplay = document.getElementById('editGroupUsersDisplay')
   const chatgroupEditUserInput = document.getElementById('chatgroupEditSelectedUsers')
+  const pageErrorContainer = document.getElementById('chatgroupEditFormErrors');
+  const pageSuccessContainer = document.getElementById('FormSuccess');
 
   document.querySelectorAll('.edit-chatgroup-btn').forEach((button) => {
     button.addEventListener('click', function () {
@@ -382,6 +449,64 @@ document.addEventListener('DOMContentLoaded', function () {
             chatgroupEditUserInput.value = '';
           }
         });
+      
+      editForm.addEventListener('submit', function (e) {
+        e.preventDefault()
+        pageErrorContainer.innerHTML = '';
+
+        const formData = new FormData(editForm);
+
+        fetch(editForm.action, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: formData
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              // モーダル閉じる
+              const modal = bootstrap.Modal.getInstance(document.getElementById('editChatGroupModal'));
+              modal.hide();
+
+              // 成功メッセージ
+              pageSuccessContainer.innerHTML = '';
+              const successMsg = document.createElement('div');
+              successMsg.className = 'alert alert-info';
+              successMsg.textContent = 'チャットグループを更新しました。';
+              pageSuccessContainer.appendChild(successMsg);
+
+              // ページリロード
+              location.reload();
+            } else if (data.status === 'error') {
+              console.error("エラー", data.errors)
+
+              // エラーメッセージ表示
+              pageErrorContainer.innerHTML = '';
+
+              const wrapper = document.createElement('div');
+              wrapper.className = 'alert alert-danger';
+
+              const title = document.createElement('div');
+              title.textContent = 'チャットグループ編集に失敗しました。以下をご確認ください。';
+              wrapper.appendChild(title);
+
+              for (const label in data.errors) {
+                data.errors[label].forEach(errorMsg => {
+                  const errorLine = document.createElement('li');
+                  errorLine.textContent = `${label}: ${errorMsg}`;
+                  wrapper.appendChild(errorLine);
+                });
+              }
+
+              pageErrorContainer.appendChild(wrapper);
+            }
+          })
+          .catch(err => {
+          console.log('通信エラー：', err);
+        });
+      })
     });
   });
 
@@ -691,6 +816,71 @@ document.addEventListener('DOMContentLoaded', function () {
     // デフォルトメッセージ削除
     document.getElementById('default-message').innerHTML = '';
   });
+
+  // スケジュール登録(スケジュールからの登録)
+  const pageErrorContainer = document.getElementById('scheduleFormErrors');
+  const pageSuccessContainer = document.getElementById('FormSuccess');
+
+  let scheduleRegistForm = document.getElementById('scheduleForm');
+  scheduleRegistForm.action = `/schedules/schedule_regist`;
+
+  scheduleRegistForm.addEventListener('submit', function (e) {
+    e.preventDefault()
+    pageErrorContainer.innerHTML = '';
+
+    const formData = new FormData(scheduleRegistForm);
+
+    fetch(scheduleRegistForm.action, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // モーダル閉じる
+          const modal = bootstrap.Modal.getInstance(document.getElementById('addScheduleModal'));
+          modal.hide();
+
+          // 成功メッセージ
+          pageSuccessContainer.innerHTML = '';
+          const successMsg = document.createElement('div');
+          successMsg.className = 'alert alert-info';
+          successMsg.textContent = 'スケジュールを登録しました。';
+          pageSuccessContainer.appendChild(successMsg);
+
+          // ページリロード
+          location.reload();
+        } else if (data.status === 'error') {
+          console.error("エラー", data.errors)
+
+          // エラーメッセージ表示
+          pageErrorContainer.innerHTML = '';
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'alert alert-danger';
+
+          const title = document.createElement('div');
+          title.textContent = 'スケジュール登録に失敗しました。以下をご確認ください。';
+          wrapper.appendChild(title);
+
+          for (const label in data.errors) {
+            data.errors[label].forEach(errorMsg => {
+              const errorLine = document.createElement('li');
+              errorLine.textContent = `${label}: ${errorMsg}`;
+              wrapper.appendChild(errorLine);
+            });
+          }
+
+          pageErrorContainer.appendChild(wrapper);
+        }
+      })
+      .catch(err => {
+      console.log('通信エラー：', err);
+    });
+  });
 });
 
 // 時刻表示変換(UTC → JST)
@@ -708,6 +898,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // 取得したチャットグループのユーザーを対象にデフォルトで値をセット
   const chatgroupScheduleUserDisplay = document.getElementById('chatgroupSelectedUsersDisplay');
   const chatgorupScheduleUserInput = document.getElementById('chatgroupScheduleUsersInput');
+  const pageErrorContainer = document.getElementById('chatScheduleFormErrors');
+  const pageSuccessContainer = document.getElementById('FormSuccess');
 
   document.querySelectorAll('.group-schedule-rgsbtn').forEach((button) => {
     button.addEventListener('click', function () {
@@ -746,17 +938,80 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log(chatgorupScheduleUserInput);
           });
         })
+
+      scheduleRegistForm.addEventListener('submit', function (e) {
+        e.preventDefault()
+        pageErrorContainer.innerHTML = '';
+
+        const formData = new FormData(scheduleRegistForm);
+
+        fetch(scheduleRegistForm.action, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: formData
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'success') {
+              // モーダル閉じる
+              const modal = bootstrap.Modal.getInstance(document.getElementById('addScheduleModal'));
+              modal.hide();
+
+              // 成功メッセージ
+              pageSuccessContainer.innerHTML = '';
+              const successMsg = document.createElement('div');
+              successMsg.className = 'alert alert-info';
+              successMsg.textContent = 'スケジュールを登録しました。';
+              pageSuccessContainer.appendChild(successMsg);
+
+              // ページリロード
+              location.reload();
+            } else if (data.status === 'error') {
+              console.error("エラー", data.errors)
+
+              // エラーメッセージ表示
+              pageErrorContainer.innerHTML = '';
+
+              const wrapper = document.createElement('div');
+              wrapper.className = 'alert alert-danger';
+
+              const title = document.createElement('div');
+              title.textContent = 'スケジュール登録に失敗しました。以下をご確認ください。';
+              wrapper.appendChild(title);
+
+              for (const label in data.errors) {
+                data.errors[label].forEach(errorMsg => {
+                  const errorLine = document.createElement('li');
+                  errorLine.textContent = `${label}: ${errorMsg}`;
+                  wrapper.appendChild(errorLine);
+                });
+              }
+
+              pageErrorContainer.appendChild(wrapper);
+            }
+          })
+          .catch(err => {
+          console.log('通信エラー：', err);
+        });
+      });
     });
   });
 });
 
 // スケジュール編集
 document.addEventListener('DOMContentLoaded', function () {
+  const pageErrorContainer = document.getElementById('chatScheduleEditFormErrors');
+  const pageSuccessContainer = document.getElementById('FormSuccess');
+
   document.querySelectorAll('.edit-btn').forEach((button) => {
     button.addEventListener('click', function () {
       console.log('スケジュール編集ボタンが押下されました');
+      pageErrorContainer.innerHTML = '';
       const scheduleEditUserDisplay = document.getElementById('selectedEditUsersDisplay');
       const scheduleEditUserInput = document.getElementById('scheduleEditSelectedUsers');
+
       let schedulePk = this.getAttribute('data-pk');
       console.log('編集対象のスケジュールPK:', schedulePk);
 
@@ -804,6 +1059,64 @@ document.addEventListener('DOMContentLoaded', function () {
             scheduleEditUserDisplay.innerHTML = '<p>ユーザーが選択されていません</p>';
           }
         });
+      
+      editForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        pageErrorContainer.innerHTML = '';
+
+        const formData = new FormData(editForm);
+
+        fetch(editForm.action, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: formData
+        })
+          .then(res => res.json())
+          .then(data => {
+             if (data.status === 'success') {
+              // モーダル閉じる
+              const modal = bootstrap.Modal.getInstance(document.getElementById('editScheduleModal'));
+              modal.hide();
+
+              // 成功メッセージ
+              pageSuccessContainer.innerHTML = '';
+              const successMsg = document.createElement('div');
+              successMsg.className = 'alert alert-info';
+              successMsg.textContent = 'スケジュールを更新しました。';
+              pageSuccessContainer.appendChild(successMsg);
+
+              // ページリロード
+              location.reload();
+            } else if (data.status === 'error') {
+              console.error("エラー", data.errors)
+
+              // エラーメッセージ表示
+              pageErrorContainer.innerHTML = '';
+
+              const wrapper = document.createElement('div');
+              wrapper.className = 'alert alert-danger';
+
+              const title = document.createElement('div');
+              title.textContent = 'スケジュール編集に失敗しました。以下をご確認ください。';
+              wrapper.appendChild(title);
+
+              for (const label in data.errors) {
+                data.errors[label].forEach(errorMsg => {
+                  const errorLine = document.createElement('li');
+                  errorLine.textContent = `${label}: ${errorMsg}`;
+                  wrapper.appendChild(errorLine);
+                });
+              }
+
+              pageErrorContainer.appendChild(wrapper);
+            }
+          })
+          .catch(err => {
+          console.log('通信エラー：', err);
+        });
+      })
 
       // 編集履歴
       let scheduleUpdateDisplay = document.getElementById('scheduleUpdateDisplay');
@@ -978,6 +1291,8 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('ToDo読み込み完了')
 
     const pageErrorContainer = document.getElementById('todoFormErrors');
+    const pageSuccessContainer = document.getElementById('FormSuccess');
+    pageErrorContainer.innerHTML = '';
 
     e.preventDefault();
     const formData = new FormData(this);
@@ -1038,11 +1353,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // 成功メッセージ
-        pageErrorContainer.innerHTML = '';
+        pageSuccessContainer.innerHTML = '';
         const successMsg = document.createElement('div');
         successMsg.className = 'alert alert-info';
         successMsg.textContent = 'ToDoタスクを登録しました。';
-        pageErrorContainer.appendChild(successMsg);
+        pageSuccessContainer.appendChild(successMsg);
       
       } else {
         console.error(data.errors);
@@ -1057,10 +1372,10 @@ document.addEventListener('DOMContentLoaded', function () {
         title.textContent = 'ToDoタスク登録に失敗しました。以下をご確認ください。';
         wrapper.appendChild(title);
 
-        for (const field in data.errors) {
-          data.errors[field].forEach(errorMsg => {
+        for (const label in data.errors) {
+          data.errors[label].forEach(errorMsg => {
             const errorLine = document.createElement('li');
-            errorLine.textContent = `${field}: ${errorMsg}`;
+            errorLine.textContent = `${label}: ${errorMsg}`;
             wrapper.appendChild(errorLine);
           });
         }
@@ -1068,9 +1383,9 @@ document.addEventListener('DOMContentLoaded', function () {
         pageErrorContainer.appendChild(wrapper);
 
         // モーダル閉じる
-        const modalElement = document.getElementById('addTodoModal');
-        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-        modal.hide();
+        // const modalElement = document.getElementById('addTodoModal');
+        // const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        // modal.hide();
       }
     })
     .catch(error => console.error('Error:', error));
@@ -1115,6 +1430,9 @@ function completeTodo(todoId, todoElement) {
 // 目標設定
 document.addEventListener('DOMContentLoaded', function () {
   console.log('目標設定読み込み')
+  const pageErrorContainer = document.getElementById('objectiveFormErrors');
+  const pageSuccessContainer = document.getElementById('FormSuccess');
+  
   document.getElementById('objectiveRegistForm').addEventListener('submit', function (e) {
 
     e.preventDefault();
@@ -1145,11 +1463,38 @@ document.addEventListener('DOMContentLoaded', function () {
         newObjective.textContent = `${data.objective}`;
         document.querySelector('.objective-group').appendChild(newObjective);
 
+        // 成功メッセージ
+        pageSuccessContainer.innerHTML = '';
+        const successMsg = document.createElement('div');
+        successMsg.className = 'alert alert-info';
+        successMsg.textContent = '目標を登録しました。';
+        pageSuccessContainer.appendChild(successMsg);
+
         // ページリロード
         location.reload();
 
       } else {
         console.error("エラー", data.errors)
+
+        // エラーメッセージ表示
+        pageErrorContainer.innerHTML = '';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'alert alert-danger';
+
+        const title = document.createElement('div');
+        title.textContent = '目標設定に失敗しました。以下をご確認ください。';
+        wrapper.appendChild(title);
+
+        for (const label in data.errors) {
+          data.errors[label].forEach(errorMsg => {
+            const errorLine = document.createElement('li');
+            errorLine.textContent = `${label}: ${errorMsg}`;
+            wrapper.appendChild(errorLine);
+          });
+        }
+
+        pageErrorContainer.appendChild(wrapper);
       }
     })
     .catch(error => console.error("通信エラー", error));
@@ -1159,14 +1504,15 @@ document.addEventListener('DOMContentLoaded', function () {
 // 目標編集
 document.addEventListener('DOMContentLoaded', function () {
   console.log('目標編集機能読み込み完了');
+  const pageSuccessContainer = document.getElementById('FormSuccess')
+  const pageErrorContainer = document.getElementById('objectiveEditFormErrors');
+  const editForm = document.getElementById('objectiveEditForm');
 
   document.querySelectorAll('.objective-edit-btn').forEach((button) => {
     button.addEventListener('click', function () {
+      pageErrorContainer.innerHTML = '';
       let objectivePk = this.getAttribute('objective-data-pk');
       console.log('編集対象：', objectivePk);
-
-      let editForm = document.getElementById('objectiveEditForm');
-      editForm.action = `/schedules/objective_edit/${objectivePk}`;
 
       fetch(`/schedules/get_objective_data/${objectivePk}`)
         .then(response => {
@@ -1174,7 +1520,8 @@ document.addEventListener('DOMContentLoaded', function () {
           return response.json();
         })
         .then(data => {
-          console.log('取得データ：', data);
+          console.log('取得データ：', data)
+          // if (data.objective && data.objective_due_date){
           document.getElementById('editObjective').value = data.objective;
           const rawDate = data.objective_due_date;
           const isoDate = rawDate.replace(" ", "T") + ":00Z";
@@ -1185,6 +1532,64 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
           console.log('エラー：', error);
         });
+      
+      editForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        pageErrorContainer.innerHTML = '';
+
+        const formData = new FormData(editForm);
+          
+        editForm.action = `/schedules/objective_edit/${objectivePk}`;
+        fetch(editForm.action, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.status === 'success') {
+            // モーダル閉じる
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editObjectiveModal'));
+            modal.hide();
+
+            // 成功メッセージ
+            pageSuccessContainer.innerHTML = '';
+            const successMsg = document.createElement('div');
+            successMsg.className = 'alert alert-info';
+            successMsg.textContent = '目標を編集しました。';
+            pageSuccessContainer.appendChild(successMsg);
+
+            location.reload();
+
+          } else if (data.status === 'error') {
+
+            // エラーメッセージ表示
+            pageErrorContainer.innerHTML  = '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'alert alert-danger';
+
+            const title = document.createElement('div');
+            title.textContent = '目標設定に失敗しました。以下をご確認ください。';
+            wrapper.appendChild(title);
+
+            for (const label in data.errors) {
+              data.errors[label].forEach(errorMsg => {
+                const errorLine = document.createElement('li');
+                errorLine.textContent = `${label}: ${errorMsg}`;
+                wrapper.appendChild(errorLine);
+              });
+            }
+
+            pageErrorContainer.appendChild(wrapper);
+          }
+        })
+        .catch(err => {
+          console.log('通信エラー：', err);
+        });
+      });
     });
   });
 });
