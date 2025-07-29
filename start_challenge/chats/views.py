@@ -114,6 +114,7 @@ def chatsgroup_create(request):
       valid_user_ids = [int(user_id.strip()) for user_id in selected_user_ids if user_id.strip().isdigit()]
       if selected_user_ids:
         new_group.user.set(Users.objects.filter(id__in=valid_user_ids))
+        messages.info(request, 'チャットグループを登録しました。')
       else:
         new_group.user.clear()
 
@@ -158,6 +159,7 @@ def chatsgroup_edit(request, group_id):
 
       selected_user_ids = [int(uid.strip()) for uid in selected_user_ids if str(uid).strip().isdigit()]
       group.user.set(Users.objects.filter(id__in=selected_user_ids))
+      messages.info(request, 'チャットグループを更新しました。')
       
       return JsonResponse({'status': 'success'})
 

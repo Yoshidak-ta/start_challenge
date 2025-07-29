@@ -133,7 +133,6 @@ def add_todo(request, year=None, month=None):
       todo = todo_list_form.save(commit=False)
       todo.user = request.user
       todo.save()
-
       return JsonResponse({
         'success':True,
         'task':todo.task,
@@ -242,6 +241,7 @@ def schedule_edit(request, pk):
       print('編集ユーザーids：', selected_user_ids)
       if selected_user_ids:
         schedule.user.set(Users.objects.filter(id__in=selected_user_ids))
+        messages.info(request, 'スケジュールを更新しました。')
       else:
         schedule_edit_form.add_error('user', '登録するユーザーを選択してください。')
         schedule.user.clear()
@@ -311,7 +311,7 @@ def objective_regist(request):
     regist = ObjectiveRegistForm(request.POST, instance=user)
     if regist.is_valid():
       regist.save()
-      messages.info(request, '目標を設定しました')
+      messages.info(request, '目標を設定しました。')
       return JsonResponse({'success': True, 'objective': regist.cleaned_data['objective']})
     
     else:
@@ -339,6 +339,7 @@ def objective_edit(request, user_id):
       objective_edit_form.save(commit=False)
       user.updated_at = datetime.now()
       user.save()
+      messages.info(request, '目標を編集しました。')
       return JsonResponse({'status': 'success', 'objective': objective_edit_form.cleaned_data['objective'], 'objective_due_date': user.objective_due_date.strftime('%Y-%m-%d %H:%M')})
    
     else:

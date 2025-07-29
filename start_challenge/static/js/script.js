@@ -360,13 +360,6 @@ document.addEventListener('DOMContentLoaded', function () {
           const modal = bootstrap.Modal.getInstance(document.getElementById('addChatGroupModal'));
           modal.hide();
 
-          // 成功メッセージ
-          pageSuccessContainer.innerHTML = '';
-          const successMsg = document.createElement('div');
-          successMsg.className = 'alert alert-info';
-          successMsg.textContent = 'チャットグループを登録しました。';
-          pageSuccessContainer.appendChild(successMsg);
-
           // ページリロード
           location.reload();
 
@@ -409,6 +402,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll('.edit-chatgroup-btn').forEach((button) => {
     button.addEventListener('click', function () {
+      pageErrorContainer.innerHTML = '';
       let chatgroupPk = this.getAttribute('chatgroup-data-pk');
       console.log('編集対象のチャットグループPK:', chatgroupPk);
 
@@ -469,13 +463,6 @@ document.addEventListener('DOMContentLoaded', function () {
               // モーダル閉じる
               const modal = bootstrap.Modal.getInstance(document.getElementById('editChatGroupModal'));
               modal.hide();
-
-              // 成功メッセージ
-              pageSuccessContainer.innerHTML = '';
-              const successMsg = document.createElement('div');
-              successMsg.className = 'alert alert-info';
-              successMsg.textContent = 'チャットグループを更新しました。';
-              pageSuccessContainer.appendChild(successMsg);
 
               // ページリロード
               location.reload();
@@ -845,11 +832,7 @@ document.addEventListener('DOMContentLoaded', function () {
           modal.hide();
 
           // 成功メッセージ
-          pageSuccessContainer.innerHTML = '';
-          const successMsg = document.createElement('div');
-          successMsg.className = 'alert alert-info';
-          successMsg.textContent = 'スケジュールを登録しました。';
-          pageSuccessContainer.appendChild(successMsg);
+          localStorage.setItem('successText', 'スケジュールを登録しました。');
 
           // ページリロード
           location.reload();
@@ -903,6 +886,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll('.group-schedule-rgsbtn').forEach((button) => {
     button.addEventListener('click', function () {
+      pageErrorContainer.innerHTML = '';
       let chatgroupPk = this.getAttribute('data-pk');
       console.log('スケジュール登録対象グループPK：', chatgroupPk);
 
@@ -960,14 +944,11 @@ document.addEventListener('DOMContentLoaded', function () {
               modal.hide();
 
               // 成功メッセージ
-              pageSuccessContainer.innerHTML = '';
-              const successMsg = document.createElement('div');
-              successMsg.className = 'alert alert-info';
-              successMsg.textContent = 'スケジュールを登録しました。';
-              pageSuccessContainer.appendChild(successMsg);
+              localStorage.setItem('successText', 'スケジュールを登録しました。スケジュール画面のカレンダーをご確認ください。');
 
               // ページリロード
               location.reload();
+
             } else if (data.status === 'error') {
               console.error("エラー", data.errors)
 
@@ -1079,13 +1060,6 @@ document.addEventListener('DOMContentLoaded', function () {
               // モーダル閉じる
               const modal = bootstrap.Modal.getInstance(document.getElementById('editScheduleModal'));
               modal.hide();
-
-              // 成功メッセージ
-              pageSuccessContainer.innerHTML = '';
-              const successMsg = document.createElement('div');
-              successMsg.className = 'alert alert-info';
-              successMsg.textContent = 'スケジュールを更新しました。';
-              pageSuccessContainer.appendChild(successMsg);
 
               // ページリロード
               location.reload();
@@ -1353,11 +1327,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // 成功メッセージ
-        pageSuccessContainer.innerHTML = '';
-        const successMsg = document.createElement('div');
-        successMsg.className = 'alert alert-info';
-        successMsg.textContent = 'ToDoタスクを登録しました。';
-        pageSuccessContainer.appendChild(successMsg);
+        localStorage.setItem('successText', 'ToDoタスクを登録しました。');
+
+        // ページリロード
+        location.reload();
       
       } else {
         console.error(data.errors);
@@ -1382,15 +1355,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
         pageErrorContainer.appendChild(wrapper);
 
-        // モーダル閉じる
-        // const modalElement = document.getElementById('addTodoModal');
-        // const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-        // modal.hide();
       }
     })
     .catch(error => console.error('Error:', error));
   });
 });
+
+// Todo成功メッセージ表示
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('成功メッセージを表示します');
+  const pageSuccessContainer = document.getElementById('FormSuccess');
+  const successText = localStorage.getItem('successText');
+
+  if (successText) {
+    const successMsg = document.createElement('div');
+    successMsg.className = 'alert alert-info';
+    successMsg.textContent = successText;
+    pageSuccessContainer.appendChild(successMsg);
+    localStorage.removeItem('successText');
+  }
+})
 
 // Todo達成
 document.addEventListener('DOMContentLoaded', () => {
@@ -1463,13 +1447,6 @@ document.addEventListener('DOMContentLoaded', function () {
         newObjective.textContent = `${data.objective}`;
         document.querySelector('.objective-group').appendChild(newObjective);
 
-        // 成功メッセージ
-        pageSuccessContainer.innerHTML = '';
-        const successMsg = document.createElement('div');
-        successMsg.className = 'alert alert-info';
-        successMsg.textContent = '目標を登録しました。';
-        pageSuccessContainer.appendChild(successMsg);
-
         // ページリロード
         location.reload();
 
@@ -1521,7 +1498,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
           console.log('取得データ：', data)
-          // if (data.objective && data.objective_due_date){
           document.getElementById('editObjective').value = data.objective;
           const rawDate = data.objective_due_date;
           const isoDate = rawDate.replace(" ", "T") + ":00Z";
@@ -1553,13 +1529,6 @@ document.addEventListener('DOMContentLoaded', function () {
             // モーダル閉じる
             const modal = bootstrap.Modal.getInstance(document.getElementById('editObjectiveModal'));
             modal.hide();
-
-            // 成功メッセージ
-            pageSuccessContainer.innerHTML = '';
-            const successMsg = document.createElement('div');
-            successMsg.className = 'alert alert-info';
-            successMsg.textContent = '目標を編集しました。';
-            pageSuccessContainer.appendChild(successMsg);
 
             location.reload();
 
