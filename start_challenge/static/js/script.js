@@ -1361,21 +1361,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// Todo成功メッセージ表示
-document.addEventListener('DOMContentLoaded', function () {
-  console.log('成功メッセージを表示します');
-  const pageSuccessContainer = document.getElementById('FormSuccess');
-  const successText = localStorage.getItem('successText');
-
-  if (successText) {
-    const successMsg = document.createElement('div');
-    successMsg.className = 'alert alert-info';
-    successMsg.textContent = successText;
-    pageSuccessContainer.appendChild(successMsg);
-    localStorage.removeItem('successText');
-  }
-})
-
 // Todo達成
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
@@ -1406,6 +1391,13 @@ function completeTodo(todoId, todoElement) {
   .then(data => {
     if (data.success) {
       todoElement.remove();
+
+      // 成功メッセージ
+      localStorage.setItem('successText', 'ToDoタスクを完了させました。');
+
+      // ページリロード
+      location.reload();
+
     }
   })
   .catch(error => console.error('Error', error));
@@ -1415,7 +1407,6 @@ function completeTodo(todoId, todoElement) {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('目標設定読み込み')
   const pageErrorContainer = document.getElementById('objectiveFormErrors');
-  const pageSuccessContainer = document.getElementById('FormSuccess');
   
   document.getElementById('objectiveRegistForm').addEventListener('submit', function (e) {
 
@@ -1562,3 +1553,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+// 成功メッセージ表示
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('成功メッセージを表示します');
+  const pageSuccessContainer = document.getElementById('FormSuccess');
+  const successText = localStorage.getItem('successText');
+
+  if (successText) {
+    const successMsg = document.createElement('div');
+    successMsg.className = 'alert alert-info';
+    successMsg.textContent = successText;
+    pageSuccessContainer.appendChild(successMsg);
+    localStorage.removeItem('successText');
+  }
+})
