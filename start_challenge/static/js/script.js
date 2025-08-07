@@ -18,6 +18,12 @@ function getCookie(name) {
   return cookieValue;
 }
 
+// チャットに新しいメッセージが追加されたらスクロールを一番下に移動
+document.addEventListener('DOMContentLoaded', () => {
+  const chatBox = document.getElementById('messages');
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
 // ブラウザ通知設定
 document.addEventListener('DOMContentLoaded', function () {
   const enableBtn = document.getElementById('enableNotifications');
@@ -984,7 +990,6 @@ document.addEventListener('DOMContentLoaded', function () {
 // スケジュール編集
 document.addEventListener('DOMContentLoaded', function () {
   const pageErrorContainer = document.getElementById('chatScheduleEditFormErrors');
-  const pageSuccessContainer = document.getElementById('FormSuccess');
 
   document.querySelectorAll('.edit-btn').forEach((button) => {
     button.addEventListener('click', function () {

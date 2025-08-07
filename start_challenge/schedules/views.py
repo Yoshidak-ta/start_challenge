@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 # スケジュール画面
 @login_required
 def schedule(request, year=None, month=None):
-  todos = ToDos.objects.filter(user=request.user, is_completed=False)
+  todos = ToDos.objects.filter(user=request.user)
 
   todo_list_form = forms.ToDoListForm()
   user = Users.objects.get(pk=request.user.id)

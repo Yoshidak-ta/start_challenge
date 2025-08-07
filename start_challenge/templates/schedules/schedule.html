@@ -25,8 +25,45 @@
     <div class="col-xl-3 col-lg-4 col-md-12">
       <!-- ToDoリスト -->
       <div class="d-flex flex-column overflow-auto border p-3 mt-3 mb-3" style="height: 450px;">
-        <div class="header top-0 border-bottom">
+        <div class="d-flex justify-content-between header top-0 border-bottom">
           <h5>ToDoリスト</h5>
+          <a href="#" class="btn btn-primary" style="height: 30px; font-size: small;" data-bs-toggle="modal" data-bs-target="#compTodoTaskModal">完了済みタスク</a>
+        </div>
+        <!-- 完了済みタスク一覧モーダル -->
+        <div class="modal fade" id="compTodoTaskModal" tabindex="-1" aria-labelledby="compTodoTaskModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="compTodoTaskModalLabel">完了済みタスク一覧</h5>
+              </div>
+              <div class="modal-body">
+                <div class="overflow-auto p-3 mb-3" style="height: 300px;">
+                  <ul class="list-group flex-grow-1">
+                  {% for todo in todos %}
+                    {% if todo.is_completed %}
+                      {% if todo.priority == 1 %}
+                      <li class="list-group-item priority-high">
+                        {{ todo.task }}(期限:{{ todo.due_date }})
+                      </li>
+                      {% elif todo.priority == 2 %}
+                      <li class="list-group-item priority-middle">
+                        {{ todo.task }}(期限:{{ todo.due_date }})
+                      </li>
+                      {% else %}
+                      <li class="list-group-item">
+                        {{ todo.task }}(期限:{{ todo.due_date }})
+                      </li>
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+                  </ul>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">戻る</button>
+              </div>
+            </div>
+          </div>
         </div>
         <ul class="list-group flex-grow-1">
         {% for todo in todos %}
@@ -50,7 +87,6 @@
           {% endif %}
         {% endfor %}
         </ul>
-        <!-- <p class="mt-auto p-2 btn-custom-edit" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p> -->
       </div>
       <p class="p-2 btn-custom-edit" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p>
     </div>
