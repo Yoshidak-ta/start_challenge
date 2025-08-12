@@ -33,7 +33,7 @@ class UserRegistForm(forms.ModelForm):
     hurigana = self.cleaned_data['hurigana']
     p = re.compile('[あ-ん]+')
     if password != confirm_password:
-      raise self.add_error('パスワードとパスワード再入力の内容が異なります')
+      raise forms.ValidationError('パスワードとパスワード再入力の内容が異なります')
     if Users.objects.filter(username=username).exists() and Users.objects.filter(email=email).exists():
       raise forms.ValidationError('このメールアドレスは既に登録されています')
     if not p.fullmatch(hurigana):
