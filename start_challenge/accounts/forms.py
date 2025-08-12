@@ -2,10 +2,12 @@ from django import forms
 from .models import Users, Categories
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+import re
 
 # 会員登録フォーム
 class UserRegistForm(forms.ModelForm):
   username = forms.CharField(label='名前')
+  hurigana = forms.CharField(label='ふりがな(ひらがな)')
   email = forms.EmailField(label='メールアドレス')
   picture = forms.FileField(label='アイコン画像', required=False)
   category = forms.ModelMultipleChoiceField(
@@ -20,7 +22,7 @@ class UserRegistForm(forms.ModelForm):
 
   class Meta():
     model = Users
-    fields = ('username', 'email', 'picture', 'category', 'message', 'password')
+    fields = ('username', 'hurigana', 'email', 'picture', 'category', 'message', 'password')
   
   def clean(self):
     cleaned_data = super().clean()
@@ -28,10 +30,14 @@ class UserRegistForm(forms.ModelForm):
     confirm_password = cleaned_data['confirm_password']
     email = self.cleaned_data['email']
     username = self.cleaned_data['username']
+    hurigana = self.cleaned_data['hurigana']
+    p = re.compile('[あ-ん]+')
     if password != confirm_password:
-      raise forms.ValidationError('パスワードが異なります')
+      raise self.add_error('パスワードとパスワード再入力の内容が異なります')
     if Users.objects.filter(username=username).exists() and Users.objects.filter(email=email).exists():
       raise forms.ValidationError('このメールアドレスは既に登録されています')
+    if not p.fullmatch(hurigana):
+      raise forms.ValidationError('ふりがなはひらがなで入力してください')
     
     return cleaned_data
   
@@ -53,9 +59,10 @@ class UserEditForm(forms.ModelForm):
 
   class Meta:
     model = Users
-    fields = ('username', 'email', 'picture', 'category', 'message')
+    fields = ('username', 'hurigana', 'email', 'picture', 'category', 'message')
     labels = {
       'username':'名前',
+      'hurigana':'ふりがな(ひらがな)',
       'email':'メールアドレス',
       'picture':'アイコン画像',
       'category':'得意分野',

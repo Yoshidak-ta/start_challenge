@@ -32,9 +32,9 @@
             {% if edit.name in fields_left %}
             <div class="form-group mb-3">
               <h5>{{ edit.label }}</h5>
-              {% for error in edit.errors %}
+              <!-- {% for error in edit.errors %}
               <p style="color: red;">{{ error }}</p>
-              {% endfor %}
+              {% endfor %} -->
               {% if edit.name == 'email' %}
               <input type="email" name="email" value="{{ edit.value }}" style="width: 270px;">
               {% else %}
@@ -51,9 +51,9 @@
             <!-- ジャンル選択 -->
             <div class="form-group mb-3">
               <h5>{{ edit.label }}</h5>
-              {% for error in edit.errors %}
+              <!-- {% for error in edit.errors %}
               <p style="color: red;">{{ error }}</p>
-              {% endfor %}
+              {% endfor %} -->
               {% if edit.name == 'category' %}
               <div class="checkbox-group d-flex flex-wrap">
                 {% for checkbox in edit %}

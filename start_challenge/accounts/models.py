@@ -39,6 +39,7 @@ class UserManager(BaseUserManager):
 # ユーザテーブル
 class Users(AbstractBaseUser, PermissionsMixin):
   username = models.CharField(max_length=255)
+  hurigana = models.CharField(max_length=255, null=False)
   email = models.EmailField(max_length=255, unique=True)
   picture = models.FileField(null=True, upload_to='user_picture/', default='user_picture/no_image.jpeg')
   category = models.ManyToManyField('Categories', blank=True)

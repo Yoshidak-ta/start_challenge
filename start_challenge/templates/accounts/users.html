@@ -40,7 +40,7 @@
       </form>
       <div class="sort-buttons">
         並び順：
-        <a href="?sort=username{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" class="btn {% if sort_option == 'username' %}btn-primary{% else %}btn-outline-primary{% endif %}">50音順</a>
+        <a href="?sort=hurigana{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" class="btn {% if sort_option == 'hurigana' %}btn-primary{% else %}btn-outline-primary{% endif %}">50音順</a>
         <a href="?sort=rank{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}" class="btn {% if sort_option == 'rank' %}btn-primary{% else %}btn-outline-primary{% endif %}">ランク順</a>
         <a href="#" data-bs-toggle="modal" data-bs-target="#rank2Modal">※ランクとは</a>
       </div>

@@ -14,6 +14,7 @@ from chats.models import ChatsGroup
 from django.shortcuts import get_object_or_404
 from django.db import models
 from django.views.decorators.csrf import csrf_exempt
+import re
 import logging
 
 # ホーム画面（Q&A)
@@ -42,7 +43,7 @@ def home(request):
 # 会員登録
 def user_regist(request):
   user_regist_form = forms.UserRegistForm(request.POST or None, request.FILES or None)
-  fields_left = ['username', 'email', 'picture', 'password', 'confirm_password']
+  fields_left = ['username', 'hurigana', 'email', 'picture', 'password', 'confirm_password']
   fields_right = ['category', 'message']
   if request.method == 'POST':
     if user_regist_form.is_valid():
@@ -62,7 +63,7 @@ def user_regist(request):
         for field, errors in user_regist_form.errors.items():
             for error in errors:
               messages.error(request, f"{user_regist_form.fields[field].label}:{error}")
-        print(user_regist_form.errors)
+
     else:
       messages.error(request, '会員登録に失敗しました。以下をご確認ください。')
       for field, errors in user_regist_form.errors.items():
@@ -155,15 +156,24 @@ def user_logout(request):
 @login_required
 def user_edit(request):
   user_edit_form = forms.UserEditForm(request.POST or None, request.FILES or None, instance=request.user)
-  fields_left = ['username', 'email', 'picture']
+  fields_left = ['username', 'hurigana', 'email', 'picture']
   fields_right = ['category', 'message']
   if user_edit_form.is_valid():
     user_edit_form.save(commit=True)
-    user = request.user
-    user.updated_at = now()
-    user.save()
-    messages.info(request, '更新が完了しました')
-    return redirect('accounts:home')
+    hurigana = user_edit_form.cleaned_data.get('hurigana')
+    p = re.compile('[あ-ん]+')
+    if not p.fullmatch(hurigana):
+      user_edit_form.add_error('hurigana', 'ふりがなはひらがなで入力してください')
+      messages.error(request, '会員情報の編集に失敗しました。以下をご確認ください。')
+      for field, errors in user_edit_form.errors.items():
+        for error in errors:
+          messages.error(request, f"{user_edit_form.fields[field].label}:{error}")
+    else:
+      user = request.user
+      user.updated_at = now()
+      user.save()
+      messages.info(request, '更新が完了しました')
+      return redirect('accounts:home')
   elif request.method == 'POST':  
     messages.error(request, '会員情報の編集に失敗しました。以下をご確認ください。')
     for field, errors in user_edit_form.errors.items():
@@ -272,8 +282,8 @@ def users(request):
     if category:
       results = results.filter(category=category)
   
-  if sort_option == 'username':
-    results = results.order_by('username')
+  if sort_option == 'hurigana':
+    results = results.order_by('hurigana')
   elif sort_option == 'rank':
     results = results.order_by('-rank')
 
