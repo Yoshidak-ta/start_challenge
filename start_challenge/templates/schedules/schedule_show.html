@@ -37,15 +37,19 @@
         {% for schedule in schedules %}
           <!-- 開始日～終了日に選択した日付が含まれている場合 -->
           <tr class="schedule-list-group">
-            {% if request.user in schedule.user.all %}
+          {% if request.user in schedule.user.all %}
             <td class="schedule-list">{{ schedule.start_at }}<br>～{{ schedule.end_at }}</td>
             <td class="schedule-list">{{ schedule.task }}</td>
-            <td class="schedule-list">@{{ schedule.place }}</td>
+            {% if schedule.place %}
+              <td class="schedule-list">@{{ schedule.place }}</td>
+            {% else %}
+              <td class="schedule-list"></td>
+            {% endif %}
             <td class="schedule-list">
               <a href="#" class="btn btn-custom-edit edit-btn" data-pk="{{ schedule.id }}" data-bs-toggle="modal" data-bs-target="#editScheduleModal">編集</a>
               <a href="#" class="btn btn-custom-warning delete-btn" data-pk="{{ schedule.id }}" data-bs-toggle="modal" data-bs-target="#deleteScheduleModal">削除</a>
             </td>
-            {% endif %}
+          {% endif %}
           </tr>
         {% endfor %}
           <!-- 編集モーダル -->

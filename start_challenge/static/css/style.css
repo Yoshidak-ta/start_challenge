@@ -78,13 +78,16 @@ nav#header {
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
-th, td {
+table th, td {
   width: 14.2%; /* 7日分の幅に均等割り */
   text-align: center;
   border: 1px solid #ddd;
   padding: 10px;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 th {
