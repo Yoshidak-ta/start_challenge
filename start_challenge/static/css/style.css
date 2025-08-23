@@ -18,6 +18,10 @@ nav#header {
 
 .header-link {
   color: yellow;
+}
+
+.header-link:hover {
+  color: yellow;
   text-decoration: underline;
 }
 
