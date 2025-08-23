@@ -55,7 +55,7 @@ def user_regist(request):
         login(request, user)
         share_chat = get_object_or_404(ChatsGroup, group_category=1)
         share_chat.user.add(request.user)
-        messages.info(request, '会員登録が完了いたしました。ログインを実行し、スタチャレをお楽しみください')
+        messages.info(request, '会員登録が完了いたしました。スタチャレをお楽しみください')
         return redirect('accounts:home')
       except ValidationError as e:
         user_regist_form.add_error('password', e)

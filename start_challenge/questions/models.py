@@ -21,7 +21,7 @@ class QuestionCreateManager(models.Manager):
 class Questions(models.Model):
   title = models.CharField(max_length=255)
   comment = models.TextField()
-  picture = models.FileField(null=True, upload_to='question_picture/', default='question_picture/no_image.jpg')
+  picture = models.FileField(null=True, upload_to='question_picture/', default='question_picture/no_Image.jpg')
   category = models.ManyToManyField(Categories, blank=True)
   user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="questions")
   created_at = models.DateTimeField(default=now)
@@ -45,7 +45,7 @@ class Templates(models.Model):
   
 #　回答テーブル 
 class Answers(models.Model):
-  picture = models.FileField(null=True, upload_to='answer_picture/', default='answer_picture/no_image.jpg')
+  picture = models.FileField(null=True, upload_to='answer_picture/', default='answer_picture/no_Image.jpg')
   comment = models.TextField(null=False)
   user = models.ForeignKey(Users, on_delete=models.CASCADE)
   question = models.ForeignKey(Questions, related_name="answers", on_delete=models.CASCADE)
