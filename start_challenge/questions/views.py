@@ -62,7 +62,7 @@ def question_show(request, pk):
         user.rank += 10
         user.save()
       
-      messages.info(request, '回答しました')
+      messages.info(request, '回答しました。')
       return redirect('questions:question_show', pk=pk)
     else:
       messages.error(request, '回答登録に失敗しました。以下をご確認ください。')

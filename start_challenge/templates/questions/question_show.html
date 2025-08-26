@@ -140,13 +140,13 @@
             </div>
             {% if answer.user == request.user %}
             <div>
-              <button class="btn btn-custom-edit" id="answer-edit-btn" data-answer-id="{{ answer.id }}">編集</button>
-              <button class="btn btn-custom-warning" id="answer-modal-btn" data-bs-toggle="modal" data-bs-target="#deleteAnswerModal">削除</button>
+              <button class="btn btn-custom-edit answer-edit-btn" data-answer-id="{{ answer.id }}">編集</button>
+              <button class="btn btn-custom-warning answer-delete-btn" data-answer-id="{{ answer.id }}" data-bs-toggle="modal" data-bs-target="#deleteAnswerModal">削除</button>
             </div>
             {% endif %}
           </div>
           <!-- 回答 -->
-          <div id="answer-card">
+          <div id="answer-card-{{ answer.id }}">
             <div class="d-flex justify-content-center mb-4 mt-2 mx-4">
               <img src="{{ answer.picture.url }}" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Picture">
             </div>
@@ -158,7 +158,7 @@
             </div>
           </div>
           <!-- 回答編集 -->
-          <div id="answer-editForm-container" style="display: none;">
+          <div id="answer-editForm-container-{{ answer.id }}" style="display: none;">
             <div class="row justify-content-center m-3">
               <form method="POST" id="answerEditForm" class="my-4 mx-4" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -169,12 +169,12 @@
                   <p style="color: red;">{{ error }}</p>
                   {% endfor %}
                   {% if answer_edit.name == 'comment' %}
-                  <textarea id="answerComment" name="comment" rows="20" class="form-control"></textarea>
+                  <textarea id="answerComment-{{ answer.id }}" name="comment" rows="20" class="form-control" value=""></textarea>
                   {% else %}
                   <input type="file" name="picture">
                   <p class="small">
                     現在の画像：
-                    <img src="" id="answerPicture" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Edit Picture">
+                    <img src="" id="answerPicture-{{ answer.id }}" class="img-fluid align-items-center" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Answers Edit Picture">
                   </p>
                   {% endif %}
                 </div>
@@ -198,7 +198,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
-                <form method="POST" action="{% url 'questions:answer_delete' answer.id %}">
+                <form method="POST" id="answerDeleteForm">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-danger">はい</button>
                 </form>

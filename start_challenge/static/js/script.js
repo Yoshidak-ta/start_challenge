@@ -201,37 +201,54 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // 回答編集・削除
 document.addEventListener('DOMContentLoaded', function () {
-  const answerEditButton = document.getElementById("answer-edit-btn");
-  const answerCard = document.getElementById('answer-card');
+  const answerDeleteForm = document.getElementById('answerDeleteForm');
 
   // 編集
-  answerEditButton.addEventListener('click', function () {
-    const answerId = this.dataset.answerId;
-    console.log('取得回答ID：', answerId);
+  const answerEditButton = document.querySelectorAll('.answer-edit-btn');
+    answerEditButton.forEach(button => {
+      button.addEventListener('click', function () {
+        const answerId = this.getAttribute('data-answer-id');
+        console.log('取得回答ID：', answerId);
 
-    // 編集フォーム表示
-    const answerEditFormContainer = document.getElementById("answer-editForm-container");
-    if (answerEditFormContainer.style.display === 'none' || answerEditFormContainer.style.display === '') {
-      answerEditFormContainer.style.display = 'block';
-      answerCard.style.display = 'none';
-      answerEditButton.textContent = '戻る';
+        // 編集フォーム表示
+        const answerCard = document.getElementById(`answer-card-${answerId}`);
+        const answerEditFormContainer = document.getElementById(`answer-editForm-container-${answerId}`);
+        if (answerEditFormContainer.style.display === 'none' || answerEditFormContainer.style.display === '') {
+          answerEditFormContainer.style.display = 'block';
+          answerCard.style.display = 'none';
+          button.textContent = '戻る';
 
-      const answerEditForm = document.getElementById('answerEditForm')
-      answerEditForm.action = `/questions/answer_edit/${answerId}`;
+          const answerEditForm = document.querySelectorAll('#answerEditForm');
+            answerEditForm.forEach(edit => {
+              edit.action = `/questions/answer_edit/${answerId}`;
+            })
+          
+          fetch(`/questions/get_answer_data/${answerId}`)
+            .then(response => response.json())
+            .then(data => {
+              console.log('取得データ：', data);
+              document.getElementById(`answerComment-${answerId}`).value = data.comment;
+              if (data.picture) {
+                document.getElementById(`answerPicture-${answerId}`).src = data.picture;
+              }
+            });
+        } else {
+          answerEditFormContainer.style.display = 'none';
+          answerCard.style.display = 'block';
+          button.textContent = '編集';
+        }
+      });
+    });
 
-      fetch(`/questions/get_answer_data/${answerId}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('answerComment').value = data.comment;
-            if (data.picture) {
-              document.getElementById('answerPicture').src = data.picture;
-            }
-        });
-    } else {
-      answerEditFormContainer.style.display = 'none';
-      answerCard.style.display = 'block';
-      answerEditButton.textContent = '編集';
-    }
+  // 削除
+  const answerDeleteButton = document.querySelectorAll('.answer-delete-btn');
+  answerDeleteButton.forEach(button => {
+    button.addEventListener('click', function () {
+      const answerId = this.getAttribute('data-answer-id');
+      console.log('取得回答ID：', answerId);
+
+      answerDeleteForm.action = `/questions/answer_delete/${answerId}`;
+    });
   });
 });
 
@@ -404,7 +421,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const chatgroupEditUserDisplay = document.getElementById('editGroupUsersDisplay')
   const chatgroupEditUserInput = document.getElementById('chatgroupEditSelectedUsers')
   const pageErrorContainer = document.getElementById('chatgroupEditFormErrors');
-  const pageSuccessContainer = document.getElementById('FormSuccess');
 
   document.querySelectorAll('.edit-chatgroup-btn').forEach((button) => {
     button.addEventListener('click', function () {
