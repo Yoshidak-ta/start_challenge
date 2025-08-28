@@ -27,6 +27,18 @@ class ToDoListForm(forms.ModelForm):
     if self.instance and self.instance.pk:
       self.fields['due_date'].initial = self.instance.due_date.strftime('%Y-%m-%d')
 
+# Todo編集フォーム
+class ToDoEditForm(forms.ModelForm):
+
+  class Meta():
+    model = ToDos
+    fields = ['task', 'due_date', 'priority']
+    labels = {
+      'task': 'タスク',
+      'due_date': '期限',
+      'priority': '優先度',
+    }
+
 # スケジュール登録フォーム
 class ScheduleRegistForm(forms.ModelForm):
   start_at = forms.DateTimeField(

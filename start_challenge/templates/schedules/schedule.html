@@ -24,7 +24,7 @@
   <div class="row justify-content-center">
     <div class="col-xl-3 col-lg-4 col-md-12">
       <!-- ToDoリスト -->
-      <div class="d-flex flex-column overflow-auto border p-3 mt-3 mb-3" style="height: 450px;">
+      <div class="d-flex flex-column overflow-auto border p-3 mt-3" style="height: 450px;">
         <div class="d-flex justify-content-between header top-0 border-bottom">
           <h5>ToDoリスト</h5>
           <a href="#" class="btn btn-primary" style="height: 30px; font-size: small;" data-bs-toggle="modal" data-bs-target="#compTodoTaskModal">完了済みタスク</a>
@@ -71,22 +71,126 @@
           {% if todo.priority == 1 %}
           <li class="list-group-item priority-high">
             <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
-            {{ todo.task }}(期限:{{ todo.due_date }})
+            <a href="#" class="todo-edit-link" data-todo-id="{{ todo.id }}" data-bs-toggle="modal" data-bs-target="#TodoEditModal">{{ todo.task }}(期限:{{ todo.due_date }})</a>
           </li>
           {% elif todo.priority == 2 %}
           <li class="list-group-item priority-middle">
             <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
-            {{ todo.task }}(期限:{{ todo.due_date }})
+            <a href="#" class="todo-edit-link" data-todo-id="{{ todo.id }}" data-bs-toggle="modal" data-bs-target="#TodoEditModal">{{ todo.task }}(期限:{{ todo.due_date }})</a>
           </li>
           {% else %}
           <li class="list-group-item">
             <input type="checkbox" class="todo-checkbox me-2" data-todo-id="{{ todo.id }}">
-            {{ todo.task }}(期限:{{ todo.due_date }})
+            <a href="#" class="todo-edit-link" data-todo-id="{{ todo.id }}" data-bs-toggle="modal" data-bs-target="#TodoEditModal">{{ todo.task }}(期限:{{ todo.due_date }})</a>
           </li>
           {% endif %}
           {% endif %}
         {% endfor %}
         </ul>
+      </div>
+      <!-- Todo編集モーダル -->
+      <div class="modal fade" id="TodoEditModal" tabindex="-1" aria-labelledby="TodoEditModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="TodoEditModalLabel">タスク編集</h5>
+            </div>
+            <div class="modal-body">
+              <div id="todoEditFormErrors"></div>
+              <div class="row justify-content-center">
+                <div class="col">
+                  <form id="todoEditForm" method="POST">
+                  {% csrf_token %}
+                    {% for edit in todo_edit_form %}
+                    <!-- 優先度 -->
+                    {% if edit.name == 'priority' %}
+                    <div class="form-group mb-3">
+                      <h5>{{ edit.label }}</h5>
+                      {% for error in edit.errors %}
+                      <p style="color: red;">{{ error }}</p>
+                      {% endfor %}
+                      <div style="display: inline-flex; flex-direction: column;">
+                        <label><input type="radio" id="todoPriority-high" value="1" name="priority">高</label>
+                        <label><input type="radio" id="todoPriority-mid" value="2" name="priority">中</label>
+                        <label><input type="radio" id="todoPriority-low" value="3" name="priority">低</label>
+                      </div>
+                    </div>
+                    <!-- タスク -->
+                    {% elif edit.name == 'task' %}
+                    <div class="form-group mb-3">
+                      <h5>{{ edit.label }}</h5>
+                      {% for error in edit.errors %}
+                      <p style="color: red;">{{ error }}</p>
+                      {% endfor %}
+                      <textarea id="todoTask" name="task" cols="1" rows="1" class="form-control" value=""></textarea>
+                    </div>
+                    <!-- 期限 -->
+                    {% else %}
+                    <div class="form-group mb-3">
+                      <h5>{{ edit.label }}</h5>
+                      {% for error in edit.errors %}
+                      <p style="color: red;">{{ error }}</p>
+                      {% endfor %}
+                      <input type="date" id="todoDueDate" class="form-control" name="{{ edit.name }}" value="">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="form-group d-flex justify-content-center my-4">
+                      <input class="btn btn-primary w-50" type="submit" value="更新">
+                    </div>
+                  </form>
+                  <div class="form-group d-flex justify-content-center my-4">
+                    <a href="#" class="btn btn-danger w-50 todo-delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTodoModal">削除</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Todo削除モーダル -->
+      <div class="modal fade" id="deleteTodoModal" tabindex="-1" aria-labelledby="deleteTodoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteTodoModalLabel">削除確認</h5>
+            </div>
+            <div class="modal-body">
+              本当に削除しますか？
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+              <form id="todoDeleteForm" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">はい</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-end">
+        <a href="#" class="text-end" data-bs-toggle="modal" data-bs-target="#taskEditModal">※タスクの編集について</a>
+      </div>
+      <!-- タスク編集説明モーダル -->
+      <div class="modal fade" id="taskEditModal" tabindex="-1" aria-labelledby="taskEditModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">タスク編集方法</h5>
+            </div>
+            <div class="modal-body">
+              <div class="row justify-content-center">
+                <h6>各タスクをクリックすると編集フォームに遷移します。</br>
+                  変更箇所を修正して更新ボタンを押下するとタスクが編集されます。</br>
+                  また、編集フォームから削除も実施できます。
+                </h6>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
       </div>
       <p class="p-2 btn-custom-edit" type="button" data-bs-toggle="modal" data-bs-target="#addTodoModal">＋タスクを追加</p>
     </div>
@@ -239,6 +343,28 @@
                         <input type="submit" class="btn btn-primary w-50" value="更新"></button>
                       </div>
                     </form>
+                    <div class="form-group d-flex justify-content-center my-4">
+                      <a href="#" class="btn btn-danger w-50 objective-delete-btn" data-bs-toggle="modal" data-bs-target="#deleteObjectiveModal">削除</a>
+                    </div>
+                    <div class="modal fade" id="deleteObjectiveModal" tabindex="-1" aria-labelledby="deleteObjectiveModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="deleteObjectiveModalLabel">削除確認</h5>
+                          </div>
+                          <div class="modal-body">
+                            本当に削除しますか？
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                            <form id="objectiveDeleteForm" method="POST">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-danger">はい</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1286,7 +1286,6 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('ToDo読み込み完了')
 
     const pageErrorContainer = document.getElementById('todoFormErrors');
-    const pageSuccessContainer = document.getElementById('FormSuccess');
     pageErrorContainer.innerHTML = '';
 
     e.preventDefault();
@@ -1390,6 +1389,104 @@ document.addEventListener('DOMContentLoaded', () => {
       if (this.checked) {
        completeTodo(this.dataset.todoId, this.closest('.list-group-item'));
       }
+    });
+  });
+});
+
+// Todo編集・削除
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('Todo編集機能読み込み完了');
+  const pageErrorContainer = document.getElementById('todoEditFormErrors');
+  const editForm = document.getElementById('todoEditForm');
+
+  document.querySelectorAll('.todo-edit-link').forEach((link) => {
+    link.addEventListener('click', function () {
+      pageErrorContainer.innerHTML = '';
+      let todoPk = this.getAttribute('data-todo-id');
+      console.log('編集対象：', todoPk);
+
+      editForm.action = `/schedules/todo_edit/${todoPk}`;
+
+      fetch(`/schedules/get_todo_task/${todoPk}`)
+        .then(response => {
+          if(!response.ok) throw new Error('データ取得失敗');
+          return response.json();
+        })
+        .then(data => {
+          console.log('取得データ：', data)
+          document.getElementById('todoTask').value = data.task;
+          document.getElementById('todoDueDate').value = data.due_date;
+          if (data.priority === 1) {
+            document.getElementById('todoPriority-high').checked = true;
+          } else if (data.priority === 2) {
+            document.getElementById('todoPriority-mid').checked = true;
+          } else if (data.priority === 3) {
+            document.getElementById('todoPriority-low').checked = true;
+          }
+        })
+        .catch(error => {
+          console.log('エラー：', error);
+        });
+      
+      editForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        pageErrorContainer.innerHTML = '';
+
+        const formData = new FormData(editForm);
+          
+        fetch(editForm.action, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.success) {
+            // モーダル閉じる
+            const modal = bootstrap.Modal.getInstance(document.getElementById('TodoEditModal'));
+            modal.hide();
+
+            location.reload();
+
+          } else {
+
+            // エラーメッセージ表示
+            pageErrorContainer.innerHTML  = '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'alert alert-danger';
+
+            const title = document.createElement('div');
+            title.textContent = 'todo編集に失敗しました。以下をご確認ください。';
+            wrapper.appendChild(title);
+
+            for (const label in data.errors) {
+              data.errors[label].forEach(errorMsg => {
+                const errorLine = document.createElement('li');
+                errorLine.textContent = `${label}: ${errorMsg}`;
+                wrapper.appendChild(errorLine);
+              });
+            }
+
+            pageErrorContainer.appendChild(wrapper);
+          }
+        })
+        .catch(err => {
+          console.log('通信エラー：', err);
+        });
+      });
+      
+      // 削除
+      const todoDeleteForm = document.getElementById('todoDeleteForm');
+      const todoDeleteButton = document.querySelectorAll('.todo-delete-btn');
+      todoDeleteButton.forEach(button => {
+        button.addEventListener('click', function () {
+          console.log('取得したPK', todoPk);
+          todoDeleteForm.action = `/schedules/todo_delete/${todoPk}`;
+        });
+      });
     });
   });
 });
@@ -1569,6 +1666,16 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(err => {
           console.log('通信エラー：', err);
+        });
+      });
+
+      // 削除
+      const objectiveDeleteForm = document.getElementById('objectiveDeleteForm');
+      const objectiveDeleteButton = document.querySelectorAll('.objective-delete-btn');
+      objectiveDeleteButton.forEach(button => {
+        button.addEventListener('click', function () {
+          console.log('取得したPK', objectivePk);
+          objectiveDeleteForm.action = `/schedules/objective_delete/${objectivePk}`;
         });
       });
     });

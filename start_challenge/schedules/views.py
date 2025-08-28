@@ -20,6 +20,7 @@ def schedule(request, year=None, month=None):
   todos = ToDos.objects.filter(user=request.user)
 
   todo_list_form = forms.ToDoListForm()
+  todo_edit_form = forms.ToDoEditForm()
   user = Users.objects.get(pk=request.user.id)
   objective = user.objective
   objective_due_date = user.objective_due_date
@@ -61,6 +62,7 @@ def schedule(request, year=None, month=None):
     'schedules':schedules, 
     'todos':todos,
     'todo_list_form':todo_list_form,
+    'todo_edit_form':todo_edit_form,
     'objective':objective,
     'objective_due_date':objective_due_date,
     'objective_regist_form':objective_regist_form,
@@ -152,6 +154,44 @@ def add_todo(request, year=None, month=None):
   else:
     return redirect(request, 'schedules:schedule', year=year, month=month)
 
+# Todoタスク編集
+@login_required
+def todo_edit(request, pk):
+  todo = get_object_or_404(ToDos, pk=pk)
+  if request.method == 'POST':
+    todo_edit_form = forms.ToDoEditForm(request.POST, instance=todo)
+    if todo_edit_form.is_valid():
+      todo = todo_edit_form.save(commit=False)
+      todo.user = request.user
+      todo.save()
+      messages.info(request, 'todoタスクが編集されました。')
+      return JsonResponse({
+        'success':True,
+        'task':todo.task,
+        'due_date':todo.due_date.strftime('%Y-%m-%d'),
+        'priority':todo.get_priority_display(),
+        'todo_id':todo.id
+      })
+    else:
+      return JsonResponse({
+        'success':False,
+        'errors': {
+          todo_edit_form.fields[field].label: [str(error) for error in errors]
+          for field, errors in todo_edit_form.errors.items()
+        }
+      })
+
+# Todoタスク削除
+@login_required
+def todo_delete(request, pk):
+  year = datetime.now().year
+  month = datetime.now().month
+
+  todo = get_object_or_404(ToDos, pk=pk)
+  todo.delete()
+  messages.info(request, 'todoタスクが削除されました')
+  return redirect('schedules:schedule', year=year, month=month)
+
 # ToDoリストタスク達成
 @login_required
 @csrf_exempt
@@ -173,6 +213,15 @@ def complete_todo(request, year, month, todo_id):
     return JsonResponse({'success':True})
   return JsonResponse({'success':False, 'error':'Invalid request.'}, status=400)
 
+# Todoタスクデータ取得
+def get_todo_task(request, pk):
+  todo = get_object_or_404(ToDos, pk=pk)
+  return JsonResponse({
+    'task': todo.task,
+    'due_date': todo.due_date,
+    'priority': todo.priority,
+  })
+  
 # スケジュール登録
 @login_required
 def schedule_regist(request):
@@ -374,3 +423,16 @@ def objective_goal(request, pk):
     user.save()
     messages.info(request, '目標を達成しました')
     return redirect('schedules:schedule', year=year, month=month)
+
+# 目標削除
+@login_required
+def objective_delete(request, pk):
+  year = datetime.now().year
+  month = datetime.now().month
+  
+  user = get_object_or_404(Users, pk=pk)
+  user.objective = None
+  user.objective_due_date = None
+  user.save()
+  messages.info(request, '目標が削除されました')
+  return redirect('schedules:schedule', year=year, month=month)
