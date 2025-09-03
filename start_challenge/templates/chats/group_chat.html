@@ -267,8 +267,8 @@
     </div>
     <div class="col-xl-9 col-lg-8 col-md-12">
       <div id="chat-container">
-        <div class="border py-2 px-3 mt-2 d-flex justify-content-between">
-          <div class="d-flex justify-content-first">
+        <div class="border py-2 px-3 mt-2 d-flex justify-content-between chatbox-header">
+          <div class="d-flex justify-content-firstr">
             <h5 class="my-auto text-limit" style="max-width: 600px;">{{ group.groupname }}</h5>
             {% for group_user in group.user.all %}
             <img class="profile-icon rounded-circle mx-1 my-auto" id="profile-icon" src="{{ group_user.picture.url }}" alt="Profile Icon" title="{{ group_user.username }}" style="width: 30px; height: 30px; object-fit: cover;">
@@ -397,7 +397,7 @@
             </div>
           </div>
         </div>
-        <div id="messages" class="overflow-auto border p-3 mb-3" style="height: 450px;">
+        <div id="messages" class="overflow-auto border p-3 mb-3 chatbox" style="height: 450px;">
           {% for chat in chats %}
           {% if chat.user.id == request.user.id %}
           <div class="message d-flex justify-content-end mb-3">
@@ -408,7 +408,7 @@
                 {% endif %}
                 {% if chat.message %}
                 <div class="d-flex justify-content-end">
-                  <p class="chat-messages text-start mt-2 mb-0 p-2">{{ chat.message }}</p>
+                  <p class="chat-messages text-start mt-2 mb-0 p-2" style="background-color: white;">{{ chat.message }}</p>
                 </div>
                 {% endif %}
                 <small class="text-muted text-end">{{ chat.created_at }}</small>
@@ -420,7 +420,7 @@
             </div>
           </div>
           {% else %}
-          <div class="message mb-3">
+          <div class="message">
             <div class="d-flex flex-row">
               <div class="d-flex flex-column pe-3">
                 <img class="profile-icon rounded-circle" id="profile-icon" src="{{ chat.user.picture.url }}" alt="Profile Icon" style="width: 30px; height: 30px; object-fit: cover;">
@@ -432,7 +432,7 @@
                 {% endif %}
                 {% if chat.message %}
                 <div classS="d-flex justify-content-start">
-                  <p class="chat-messages text-start mt-2 mb-0 p-2">{{ chat.message }}</p>
+                  <p class="chat-messages text-start mt-2 mb-0 p-2" style="background-color: white;">{{ chat.message }}</p>
                 </div>
                 {% endif %}
                 <small class="text-muted text-end">{{ chat.created_at }}</small>
@@ -442,8 +442,8 @@
           {% endif %}
           {% endfor %}
         </div>
-        <div class="card chatbox px-3 align-items-center">
-          <form id="chat-form" method="POST" enctype="multipart/form-data" class="mt-3" style="width: 85%;" action="{% url 'chats:send_message' %}">
+        <div class="card px-3 mt-3 align-items-center">
+          <form id="chat-form" method="POST" enctype="multipart/form-data" class="mt-3" style="width: 100%;" action="{% url 'chats:send_message' %}">
             {% csrf_token %}
             {% for form in chat_form %}
               {% if form.name == 'message' %}

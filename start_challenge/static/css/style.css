@@ -110,9 +110,12 @@ td {
   box-sizing: border-box;
 }
 
+.chatbox-header {
+  background-color: #FFFF99;
+}
+
 .chatbox {
-  border-radius: 9999px;
-  padding: 0 30px;
+  background-color: #FFFFCC;
 }
 
 .sunday {
