@@ -111,11 +111,15 @@ td {
 }
 
 .chatbox-header {
-  background-color: #FFFF99;
+  background-color: #136FFF;
 }
 
 .chatbox {
-  background-color: #FFFFCC;
+  background-color: #D7EEFF;
+}
+
+.chat-title {
+  color: white;
 }
 
 .sunday {
