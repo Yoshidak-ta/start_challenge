@@ -269,7 +269,7 @@
       <div id="chat-container">
         <div class="border py-2 px-3 mt-2 d-flex justify-content-between chatbox-header">
           <div class="d-flex justify-content-firstr">
-            <h5 class="my-auto text-limit chat-title" style="max-width: 600px;">{{ group.groupname }}</h5>
+            <h5 class="my-auto text-limit" style="max-width: 600px;">{{ group.groupname }}</h5>
             {% for group_user in group.user.all %}
             <img class="profile-icon rounded-circle mx-1 my-auto" id="profile-icon" src="{{ group_user.picture.url }}" alt="Profile Icon" title="{{ group_user.username }}" style="width: 30px; height: 30px; object-fit: cover;">
             {% endfor %}
