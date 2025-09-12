@@ -111,7 +111,7 @@ td {
 }
 
 .chatbox-header {
-  background-color: #6495ED;
+  background-color: #99CCFF;
 }
 
 .chatbox {
@@ -297,4 +297,5 @@ td {
   #messages {
     height: 300px;
   }
+
 }
