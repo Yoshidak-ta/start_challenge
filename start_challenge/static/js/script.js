@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (Notification.permission === 'granted' && localStorage.getItem(NOTIFICATION_KEY) === 'true') {
     disableBtn.style.display = 'block';
     enableModalBtn.style.display = 'none';
-    console.log('通知前準備')
     fetch('/accounts/user/notification_data')
       .then(response => {
         if (!response.ok) {
@@ -85,33 +84,36 @@ document.addEventListener('DOMContentLoaded', function () {
             obj_message = '';
           }
 
-          // 通知：スケジュール(5秒後)
-          setTimeout(() => {
-            new Notification('本日の予定', {
-              body: '本日の予定：' + sch_message,
-              icon: '/static/generals/notification-icon.png'
-            });
-          }, 5000);
-
-          // 通知：タスク
-          if (tsk_message != '' && tsk_tdy_message != '') {
+          // 当日1回のみ通知
+          if (data.is_first_login_today) {
+            // 通知：スケジュール(5秒後)
             setTimeout(() => {
-              new Notification('残りのタスク', {
-                body: tsk_message + tsk_tdy_message + 'タスクを倒してランクアップしよう!!',
+              new Notification('本日の予定', {
+                body: '本日の予定：' + sch_message,
                 icon: '/static/generals/notification-icon.png'
               });
-            }, 6000);
-          };
+            }, 5000);
 
-          // 通知：目標
-          if (obj_message != '') {
-            setTimeout(() => {
-              new Notification('目標カウントダウン', {
-                body: obj_message,
-                icon: '/static/generals/notification-icon.png'
-              });
-            }, 7000);
-          };
+            // 通知：タスク
+            if (tsk_message != '' && tsk_tdy_message != '') {
+              setTimeout(() => {
+                new Notification('残りのタスク', {
+                  body: tsk_message + tsk_tdy_message + 'タスクを倒してランクアップしよう!!',
+                  icon: '/static/generals/notification-icon.png'
+                });
+              }, 6000);
+            };
+
+            // 通知：目標
+            if (obj_message != '') {
+              setTimeout(() => {
+                new Notification('目標カウントダウン', {
+                  body: obj_message,
+                  icon: '/static/generals/notification-icon.png'
+                });
+              }, 7000);
+            };
+          }
 
           console.log('これからnotificationを変更していく')
           // notificationをFalseにする

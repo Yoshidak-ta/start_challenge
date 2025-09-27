@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from datetime import timedelta
 from django.utils.timezone import now
+from django.utils.dateparse import parse_datetime
 from questions.models import Questions, Answers
 from schedules.models import Schedules, ToDos
 from chats.models import ChatsGroup
@@ -89,6 +90,8 @@ def user_login(request):
     password = login_form.cleaned_data.get('password')
     user = authenticate(email=email, password=password)
     if user:
+      if user.last_login:
+        request.session['prev_last_login'] = str(user.last_login)
       login(request, user)
       user.notification_sent = True
       user.save()
@@ -106,6 +109,7 @@ def user_login(request):
 @login_required
 def notification_data(request):
   user = request.user
+  prev_last_login = request.session.get('prev_last_login')
   today = now() + timedelta(hours=9)
   today = today.date()
   sub_today = now() + timedelta(hours=9)
@@ -119,7 +123,6 @@ def notification_data(request):
     sub_end = schedule.end_at + timedelta(hours=9)
     start = sub_start.date()
     end = sub_end.date()
-    print(start, end)
     if start <= sub_today and end >= sub_today:
       task = schedule.task
       target_schedules.append(task)
@@ -133,6 +136,13 @@ def notification_data(request):
     objective_date = user.objective_due_date + timedelta(hours=9)
     objective_date = objective_date.date()
     due_days = (objective_date - today).days
+  
+  # 初回ログイン判定
+  is_first_login_today = False
+  if prev_last_login:
+    prev_date = (parse_datetime(prev_last_login) + timedelta(hours=9)).date()
+    if prev_date < today:
+      is_first_login_today = True
 
   data = {
     'schedules': target_schedules,
@@ -140,6 +150,7 @@ def notification_data(request):
     'tasks': tasks,
     'due_days': due_days,
     'notification': notification,
+    'is_first_login_today': is_first_login_today,
   }
   return JsonResponse(data)
 

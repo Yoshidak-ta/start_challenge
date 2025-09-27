@@ -10,7 +10,6 @@ class AutoLogout:
     self.get_response = get_response
 
   def __call__(self, request):
-    print('強制ログアウト処理が呼ばれました！')
     if request.user.is_authenticated:
       now = datetime.datetime.now().timestamp()
       last_activity = request.session.get('last_activity')
