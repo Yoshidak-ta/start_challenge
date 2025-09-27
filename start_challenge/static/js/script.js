@@ -166,6 +166,9 @@ document.addEventListener('DOMContentLoaded', function () {
     localStorage.removeItem(NOTIFICATION_KEY);
     enableModalBtn.style.display = 'block';
     disableBtn.style.display = 'none';
+
+    // ページリロード
+    location.reload();
   });
 });
 
