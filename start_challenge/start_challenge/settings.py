@@ -52,8 +52,18 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "start_challenge.middleware.auto_logout.AutoLogout",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_SAVE_EVERY_REQUEST = True
+AUTO_LOGOUT_DELAY = 3600
+AUTO_LOGOUT_REDIRECT = '/accounts/user_login'
+
+LOGIN_URL = '/accounts/user_login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/user_login'
 
 ROOT_URLCONF = "start_challenge.urls"
 
