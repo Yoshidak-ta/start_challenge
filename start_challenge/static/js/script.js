@@ -149,6 +149,16 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('通知が拒否されました');
       }
     });
+
+    console.log('通知登録完了：', Notification.permission)
+
+    // 通知登録メッセージ
+    setTimeout(() => {
+      new Notification('通知登録完了', {
+        body: '通知設定が完了しました！引き続きスタチャレをお楽しみください！！',
+        icon: '/static/generals/notification-icon.png'
+      });
+    }, 5000);
   });
 
   // 通知無効化
