@@ -6,8 +6,8 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from datetime import timedelta
-from django.utils.timezone import now
+from datetime import timedelta, datetime, time
+from django.utils.timezone import now, make_aware
 from django.utils.dateparse import parse_datetime
 from questions.models import Questions, Answers
 from schedules.models import Schedules, ToDos
@@ -139,9 +139,13 @@ def notification_data(request):
   
   # 初回ログイン判定
   is_first_login_today = False
+  reset_time_naive = datetime.combine(today, time(9, 0))
+  reset_time = make_aware(reset_time_naive)
+
   if prev_last_login:
-    prev_date = (parse_datetime(prev_last_login) + timedelta(hours=9)).date()
-    if prev_date < today:
+    prev_date = (parse_datetime(prev_last_login) + timedelta(hours=9))
+
+    if prev_date < reset_time < now() + timedelta(hours=9):
       is_first_login_today = True
 
   data = {
