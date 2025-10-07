@@ -13,6 +13,9 @@
     <script src="{% static 'js/script.js' %}" defer></script>
   </head>
   <body>
+    <script>
+      window.showNotification = "{{ show_notification|yesno:'true,false' }}";
+    </script>
     <form method="post">
       {% csrf_token %}
     </form>

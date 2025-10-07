@@ -3,7 +3,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.shortcuts import redirect
-from django.urls import reverse
 
 class AutoLogout:
   def __init__(self, get_response):

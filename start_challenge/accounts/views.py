@@ -90,10 +90,7 @@ def user_login(request):
     password = login_form.cleaned_data.get('password')
     user = authenticate(email=email, password=password)
     if user:
-      if user.last_login:
-        request.session['prev_last_login'] = str(user.last_login)
       login(request, user)
-      user.notification_sent = True
       user.save()
       messages.info(request, 'ログインしました')
       return redirect('accounts:home')
@@ -109,7 +106,6 @@ def user_login(request):
 @login_required
 def notification_data(request):
   user = request.user
-  prev_last_login = request.session.get('prev_last_login')
   today = now() + timedelta(hours=9)
   today = today.date()
   sub_today = now() + timedelta(hours=9)
@@ -129,32 +125,18 @@ def notification_data(request):
 
   tasks_today = ToDos.objects.filter(user=user, due_date=sub_today, is_completed=0).count()
   tasks = ToDos.objects.filter(user=user, is_completed=0).count()
-  notification = user.notification_sent
 
   due_days = None
   if user.objective_due_date:
     objective_date = user.objective_due_date + timedelta(hours=9)
     objective_date = objective_date.date()
     due_days = (objective_date - today).days
-  
-  # 初回ログイン判定
-  is_first_login_today = False
-  reset_time_naive = datetime.combine(today, time(9, 0))
-  reset_time = make_aware(reset_time_naive)
-
-  if prev_last_login:
-    prev_date = (parse_datetime(prev_last_login) + timedelta(hours=9))
-
-    if prev_date < reset_time < now() + timedelta(hours=9):
-      is_first_login_today = True
 
   data = {
     'schedules': target_schedules,
     'tasks_today': tasks_today,
     'tasks': tasks,
     'due_days': due_days,
-    'notification': notification,
-    'is_first_login_today': is_first_login_today,
   }
   return JsonResponse(data)
 
@@ -321,13 +303,22 @@ def user_show(request, pk):
 
 logger = logging.getLogger(__name__)
 
-# 通知フラグ
-@csrf_exempt
+# 最終アクセス時刻更新
 @login_required
-def mark_notification_sent(request):
-  if request.method == "POST":
-    user = request.user
-    user.notification_sent = False
-    user.save()
-    return JsonResponse({"status": "ok"})
-  return JsonResponse({"status": "error"}, status=400)
+def update_last_access(request):
+  user = request.user
+  if request.method == 'POST':
+    timestamp = request.POST.get('timestamp')
+    print('タイムスタンプ：', timestamp)
+    if timestamp:
+      try:
+        print('処理開始')
+        user.last_notificated = timestamp
+        print('データ格納：', user.last_notificated)
+        request.user.save()
+        return JsonResponse({'status': 'success'})
+      except Exception as e:
+        print('エラー：', e)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+  
+  return JsonResponse({'status': 'unauthorized'}, status=401)

@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // 通知ボタンの表示切替
   console.log(Notification.permission);
   if (Notification.permission === 'granted' && localStorage.getItem(NOTIFICATION_KEY) === 'true') {
+    console.log('通知開始')
     disableBtn.style.display = 'block';
     enableModalBtn.style.display = 'none';
     fetch('/accounts/user/notification_data')
@@ -46,8 +47,12 @@ document.addEventListener('DOMContentLoaded', function () {
         return response.json();
       })
       .then(data => {
-        if (data.notification) {
-          console.log('通知準備')
+        console.log('通知準備')
+
+        // 当日1回のみ通知
+        console.log('グローバル関数の値：', window.showNotification)
+        if (window.showNotification == 'true') {
+          console.log('通知処理開始します')
           // スケジュールメッセージ
           let sch_message = '';
           if (data.schedules.length > 0) {
@@ -84,44 +89,54 @@ document.addEventListener('DOMContentLoaded', function () {
             obj_message = '';
           }
 
-          // 当日1回のみ通知
-          if (data.is_first_login_today) {
-            // 通知：スケジュール(5秒後)
+          // 通知：スケジュール(5秒後)
+          setTimeout(() => {
+            new Notification('本日の予定', {
+              body: '本日の予定：' + sch_message,
+              icon: '/static/generals/notification-icon.png'
+            });
+          }, 5000);
+
+          // 通知：タスク
+          if (tsk_message != '' && tsk_tdy_message != '') {
             setTimeout(() => {
-              new Notification('本日の予定', {
-                body: '本日の予定：' + sch_message,
+              new Notification('残りのタスク', {
+                body: tsk_message + tsk_tdy_message + 'タスクを倒してランクアップしよう!!',
                 icon: '/static/generals/notification-icon.png'
               });
-            }, 5000);
+            }, 6000);
+          };
 
-            // 通知：タスク
-            if (tsk_message != '' && tsk_tdy_message != '') {
-              setTimeout(() => {
-                new Notification('残りのタスク', {
-                  body: tsk_message + tsk_tdy_message + 'タスクを倒してランクアップしよう!!',
-                  icon: '/static/generals/notification-icon.png'
-                });
-              }, 6000);
-            };
+          // 通知：目標
+          if (obj_message != '') {
+            setTimeout(() => {
+              new Notification('目標カウントダウン', {
+                body: obj_message,
+                icon: '/static/generals/notification-icon.png'
+              });
+            }, 7000);
+          };
 
-            // 通知：目標
-            if (obj_message != '') {
-              setTimeout(() => {
-                new Notification('目標カウントダウン', {
-                  body: obj_message,
-                  icon: '/static/generals/notification-icon.png'
-                });
-              }, 7000);
-            };
-          }
-
-          console.log('これからnotificationを変更していく')
-          // notificationをFalseにする
-          fetch('/accounts/user/mark_notification_sent', {
+          // 通知時刻記録
+          const now = new Date();
+          const formatted = now.toISOString().replace('Z', '+00:00');
+          console.log('最新時刻', formatted)
+          fetch('/accounts/user/update_last_access', {
             method: 'POST',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') },
-          }).then(res => {
-            if (res.ok) console.log('通知済みとしてマークしました');
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': getCookie('csrftoken') 
+            },
+            body: new URLSearchParams({
+              timestamp: formatted
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('アクセス時刻を更新しました：', data)
+          })
+          .catch(error => {
+            console.log('更新エラー：', error);
           });
         }
       })
@@ -335,7 +350,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const selectedUsersInput = document.getElementById('selectedGroupUsers');
   const confirmUserSelectionButton = document.getElementById('addGroupUsers');
   const pageErrorContainer = document.getElementById('chatgroupFormErrors');
-  const pageSuccessContainer = document.getElementById('FormSuccess');
 
   confirmUserSelectionButton.addEventListener('click', () => {
     console.log("追加（登録）ボタンが押されました");
