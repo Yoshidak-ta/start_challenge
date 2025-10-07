@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
+import tempfile
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,10 +54,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "start_challenge.middleware.auto_logout.AutoLogout",
+    "start_challenge.middleware.access_time.AccessTimeMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_FILE_PATH = tempfile.gettempdir()
 SESSION_SAVE_EVERY_REQUEST = True
 AUTO_LOGOUT_DELAY = 60 * 60 * 24
 AUTO_LOGOUT_REDIRECT = '/accounts/user_login'
@@ -80,6 +83,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "schedules.context_processors.current_date_context",
                 "accounts.context_processors.search_form",
+                "accounts.context_processors.notification_flag",
             ],
         },
     },
