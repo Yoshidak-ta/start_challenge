@@ -61,7 +61,7 @@ MIDDLEWARE = [
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 SESSION_FILE_PATH = tempfile.gettempdir()
 SESSION_SAVE_EVERY_REQUEST = True
-AUTO_LOGOUT_DELAY = 60 * 60 * 24
+AUTO_LOGOUT_DELAY = 60 * 60 * 24 * 7
 AUTO_LOGOUT_REDIRECT = '/accounts/user_login'
 
 LOGIN_URL = '/accounts/user_login'
